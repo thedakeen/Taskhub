@@ -1,10 +1,13 @@
 package main
 
 import (
+	"auth/internal/app"
 	"auth/internal/config"
 	"auth/internal/lib/logger/handlers/slogpretty"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -21,8 +24,24 @@ func main() {
 
 	log.Info("starting application",
 		slog.String("env", cfg.Env),
-		slog.Any("cfg", cfg))
-	//slog.Int("port", 123))
+		slog.Any("cfg", cfg),
+		slog.Int("port", cfg.ServicePort),
+	)
+
+	application := app.New(log, cfg.ServicePort, cfg.PostgresURI, cfg.TokenTTL)
+
+	go application.GRPCSrv.MustRun()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	s := <-quit
+
+	log.Info("stopping application", slog.String("signal", s.String()))
+
+	application.GRPCSrv.Stop()
+
+	log.Info("application stopped")
 
 }
 

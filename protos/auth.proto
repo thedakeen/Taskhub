@@ -18,7 +18,7 @@ message RegisterRequest{
 }
 
 message RegisterResponse{
-  string message = 1; // request to confirm email address
+  int64 userID = 1; // request to confirm email address
 }
 
 message RegisterConfirmRequest{
