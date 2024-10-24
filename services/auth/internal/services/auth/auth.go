@@ -21,7 +21,7 @@ type Auth struct {
 }
 
 type UserSaver interface {
-	SaveUser(ctx context.Context, email string, name string, passHash []byte) (userID int64, err error)
+	SaveUser(ctx context.Context, email string, username string, passHash []byte) (userID int64, err error)
 	ConfirmUser(ctx context.Context, email string, otp string) (success bool, message string, err error)
 }
 

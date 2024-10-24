@@ -1,17 +1,14 @@
 package postgres
 
 import (
+	"auth/internal/repository"
 	"context"
 	"database/sql"
 	"fmt"
 	"time"
 )
 
-type Storage struct {
-	db *sql.DB
-}
-
-func New(storagePath string) (*Storage, error) {
+func New(storagePath string) (*repository.Storage, error) {
 	const op = "internal.storage.postgres.New"
 
 	db, err := sql.Open("postgres", storagePath)
@@ -27,5 +24,5 @@ func New(storagePath string) (*Storage, error) {
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
 
-	return &Storage{db: db}, nil
+	return &repository.Storage{Db: db}, nil
 }
