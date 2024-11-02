@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"auth/internal/config"
 	"crypto/rand"
 	"fmt"
 	"math/big"
@@ -22,11 +23,14 @@ func GenerateRandomCode() (string, error) {
 	return code, nil
 }
 
-func SendEmailWithCod(to, code string) error {
+func SendEmailWithCode(to, code string) error {
 	const op = "repository.helpers.SendEmailWithCode"
 
-	from := "bisembaev.arman@gmail.com"
-	password := "tyik qoai mktu llue"
+	cfg := config.MustLoad()
+
+	from := cfg.EmailSenderAddress
+	password := cfg.EmailSenderPassword
+
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 

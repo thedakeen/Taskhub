@@ -14,29 +14,94 @@ type Storage struct {
 	Db *sql.DB
 }
 
-func (s *Storage) App(ctx context.Context, appID int) (entities.App, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *Storage) DeleteInactiveUsers(ctx context.Context) error {
+	const op = "repository.user.DeleteInactiveUsers"
+	query := `DELETE FROM users WHERE activated = FALSE`
+	_, err := s.Db.ExecContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
 }
 
-func (s *Storage) GetUser(ctx context.Context, email string) (entities.User, error) {
-	//TODO implement me
-	panic("implement me")
+//
+//func (s *Storage) App(ctx context.Context, appID int) (entities.App, error) {
+//	//TODO implement me
+//	panic("implement me")
+//}
+
+func (s *Storage) GetUser(ctx context.Context, email string) (*entities.User, error) {
+	const op = "repository.user.GetUser"
+
+	query, err := s.Db.Prepare("SELECT id, email, username, password_hash FROM users WHERE email = $1")
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	var user entities.User
+
+	err = query.QueryRowContext(ctx, email).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Username,
+		&user.HashedPassword)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, storage.ErrNoRecordFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }
 
 func (s *Storage) SaveUser(ctx context.Context, email string, username string, passHash []byte) (int64, error) {
 	const op = "repository.user.SaveUser"
 
-	// TODO : выдача ОТП
-
 	var id int64
-	query := "INSERT INTO users (email, username, password_hash, activated) VALUES ($1, $2, $3, $4) RETURNING id"
-	err := s.Db.QueryRowContext(ctx, query, email, username, passHash, false).Scan(&id)
+	queryUsers := `INSERT INTO users (email, username, password_hash, activated) VALUES ($1, $2, $3, $4) RETURNING id`
+
+	argsUsers := []any{email, username, passHash, false}
+	err := s.Db.QueryRowContext(ctx, queryUsers, argsUsers...).Scan(&id)
 	if err != nil {
 		var pqErr *pq.Error
 		switch {
 		case errors.As(err, &pqErr) && pqErr.Code == "23505":
-			return 0, fmt.Errorf("%s:%w", op, storage.ErrUserExists)
+			if pqErr.Constraint == "users_email_key" {
+				return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
+			}
+			if pqErr.Constraint == "users_username_key" {
+				return 0, fmt.Errorf("%s: %w", op, storage.ErrUsernameExists)
+			}
+		default:
+			return 0, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	code, err := GenerateRandomCode()
+	if err != nil {
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+	fmt.Println(code)
+
+	err = SendEmailWithCode(email, code)
+	if err != nil {
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+
+	queryOtps := `INSERT INTO otps (email, otp_code) VALUES ($1, $2)`
+
+	argsOtps := []any{email, code}
+	_, err = s.Db.ExecContext(ctx, queryOtps, argsOtps...)
+
+	if err != nil {
+		var pqErr *pq.Error
+		switch {
+		case errors.As(err, &pqErr) && pqErr.Code == "23505":
+			return 0, fmt.Errorf("%s:%w", op, storage.ErrOtpAlreadySent)
 		default:
 			return 0, fmt.Errorf("%s: %w", op, err)
 		}
@@ -45,6 +110,39 @@ func (s *Storage) SaveUser(ctx context.Context, email string, username string, p
 	return id, nil
 }
 
-func (s *Storage) ConfirmUser(ctx context.Context, email string, otp string) (success bool, message string, err error) {
-	panic("implement me")
+func (s *Storage) ConfirmUser(ctx context.Context, email string, otp string) (bool, string, error) {
+	const op = "repository.user.ConfirmUser"
+
+	var isValid bool
+
+	query := `
+        SELECT EXISTS (
+            SELECT 1 FROM otps
+            WHERE email = $1 AND otp_code = $2 AND expires_at > NOW()
+        )
+    `
+
+	args := []any{email, otp}
+	err := s.Db.QueryRowContext(ctx, query, args...).Scan(&isValid)
+	if err != nil {
+		return false, "", fmt.Errorf("%s:%w", op, err)
+	}
+
+	if !isValid {
+		return false, "Invalid or expired OTP, try again later", storage.ErrInvalidOrExpiredOTP
+	}
+
+	queryUsers := `UPDATE users SET activated = TRUE WHERE email= $1`
+	_, err = s.Db.ExecContext(ctx, queryUsers, email)
+	if err != nil {
+		return false, "", fmt.Errorf("%s:%w", op, err)
+	}
+
+	queryOtps := `DELETE FROM otps WHERE email = $1`
+	_, err = s.Db.ExecContext(ctx, queryOtps, email)
+	if err != nil {
+		return false, "", fmt.Errorf("%s:%w", op, err)
+	}
+
+	return true, "Email confirmed successfully", nil
 }

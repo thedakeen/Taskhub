@@ -1,6 +1,6 @@
 CREATE TABLE users(
                           id BIGSERIAL PRIMARY KEY,
-                          username text NOT NULL,
+                          username text UNIQUE NOT NULL,
                           email citext UNIQUE NOT NULL,
                           created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL DEFAULT NOW(),
                           updated_at TIMESTAMP(0) WITH TIME ZONE NOT NULL DEFAULT NOW(),

@@ -4,6 +4,8 @@ import (
 	"auth/internal/app"
 	"auth/internal/config"
 	"auth/internal/lib/logger/handlers/slogpretty"
+	"context"
+	"github.com/robfig/cron/v3"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -31,6 +33,26 @@ func main() {
 	application := app.New(log, cfg.ServicePort, cfg.PostgresURI, cfg.TokenTTL)
 
 	go application.GRPCSrv.MustRun()
+
+	go func() {
+		c := cron.New()
+		defer c.Stop()
+
+		_, err := c.AddFunc("@every 24h", func() {
+			err := application.Storage.DeleteInactiveUsers(context.Background())
+			if err != nil {
+				log.Error("error deleting inactive users", slog.String("error", err.Error()))
+			} else {
+				log.Info("unconfirmed users deleted successfully")
+			}
+		})
+		if err != nil {
+			log.Error("Failed to add cron job", slog.String("error", err.Error()))
+		}
+
+		c.Start()
+		select {}
+	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
