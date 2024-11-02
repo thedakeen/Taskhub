@@ -3,29 +3,39 @@ package config
 import (
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
+	"sync"
 	"time"
 )
 
 type Config struct {
-	Env            string        `env:"ENV" env-default:"dev"`
-	PostgresURI    string        `env:"POSTGRES_URI" env-required:"true"`
-	TokenTTL       time.Duration `env:"TOKEN_TTL" env-required:"true"`
-	ServicePort    int           `env:"AUTH_SERVICE_PORT"`
-	ServiceTimeout time.Duration `env:"AUTH_SERVICE_TIMEOUT"`
+	Env                 string        `env:"ENV" env-default:"dev"`
+	PostgresURI         string        `env:"POSTGRES_URI" env-required:"true"`
+	TokenTTL            time.Duration `env:"TOKEN_TTL" env-required:"true"`
+	ServicePort         int           `env:"AUTH_SERVICE_PORT"`
+	ServiceTimeout      time.Duration `env:"AUTH_SERVICE_TIMEOUT"`
+	JwtSignedString     string        `env:"JWT_SIGNED_STRING"`
+	EmailSenderAddress  string        `env:"EMAIL_SENDER_ADDRESS"`
+	EmailSenderPassword string        `env:"EMAIL_SENDER_PASSWORD"`
 }
 
+var (
+	cfg  *Config
+	once sync.Once
+)
+
 func MustLoad() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		panic("No .env file found")
-	}
+	once.Do(func() {
+		err := godotenv.Load()
+		if err != nil {
+			panic("No .env file found")
+		}
 
-	var cfg Config
+		cfg = &Config{}
+		err = cleanenv.ReadEnv(cfg)
+		if err != nil {
+			panic("failed to read config " + err.Error())
+		}
+	})
 
-	err = cleanenv.ReadEnv(&cfg)
-	if err != nil {
-		panic("failed to read config " + err.Error())
-	}
-
-	return &cfg
+	return cfg
 }

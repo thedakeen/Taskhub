@@ -3,8 +3,10 @@ package storage
 import "errors"
 
 var (
-	ErrUserExists    = errors.New("email already in use")
-	ErrNoRecordFound = errors.New("no record found")
-	ErrAppNotFound   = errors.New("app not found")
-	ErrInvalidOTP    = errors.New("invalid confirmation code")
+	ErrUserExists          = errors.New("email already in use")
+	ErrUsernameExists      = errors.New("username is already taken")
+	ErrNoRecordFound       = errors.New("no record found")
+	ErrAppNotFound         = errors.New("app not found")
+	ErrInvalidOrExpiredOTP = errors.New("invalid confirmation code")
+	ErrOtpAlreadySent      = errors.New("otp is sent already")
 )
