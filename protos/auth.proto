@@ -9,6 +9,9 @@ service Auth{
   rpc RegisterConfirm(RegisterConfirmRequest) returns (RegisterConfirmResponse);
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc IsTokenValid(IsTokenValidRequest) returns (IsTokenValidResponse);
+
+  rpc LinkGithubAccount(LinkGithubRequest) returns (LinkGithubResponse);
+  rpc UnlinkGithubAccount(UnlinkGithubRequest) returns (UnlinkGithubResponse);
 }
 
 message RegisterRequest{
@@ -46,4 +49,22 @@ message IsTokenValidRequest{
 
 message IsTokenValidResponse{
   bool isTokenValid = 1;
+}
+
+////////////////////////////////   Github OAuth   ////////////////////////////////
+
+message LinkGithubRequest{
+  string github_code = 1;
+}
+
+message LinkGithubResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UnlinkGithubRequest {
+}
+
+message UnlinkGithubResponse {
+  bool success = 1;
 }

@@ -9,4 +9,5 @@ var (
 	ErrAppNotFound         = errors.New("app not found")
 	ErrInvalidOrExpiredOTP = errors.New("invalid confirmation code")
 	ErrOtpAlreadySent      = errors.New("otp is sent already")
+	ErrGithubLinked        = errors.New("this github account is already linked")
 )

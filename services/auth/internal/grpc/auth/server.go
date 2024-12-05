@@ -2,35 +2,93 @@ package auth
 
 import (
 	authv1 "auth/gen/auth"
+	"auth/internal/config"
 	"auth/internal/grpc/structs"
 	"auth/internal/services/auth"
 	"auth/internal/storage"
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/go-playground/validator"
+	"github.com/golang-jwt/jwt"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/github"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"strings"
 )
 
 type Auth interface {
 	Login(ctx context.Context, email string, password string) (token string, err error)
 	RegisterNewUser(ctx context.Context, email string, username string, password string) (userID int64, err error)
 	RegisterConfirm(ctx context.Context, email string, otp string) (success bool, message string, err error)
+
+	LinkGithubAccount(ctx context.Context, userID int64, githubID int64, githubUsername string, avatarURL string) (success bool, message string, err error)
+	UnlinkGithubAccount(ctx context.Context, userID int64) (success bool, err error)
 }
 
 type serverAPI struct {
 	authv1.UnimplementedAuthServer
 	auth Auth
 	v    *validator.Validate
+
+	oauthConfig *oauth2.Config
 }
+
+var (
+	cfg = config.MustLoad()
+)
 
 func Register(gRPC *grpc.Server, auth Auth) {
 	authv1.RegisterAuthServer(gRPC, &serverAPI{
 		auth: auth,
 		v:    validator.New(),
+		oauthConfig: &oauth2.Config{
+			ClientID:     cfg.Github.ClientID,
+			ClientSecret: cfg.Github.ClientSecret,
+			Endpoint:     github.Endpoint,
+			RedirectURL:  cfg.Github.RedirectURL,
+			Scopes:       []string{"read:user", "user:email"},
+		},
 	})
 }
+
+func (s *serverAPI) authorizeUser(ctx context.Context) (jwt.MapClaims, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "no metadata in request")
+	}
+
+	authHeader, ok := md["authorization"]
+	if !ok || len(authHeader) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "no authorization header")
+	}
+
+	tokenString := strings.TrimPrefix(authHeader[0], "Bearer ")
+
+	_, err := s.IsTokenValid(context.Background(), &authv1.IsTokenValidRequest{
+		Token: tokenString,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "invalid token claims")
+	}
+
+	return claims, nil
+}
+
+//////////////////////////////////////////
 
 func (s *serverAPI) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
 	registerRequest := structs.RegisterRequest{
@@ -112,5 +170,119 @@ func (s *serverAPI) Login(ctx context.Context, req *authv1.LoginRequest) (*authv
 
 	return &authv1.LoginResponse{
 		Token: token,
+	}, nil
+}
+
+func (s *serverAPI) LinkGithubAccount(ctx context.Context, req *authv1.LinkGithubRequest) (*authv1.LinkGithubResponse, error) {
+	linkGithubRequest := structs.LinkGithubRequest{
+		GithubCode: req.GithubCode,
+	}
+	err := s.v.Struct(linkGithubRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	githubToken, err := s.oauthConfig.Exchange(ctx, linkGithubRequest.GithubCode)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to exchange code for token")
+	}
+
+	client := s.oauthConfig.Client(ctx, githubToken)
+
+	resp, err := client.Get("https://api.github.com/user")
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to fetch user info from GitHub")
+	}
+
+	defer resp.Body.Close()
+
+	var githubUser struct {
+		ID        int64  `json:"id"`
+		Login     string `json:"login"`
+		AvatarURL string `json:"avatar_url"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&githubUser); err != nil {
+		return nil, status.Error(codes.Internal, "failed to decode GitHub user info")
+	}
+
+	claims, err := s.authorizeUser(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	userID, _ := claims["uid"].(float64)
+
+	//if !ok {
+	//	return nil, status.Error(codes.PermissionDenied, "no access for this resource")
+	//}
+
+	currentUserID := int64(userID)
+
+	success, message, err := s.auth.LinkGithubAccount(ctx, currentUserID, githubUser.ID, githubUser.Login, githubUser.AvatarURL)
+	if err != nil {
+		switch {
+		default:
+			return nil, status.Error(codes.Internal, "failed to link github account")
+		}
+	}
+
+	return &authv1.LinkGithubResponse{
+		Success: success,
+		Message: message,
+	}, nil
+
+}
+
+func (s *serverAPI) UnlinkGithubAccount(ctx context.Context, req *authv1.UnlinkGithubRequest) (*authv1.UnlinkGithubResponse, error) {
+	claims, err := s.authorizeUser(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	userID, _ := claims["uid"].(float64)
+
+	currentUserID := int64(userID)
+
+	success, err := s.auth.UnlinkGithubAccount(ctx, currentUserID)
+	if err != nil {
+		switch {
+		default:
+			return nil, status.Error(codes.Internal, "failed to unlink github account")
+		}
+	}
+
+	return &authv1.UnlinkGithubResponse{
+		Success: success,
+	}, nil
+}
+
+/////////////////////////////////////////////////
+
+func (s *serverAPI) IsTokenValid(ctx context.Context, req *authv1.IsTokenValidRequest) (*authv1.IsTokenValidResponse, error) {
+	isTokenValidRequest := structs.IsTokenValidRequest{
+		Token: req.Token,
+	}
+	err := s.v.Struct(isTokenValidRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	token, err := jwt.Parse(req.GetToken(), func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, err
+		}
+		return []byte(cfg.JwtSignedString), nil
+	})
+
+	if err != nil {
+		return &authv1.IsTokenValidResponse{IsTokenValid: false}, nil
+	}
+
+	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return &authv1.IsTokenValidResponse{IsTokenValid: true}, nil
+	}
+
+	return &authv1.IsTokenValidResponse{
+		IsTokenValid: false,
 	}, nil
 }

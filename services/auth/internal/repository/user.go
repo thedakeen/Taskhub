@@ -146,3 +146,46 @@ func (s *Storage) ConfirmUser(ctx context.Context, email string, otp string) (bo
 
 	return true, "Email confirmed successfully", nil
 }
+
+func (s *Storage) SaveDeveloper(ctx context.Context, userID, githubID int64, githubUsername string, avatarUrl string) (bool, string, error) {
+	const op = "repository.user.SaveDeveloper"
+
+	query := `INSERT INTO developers (developer_id, github_id, github_username, avatar_url) VALUES ($1, $2, $3, $4)`
+	args := []any{userID, githubID, githubUsername, avatarUrl}
+
+	_, err := s.Db.ExecContext(ctx, query, args...)
+	if err != nil {
+		var pqErr *pq.Error
+		switch {
+		case errors.As(err, &pqErr) && pqErr.Code == "23505":
+			return false, "", fmt.Errorf("%s: %w", op, storage.ErrGithubLinked)
+		default:
+			return false, "", fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return true, "Github account successfully linked", nil
+
+}
+
+func (s *Storage) DeleteDeveloper(ctx context.Context, userID int64) (bool, error) {
+	const op = "repository.user.DeleteDeveloper"
+	query := `DELETE FROM developers WHERE developer_id = $1`
+
+	result, err := s.Db.ExecContext(ctx, query, userID)
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		return false, storage.ErrNoRecordFound
+	}
+
+	return true, nil
+
+}

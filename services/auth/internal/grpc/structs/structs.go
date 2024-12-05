@@ -15,3 +15,11 @@ type LoginRequest struct {
 	Email    string `validate:"required,email"`
 	Password string `validate:"required,min=8,max=32"`
 }
+
+type IsTokenValidRequest struct {
+	Token string `validate:"required"`
+}
+
+type LinkGithubRequest struct {
+	GithubCode string `validate:"required"`
+}

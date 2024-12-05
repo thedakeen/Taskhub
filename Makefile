@@ -1,3 +1,6 @@
+include .env
+
+
 .PHONY: protoc/auth
 protoc/auth:
 	@echo 'Updating proto...'
@@ -14,4 +17,4 @@ db/migrations/new/auth:
 .PHONY: db/migrations/up
 db/migrations/up/auth:
 	@echo 'Running up migrations for auth service...'
-	migrate -path=D:/ProgramData/workspacego/diploma/services/auth/migrations -database=postgres://postgres:256782366595d@localhost:5433/taskhub_db?sslmode=disable up
+	migrate -path=D:/ProgramData/workspacego/diploma/services/auth/migrations -database=${POSTGRES_URI} up
