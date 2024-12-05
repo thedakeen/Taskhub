@@ -7,8 +7,11 @@ import (
 	"time"
 )
 
+var (
+	cfg = config.MustLoad()
+)
+
 func NewToken(user entities.User, duration time.Duration) (string, error) {
-	cfg := config.MustLoad()
 
 	token := jwt.New(jwt.SigningMethodHS256)
 

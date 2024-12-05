@@ -18,9 +18,11 @@ const (
 	envProd  = "prod"
 )
 
-func main() {
+var (
+	cfg = config.MustLoad()
+)
 
-	cfg := config.MustLoad()
+func main() {
 
 	log := setupLogger(cfg.Env)
 

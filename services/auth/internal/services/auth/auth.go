@@ -23,6 +23,9 @@ type Auth struct {
 type UserSaver interface {
 	SaveUser(ctx context.Context, email string, username string, passHash []byte) (userID int64, err error)
 	ConfirmUser(ctx context.Context, email string, otp string) (success bool, message string, err error)
+
+	SaveDeveloper(ctx context.Context, userID int64, githubID int64, githubUsername string, avatarUrl string) (success bool, message string, err error)
+	DeleteDeveloper(ctx context.Context, userID int64) (success bool, err error)
 }
 
 type UserProvider interface {
@@ -47,10 +50,11 @@ func New(
 }
 
 var (
-	ErrInvalidCredentials = errors.New("invalid authentication credentials")
-	ErrInvalidAppId       = errors.New("invalid app id")
-	ErrUserExists         = errors.New("user already exists")
-	ErrUsernameExists     = errors.New("username is already taken")
+	ErrInvalidCredentials   = errors.New("invalid authentication credentials")
+	ErrInvalidAppId         = errors.New("invalid app id")
+	ErrUserExists           = errors.New("user already exists")
+	ErrUsernameExists       = errors.New("username is already taken")
+	ErrInvalidGithubAccount = errors.New("invalid github account")
 )
 
 func (a *Auth) RegisterNewUser(ctx context.Context, email string, username string, password string) (int64, error) {
@@ -156,4 +160,60 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (string
 	}
 
 	return token, nil
+}
+
+func (a *Auth) LinkGithubAccount(ctx context.Context, userID int64, githubID int64, githubUsername string, avatarURL string) (bool, string, error) {
+	const op = "auth.LinkGithubAccount"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("userID", userID),
+		slog.Int64("githubID", githubID),
+	)
+
+	log.Info("attempting to link github")
+
+	success, message, err := a.userSaver.SaveDeveloper(ctx, userID, githubID, githubUsername, avatarURL)
+	if err != nil {
+		// TODO: ERrors
+		switch {
+		case errors.Is(err, storage.ErrGithubLinked):
+			a.log.Warn("github account is already taken")
+			return false, "github account is already taken", fmt.Errorf("%s:%w", op, err)
+		default:
+			a.log.Error("failed to link github account", sl.Err(err))
+			return false, "failed to link github account", fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("linked successfully")
+
+	return success, message, nil
+
+}
+
+func (a *Auth) UnlinkGithubAccount(ctx context.Context, userID int64) (bool, error) {
+	const op = "auth.UnlinkGithubAccount"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("userID", userID))
+
+	log.Info("attempting to unlink github")
+
+	success, err := a.userSaver.DeleteDeveloper(ctx, userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			a.log.Warn("no github account found")
+			return false, fmt.Errorf("%s:%w", op, err)
+		default:
+			a.log.Warn("failed to unlink github account")
+			return false, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("unlinked successfully")
+
+	return success, nil
 }
