@@ -25,6 +25,7 @@ const (
 	Auth_IsTokenValid_FullMethodName        = "/auth.Auth/IsTokenValid"
 	Auth_LinkGithubAccount_FullMethodName   = "/auth.Auth/LinkGithubAccount"
 	Auth_UnlinkGithubAccount_FullMethodName = "/auth.Auth/UnlinkGithubAccount"
+	Auth_DeveloperProfile_FullMethodName    = "/auth.Auth/DeveloperProfile"
 )
 
 // AuthClient is the client API for Auth service.
@@ -37,6 +38,7 @@ type AuthClient interface {
 	IsTokenValid(ctx context.Context, in *IsTokenValidRequest, opts ...grpc.CallOption) (*IsTokenValidResponse, error)
 	LinkGithubAccount(ctx context.Context, in *LinkGithubRequest, opts ...grpc.CallOption) (*LinkGithubResponse, error)
 	UnlinkGithubAccount(ctx context.Context, in *UnlinkGithubRequest, opts ...grpc.CallOption) (*UnlinkGithubResponse, error)
+	DeveloperProfile(ctx context.Context, in *GetDeveloperProfileRequest, opts ...grpc.CallOption) (*GetDeveloperProfileResponse, error)
 }
 
 type authClient struct {
@@ -107,6 +109,16 @@ func (c *authClient) UnlinkGithubAccount(ctx context.Context, in *UnlinkGithubRe
 	return out, nil
 }
 
+func (c *authClient) DeveloperProfile(ctx context.Context, in *GetDeveloperProfileRequest, opts ...grpc.CallOption) (*GetDeveloperProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDeveloperProfileResponse)
+	err := c.cc.Invoke(ctx, Auth_DeveloperProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type AuthServer interface {
 	IsTokenValid(context.Context, *IsTokenValidRequest) (*IsTokenValidResponse, error)
 	LinkGithubAccount(context.Context, *LinkGithubRequest) (*LinkGithubResponse, error)
 	UnlinkGithubAccount(context.Context, *UnlinkGithubRequest) (*UnlinkGithubResponse, error)
+	DeveloperProfile(context.Context, *GetDeveloperProfileRequest) (*GetDeveloperProfileResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedAuthServer) LinkGithubAccount(context.Context, *LinkGithubReq
 }
 func (UnimplementedAuthServer) UnlinkGithubAccount(context.Context, *UnlinkGithubRequest) (*UnlinkGithubResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnlinkGithubAccount not implemented")
+}
+func (UnimplementedAuthServer) DeveloperProfile(context.Context, *GetDeveloperProfileRequest) (*GetDeveloperProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeveloperProfile not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 func (UnimplementedAuthServer) testEmbeddedByValue()              {}
@@ -274,6 +290,24 @@ func _Auth_UnlinkGithubAccount_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_DeveloperProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeveloperProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).DeveloperProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_DeveloperProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).DeveloperProfile(ctx, req.(*GetDeveloperProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UnlinkGithubAccount",
 			Handler:    _Auth_UnlinkGithubAccount_Handler,
+		},
+		{
+			MethodName: "DeveloperProfile",
+			Handler:    _Auth_DeveloperProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
