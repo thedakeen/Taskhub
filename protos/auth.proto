@@ -2,16 +2,55 @@ syntax = "proto3";
 
 package auth;
 
+import "google/api/annotations.proto";
+
+
 option go_package = "tp.auth.v1.;authv1";
 
 service Auth{
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc RegisterConfirm(RegisterConfirmRequest) returns (RegisterConfirmResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
+
+  rpc Register(RegisterRequest) returns (RegisterResponse){
+    option (google.api.http) = {
+      post: "/v1/signup"
+      body: "*"
+    };
+  }
+
+
+  rpc RegisterConfirm(RegisterConfirmRequest) returns (RegisterConfirmResponse){
+    option (google.api.http) = {
+      post: "/v1/signup/confirm"
+      body: "*"
+    };
+  }
+
+  rpc Login(LoginRequest) returns (LoginResponse){
+    option (google.api.http) = {
+      post: "/v1/login"
+      body: "*"
+    };
+  }
+
   rpc IsTokenValid(IsTokenValidRequest) returns (IsTokenValidResponse);
 
-  rpc LinkGithubAccount(LinkGithubRequest) returns (LinkGithubResponse);
-  rpc UnlinkGithubAccount(UnlinkGithubRequest) returns (UnlinkGithubResponse);
+  rpc LinkGithubAccount(LinkGithubRequest) returns (LinkGithubResponse){
+    option (google.api.http) = {
+      post: "/v1/profile/{devID}/github"
+      body: "*"
+    };
+  }
+
+  rpc UnlinkGithubAccount(UnlinkGithubRequest) returns (UnlinkGithubResponse){
+    option (google.api.http) = {
+      delete: "/v1/profile/{devID}/github"
+    };
+  }
+
+  rpc DeveloperProfile(GetDeveloperProfileRequest) returns (GetDeveloperProfileResponse){
+    option (google.api.http) = {
+      get: "/v1/profile/{devID}"
+    };
+  }
 }
 
 message RegisterRequest{
@@ -55,6 +94,7 @@ message IsTokenValidResponse{
 
 message LinkGithubRequest{
   string github_code = 1;
+  int64 devID = 2;
 }
 
 message LinkGithubResponse {
@@ -63,8 +103,25 @@ message LinkGithubResponse {
 }
 
 message UnlinkGithubRequest {
+  int64 devID = 1;
 }
 
 message UnlinkGithubResponse {
   bool success = 1;
+}
+
+
+////////////////////////////////   Profile   ////////////////////////////////
+
+message GetDeveloperProfileRequest{
+  int64 devID = 1;
+}
+
+message GetDeveloperProfileResponse{
+  string username = 1;
+  string github_username = 2;
+  string avatar_url = 3;
+  string cv_url = 4;
+  string bio = 5;
+  string email = 6;
 }
