@@ -22,9 +22,7 @@ type IsTokenValidRequest struct {
 
 type LinkGithubRequest struct {
 	GithubCode string `validate:"required"`
-	//DeveloperID int64  `validate:"required"`
 }
 
 type UnlinkGithubRequest struct {
-	//DeveloperID int64  `validate:"required"`
 }

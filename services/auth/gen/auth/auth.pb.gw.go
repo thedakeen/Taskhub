@@ -111,18 +111,9 @@ func request_Auth_LinkGithubAccount_0(ctx context.Context, marshaler runtime.Mar
 	var (
 		protoReq LinkGithubRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["devID"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "devID")
-	}
-	protoReq.DevID, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "devID", err)
 	}
 	msg, err := client.LinkGithubAccount(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -132,18 +123,9 @@ func local_request_Auth_LinkGithubAccount_0(ctx context.Context, marshaler runti
 	var (
 		protoReq LinkGithubRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["devID"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "devID")
-	}
-	protoReq.DevID, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "devID", err)
 	}
 	msg, err := server.LinkGithubAccount(ctx, &protoReq)
 	return msg, metadata, err
@@ -153,16 +135,7 @@ func request_Auth_UnlinkGithubAccount_0(ctx context.Context, marshaler runtime.M
 	var (
 		protoReq UnlinkGithubRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
-	val, ok := pathParams["devID"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "devID")
-	}
-	protoReq.DevID, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "devID", err)
-	}
 	msg, err := client.UnlinkGithubAccount(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -171,16 +144,7 @@ func local_request_Auth_UnlinkGithubAccount_0(ctx context.Context, marshaler run
 	var (
 		protoReq UnlinkGithubRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
-	val, ok := pathParams["devID"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "devID")
-	}
-	protoReq.DevID, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "devID", err)
-	}
 	msg, err := server.UnlinkGithubAccount(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -293,7 +257,7 @@ func RegisterAuthHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/auth.Auth/LinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/{devID}/github"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/auth.Auth/LinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/github"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -313,7 +277,7 @@ func RegisterAuthHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/auth.Auth/UnlinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/{devID}/github"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/auth.Auth/UnlinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/github"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -442,7 +406,7 @@ func RegisterAuthHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/auth.Auth/LinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/{devID}/github"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/auth.Auth/LinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/github"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -459,7 +423,7 @@ func RegisterAuthHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/auth.Auth/UnlinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/{devID}/github"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/auth.Auth/UnlinkGithubAccount", runtime.WithHTTPPathPattern("/v1/profile/github"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -496,8 +460,8 @@ var (
 	pattern_Auth_Register_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "signup"}, ""))
 	pattern_Auth_RegisterConfirm_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "signup", "confirm"}, ""))
 	pattern_Auth_Login_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "login"}, ""))
-	pattern_Auth_LinkGithubAccount_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "profile", "devID", "github"}, ""))
-	pattern_Auth_UnlinkGithubAccount_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "profile", "devID", "github"}, ""))
+	pattern_Auth_LinkGithubAccount_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "profile", "github"}, ""))
+	pattern_Auth_UnlinkGithubAccount_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "profile", "github"}, ""))
 	pattern_Auth_DeveloperProfile_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "profile", "devID"}, ""))
 )
 
