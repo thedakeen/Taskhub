@@ -30,6 +30,8 @@ type UserSaver interface {
 
 type UserProvider interface {
 	GetUser(ctx context.Context, email string) (*entities.User, error)
+
+	GetDeveloper(ctx context.Context, devID int64) (*entities.DeveloperProfile, error)
 }
 
 //type AppProvider interface {
@@ -79,11 +81,11 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, username strin
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrUserExists):
-			a.log.Warn("user already exists", sl.Err(err))
+			a.log.Warn("user already exists", slog.String("error", err.Error()))
 			return 0, fmt.Errorf("%s:%w", op, ErrUserExists)
 
 		case errors.Is(err, storage.ErrUsernameExists):
-			a.log.Warn("username is already taken", sl.Err(err))
+			a.log.Warn("username is already taken", slog.String("error", err.Error()))
 			return 0, fmt.Errorf("%s:%w", op, ErrUsernameExists)
 
 		default:
@@ -109,7 +111,7 @@ func (a *Auth) RegisterConfirm(ctx context.Context, email string, otp string) (b
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrInvalidOrExpiredOTP):
-			a.log.Warn("invalid OTP")
+			a.log.Warn("invalid OTP", slog.String("error", err.Error()))
 			return false, "Invalid OTP", err
 		default:
 			a.log.Error("failed to confirm email", sl.Err(err))
@@ -134,7 +136,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (string
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
-			a.log.Warn("user not found", sl.Err(err))
+			a.log.Warn("user not found", slog.String("error", err.Error()))
 			return "", fmt.Errorf("%s:%w", op, ErrInvalidCredentials)
 
 		default:
@@ -178,7 +180,7 @@ func (a *Auth) LinkGithubAccount(ctx context.Context, userID int64, githubID int
 		// TODO: ERrors
 		switch {
 		case errors.Is(err, storage.ErrGithubLinked):
-			a.log.Warn("github account is already taken")
+			a.log.Warn("github account is already taken", slog.String("error", err.Error()))
 			return false, "github account is already taken", fmt.Errorf("%s:%w", op, err)
 		default:
 			a.log.Error("failed to link github account", sl.Err(err))
@@ -205,10 +207,10 @@ func (a *Auth) UnlinkGithubAccount(ctx context.Context, userID int64) (bool, err
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
-			a.log.Warn("no github account found")
+			a.log.Warn("no github account found", slog.String("error", err.Error()))
 			return false, fmt.Errorf("%s:%w", op, err)
 		default:
-			a.log.Warn("failed to unlink github account")
+			a.log.Warn("failed to unlink github account", slog.String("error", err.Error()))
 			return false, fmt.Errorf("%s:%w", op, err)
 		}
 	}
@@ -216,4 +218,30 @@ func (a *Auth) UnlinkGithubAccount(ctx context.Context, userID int64) (bool, err
 	log.Info("unlinked successfully")
 
 	return success, nil
+}
+
+func (a *Auth) DeveloperProfile(ctx context.Context, devID int64) (*entities.DeveloperProfile, error) {
+	const op = "auth.DeveloperProfile"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("devID", devID))
+
+	log.Info("attempting to get profile")
+
+	developer, err := a.userProvider.GetDeveloper(ctx, devID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			a.log.Warn("no developer profile found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			a.log.Warn("failed to get developer profile", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("profile got successfully")
+
+	return developer, nil
 }

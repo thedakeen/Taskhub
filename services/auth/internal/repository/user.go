@@ -147,6 +147,8 @@ func (s *Storage) ConfirmUser(ctx context.Context, email string, otp string) (bo
 	return true, "Email confirmed successfully", nil
 }
 
+///////////////////////// DEVELOPER /////////////////////////////
+
 func (s *Storage) SaveDeveloper(ctx context.Context, userID, githubID int64, githubUsername string, avatarUrl string) (bool, string, error) {
 	const op = "repository.user.SaveDeveloper"
 
@@ -187,5 +189,60 @@ func (s *Storage) DeleteDeveloper(ctx context.Context, userID int64) (bool, erro
 	}
 
 	return true, nil
+
+}
+
+func (s *Storage) GetDeveloper(ctx context.Context, devID int64) (*entities.DeveloperProfile, error) {
+	const op = "repository.user.GetDeveloper"
+
+	if devID < 1 {
+		return nil, storage.ErrNoRecordFound
+	}
+
+	query, err := s.Db.Prepare(`
+	SELECT 
+		COALESCE(d.github_id IS NOT NULL, false) AS is_github_linked,
+		d.bio,
+		d.github_username,
+		d.avatar_url,
+		d.cv_url,
+		u.email,
+		u.username
+-- 		u.created_at
+	FROM 
+		users u
+	LEFT JOIN 
+		developers d ON u.id = d.developer_id
+	WHERE 
+		u.id = $1
+`)
+
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	var developer entities.DeveloperProfile
+
+	err = query.QueryRowContext(ctx, devID).Scan(
+		&developer.IsGithubLinked,
+		&developer.Bio,
+		&developer.GithubUsername,
+		&developer.AvatarURL,
+		&developer.CVURL,
+		&developer.Email,
+		&developer.Username,
+		//&developer.CreatedAt
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, storage.ErrNoRecordFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &developer, nil
 
 }

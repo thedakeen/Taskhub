@@ -3,6 +3,7 @@ package auth
 import (
 	authv1 "auth/gen/auth"
 	"auth/internal/config"
+	"auth/internal/domain/entities"
 	"auth/internal/grpc/structs"
 	"auth/internal/services/auth"
 	"auth/internal/storage"
@@ -27,6 +28,7 @@ type Auth interface {
 
 	LinkGithubAccount(ctx context.Context, userID int64, githubID int64, githubUsername string, avatarURL string) (success bool, message string, err error)
 	UnlinkGithubAccount(ctx context.Context, userID int64) (success bool, err error)
+	DeveloperProfile(ctx context.Context, devID int64) (*entities.DeveloperProfile, error)
 }
 
 type serverAPI struct {
@@ -253,6 +255,57 @@ func (s *serverAPI) UnlinkGithubAccount(ctx context.Context, req *authv1.UnlinkG
 
 	return &authv1.UnlinkGithubResponse{
 		Success: success,
+	}, nil
+}
+
+func (s *serverAPI) DeveloperProfile(ctx context.Context, req *authv1.GetDeveloperProfileRequest) (*authv1.GetDeveloperProfileResponse, error) {
+	GetDeveloperProfileRequest := structs.GetDeveloperProfileRequest{
+		DeveloperID: req.DevID,
+	}
+
+	err := s.v.Struct(GetDeveloperProfileRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	developer, err := s.auth.DeveloperProfile(ctx, req.DevID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, "failed to get developer profile")
+		}
+	}
+
+	bio := ""
+	if developer.Bio != nil {
+		bio = *developer.Bio
+	}
+
+	avatarUrl := ""
+	if developer.AvatarURL != nil {
+		avatarUrl = *developer.AvatarURL
+	}
+
+	cvUrl := ""
+	if developer.CVURL != nil {
+		cvUrl = *developer.CVURL
+	}
+
+	githubUsername := ""
+	if developer.GithubUsername != nil {
+		githubUsername = *developer.GithubUsername
+	}
+
+	return &authv1.GetDeveloperProfileResponse{
+		IsGithubLinked: developer.IsGithubLinked,
+		Username:       developer.Username,
+		GithubUsername: githubUsername,
+		AvatarUrl:      avatarUrl,
+		CvUrl:          cvUrl,
+		Bio:            bio,
+		Email:          developer.Email,
 	}, nil
 }
 

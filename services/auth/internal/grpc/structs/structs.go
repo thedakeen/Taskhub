@@ -26,3 +26,7 @@ type LinkGithubRequest struct {
 
 type UnlinkGithubRequest struct {
 }
+
+type GetDeveloperProfileRequest struct {
+	DeveloperID int64 `validate:"required"`
+}

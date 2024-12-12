@@ -8,11 +8,14 @@ import (
 )
 
 type Config struct {
-	Env             string        `env:"ENV" env-default:"dev"`
-	PostgresURI     string        `env:"POSTGRES_URI" env-required:"true"`
-	TokenTTL        time.Duration `env:"TOKEN_TTL" env-required:"true"`
-	ServicePort     int           `env:"AUTH_SERVICE_PORT"`
-	HttpPort        int           `env:"HTTP_SERVICE_PORT"`
+	Env         string `env:"ENV" env-default:"dev"`
+	PostgresURI string `env:"POSTGRES_URI" env-required:"true"`
+
+	TokenTTL time.Duration `env:"TOKEN_TTL" env-required:"true"`
+
+	ServicePort int `env:"AUTH_SERVICE_PORT"`
+	HttpPort    int `env:"HTTP_SERVICE_PORT"`
+
 	ServiceTimeout  time.Duration `env:"AUTH_SERVICE_TIMEOUT"`
 	JwtSignedString string        `env:"JWT_SIGNED_STRING"`
 
