@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 )
 
@@ -20,11 +21,16 @@ const (
 
 var (
 	cfg = config.MustLoad()
+	wg  sync.WaitGroup
 )
 
 func main() {
-
 	log := setupLogger(cfg.Env)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	wg.Add(2)
 
 	log.Info("starting application",
 		slog.String("env", cfg.Env),
@@ -32,9 +38,17 @@ func main() {
 		slog.Int("port", cfg.ServicePort),
 	)
 
-	application := app.New(log, cfg.ServicePort, cfg.PostgresURI, cfg.TokenTTL)
+	application := app.New(log, cfg.ServicePort, cfg.HttpPort, cfg.PostgresURI, cfg.TokenTTL)
 
-	go application.GRPCSrv.MustRun()
+	go func() {
+		defer wg.Done()
+		application.GRPCSrv.MustRun()
+	}()
+
+	go func() {
+		defer wg.Done()
+		application.HTTPSrv.MustRun(ctx)
+	}()
 
 	go func() {
 		c := cron.New()
@@ -63,7 +77,10 @@ func main() {
 
 	log.Info("stopping application", slog.String("signal", s.String()))
 
+	application.HTTPSrv.Stop(ctx)
 	application.GRPCSrv.Stop()
+
+	wg.Wait()
 
 	log.Info("application stopped")
 
