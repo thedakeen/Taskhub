@@ -35,14 +35,14 @@ service Auth{
 
   rpc LinkGithubAccount(LinkGithubRequest) returns (LinkGithubResponse){
     option (google.api.http) = {
-      post: "/v1/profile/{devID}/github"
+      post: "/v1/profile/github"
       body: "*"
     };
   }
 
   rpc UnlinkGithubAccount(UnlinkGithubRequest) returns (UnlinkGithubResponse){
     option (google.api.http) = {
-      delete: "/v1/profile/{devID}/github"
+      delete: "/v1/profile/github"
     };
   }
 
@@ -94,7 +94,6 @@ message IsTokenValidResponse{
 
 message LinkGithubRequest{
   string github_code = 1;
-  int64 devID = 2;
 }
 
 message LinkGithubResponse {
@@ -103,7 +102,6 @@ message LinkGithubResponse {
 }
 
 message UnlinkGithubRequest {
-  int64 devID = 1;
 }
 
 message UnlinkGithubResponse {
@@ -118,10 +116,12 @@ message GetDeveloperProfileRequest{
 }
 
 message GetDeveloperProfileResponse{
-  string username = 1;
-  string github_username = 2;
-  string avatar_url = 3;
-  string cv_url = 4;
-  string bio = 5;
-  string email = 6;
+  bool isGithubLinked = 1;
+  string username = 2;
+  string github_username = 3;
+  string avatar_url = 4;
+  string cv_url = 5;
+  string bio = 6;
+  string email = 7;
+//  google.protobuf.Timestamp created_at = 8;
 }

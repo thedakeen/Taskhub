@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -62,9 +63,11 @@ func (app *App) Run(ctx context.Context) error {
 		return fmt.Errorf("%s:%w", op, err)
 	}
 
+	corsMux := app.setupCORS().Handler(mux)
+
 	app.server = &http.Server{
 		Addr:    l.Addr().String(),
-		Handler: mux,
+		Handler: corsMux,
 	}
 
 	log.Info("HTTP server is running", slog.String("addr", l.Addr().String()))
@@ -101,4 +104,14 @@ func (app *App) Stop(ctx context.Context) {
 		log.Fatal("failed to stop HTTP server")
 	}
 
+}
+
+func (app *App) setupCORS() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		Debug:            true,
+	})
 }

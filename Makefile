@@ -12,14 +12,6 @@ protoc/auth:
   	--plugin=protoc-gen-grpc-gateway=${PROTOC_GATEWAY_PATH} \
   	protos/auth.proto
 
-.PHONY: vendor-proto
-vendor-proto:
-		@if [ ! -d vendor.protogen/google ]; then \
-			git clone https://github.com/googleapis/googleapis vendor.protogen/googleapis &&\
-			mkdir -p  vendor.protogen/google/ &&\
-			mv vendor.protogen/googleapis/google/api vendor.protogen/google &&\
-			rm -rf vendor.protogen/googleapis ;\
-		fi
 
 .PHONY: vendor-proto
 vendor-proto:
@@ -29,6 +21,7 @@ vendor-proto:
 			mv vendor.protogen/googleapis/google/api vendor.protogen/google &&\
 			rm -rf vendor.protogen/googleapis ;\
 		fi
+		@go get google.golang.org/protobuf/types/known/timestamppb
 
 
 
