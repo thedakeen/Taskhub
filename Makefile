@@ -10,6 +10,8 @@ protoc/auth:
 	--plugin=protoc-gen-go-grpc=${PROTOC_GEN_PATH} \
   	--grpc-gateway_out=services/auth/gen/auth --grpc-gateway_opt=paths=source_relative \
   	--plugin=protoc-gen-grpc-gateway=${PROTOC_GATEWAY_PATH} \
+  	--plugin=protoc-gen-openapiv2=${PROTOC_OPENAPIV2_PATH} \
+  	--openapiv2_out=services/auth/swagger --openapiv2_opt=allow_merge=true,merge_file_name=swagger.json \
   	protos/auth.proto
 
 
@@ -21,7 +23,12 @@ vendor-proto:
 			mv vendor.protogen/googleapis/google/api vendor.protogen/google &&\
 			rm -rf vendor.protogen/googleapis ;\
 		fi
-		@go get google.golang.org/protobuf/types/known/timestamppb
+#		@if [ ! -d vendor.protogen/openapiv2 ]; then \
+#    		git clone https://github.com/grpc-ecosystem/grpc-gateway.git vendor.protogen/grpc-gateway && \
+#    		mkdir -p vendor.protogen/openapiv2/ && \
+#    		mv vendor.protogen/grpc-gateway/protoc-gen-openapiv2/* vendor.protogen/openapiv2/ && \
+#    		rm -rf vendor.protogen/grpc-gateway ; \
+#    	fi
 
 
 
