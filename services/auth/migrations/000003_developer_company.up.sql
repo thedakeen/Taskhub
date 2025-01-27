@@ -3,7 +3,9 @@ CREATE TABLE companies (
                            company_name VARCHAR(255) NOT NULL,
                            description TEXT,
                            website VARCHAR(255),
-                           logo VARCHAR(255)
+                           logo VARCHAR(255),
+                           installation_id BIGSERIAL UNIQUE
+--                            project_key BIGSERIAL UNIQUE
 );
 
 CREATE TABLE developers (

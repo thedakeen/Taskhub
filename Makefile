@@ -2,7 +2,7 @@ include .env
 
 
 
-.PHONY: protoc/auth
+.PHONY: protoc
 protoc/auth:
 	@echo 'Updating proto...'
 	protoc --proto_path protos --proto_path vendor.protogen \
@@ -13,6 +13,17 @@ protoc/auth:
   	--plugin=protoc-gen-openapiv2=${PROTOC_OPENAPIV2_PATH} \
   	--openapiv2_out=services/auth/swagger --openapiv2_opt=allow_merge=true,merge_file_name=swagger.json \
   	protos/auth.proto
+
+protoc/comp:
+	@echo 'Updating proto...'
+	protoc --proto_path protos --proto_path vendor.protogen \
+	--go_out=services/company/gen/company --go_opt=paths=source_relative --go-grpc_out=services/company/gen/company --go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go-grpc=${PROTOC_GEN_PATH} \
+  	--grpc-gateway_out=services/company/gen/company --grpc-gateway_opt=paths=source_relative \
+  	--plugin=protoc-gen-grpc-gateway=${PROTOC_GATEWAY_PATH} \
+  	--plugin=protoc-gen-openapiv2=${PROTOC_OPENAPIV2_PATH} \
+  	--openapiv2_out=services/company/swagger --openapiv2_opt=allow_merge=true,merge_file_name=swagger.json \
+  	protos/company.proto
 
 
 .PHONY: vendor-proto
