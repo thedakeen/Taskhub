@@ -1,7 +1,7 @@
 package http
 
 import (
-	authv1 "auth/gen/auth"
+	companyv1 "company/gen/company"
 	"context"
 	"errors"
 	"fmt"
@@ -57,7 +57,7 @@ func (app *App) Run(ctx context.Context) error {
 	}
 
 	grpcAddress := net.JoinHostPort("localhost", strconv.Itoa(app.grpcPort))
-	err = authv1.RegisterAuthHandlerFromEndpoint(ctx, mux, grpcAddress, opts)
+	err = companyv1.RegisterCompanyHandlerFromEndpoint(ctx, mux, grpcAddress, opts)
 	if err != nil {
 		return fmt.Errorf("%s:%w", op, err)
 	}

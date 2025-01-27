@@ -17,8 +17,8 @@ type Company struct {
 }
 
 type CompanyProvider interface {
-	CompanyGithubIntegration(ctx context.Context, id int64) (string, int64, error)
-	Company(ctx context.Context, id int64) (*entities.Company, error)
+	GetGithubIntegration(ctx context.Context, id int64) (string, int64, error)
+	GetCompany(ctx context.Context, id int64) (*entities.Company, error)
 }
 
 func New(
@@ -42,7 +42,7 @@ func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (string
 
 	log.Info("getting information about company")
 
-	companyName, installationID, err := c.compProvider.CompanyGithubIntegration(ctx, id)
+	companyName, installationID, err := c.compProvider.GetGithubIntegration(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
@@ -58,4 +58,8 @@ func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (string
 
 	return companyName, installationID, nil
 
+}
+
+func (c Company) CompanyInfo(ctx context.Context, id int64) (*entities.Company, error) {
+	return &entities.Company{}, nil
 }
