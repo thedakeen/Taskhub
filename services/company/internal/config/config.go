@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 	"sync"
 	"time"
 )
@@ -12,8 +13,8 @@ type Config struct {
 
 	TokenTTL time.Duration `env:"TOKEN_TTL" env-required:"true"`
 
-	ServicePort int `env:"COMPANY_SERVICE_PORT"`
-	HttpPort    int `env:"HTTP_SERVICE_PORT"`
+	ServicePort int `env:"GRPC_COMPANY_SERVICE_PORT"`
+	HttpPort    int `env:"HTTP_COMPANY_SERVICE_PORT"`
 
 	ServiceTimeout time.Duration `env:"COMPANY_SERVICE_TIMEOUT"`
 }
@@ -25,8 +26,13 @@ var (
 
 func MustLoad() *Config {
 	once.Do(func() {
+		err := godotenv.Load("../.env")
+		if err != nil {
+			panic("No .env file found")
+		}
+
 		cfg = &Config{}
-		err := cleanenv.ReadEnv(cfg)
+		err = cleanenv.ReadEnv(cfg)
 		if err != nil {
 			panic("failed to read config " + err.Error())
 		}

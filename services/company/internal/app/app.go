@@ -2,6 +2,7 @@ package app
 
 import (
 	grpcapp "company/internal/app/grpc"
+	"company/internal/app/http"
 	"company/internal/repository"
 	"company/internal/services/company"
 	"company/internal/storage/postgres"
@@ -11,7 +12,7 @@ import (
 
 type App struct {
 	GRPCSrv *grpcapp.App
-	//HTTPSrv *http.App
+	HTTPSrv *http.App
 	Storage *repository.Storage
 }
 
@@ -25,11 +26,11 @@ func New(log *slog.Logger, grpcPort int, httpPort int, storagePath string, token
 
 	companyService := company.New(log, storage, tokenTTL)
 	grpcApp := grpcapp.New(log, companyService, grpcPort)
-	//httpApp := http.New(log, httpPort, grpcPort)
+	httpApp := http.New(log, httpPort, grpcPort)
 
 	return &App{
 		GRPCSrv: grpcApp,
-		//HTTPSrv: httpApp,
+		HTTPSrv: httpApp,
 		Storage: storage,
 	}
 }

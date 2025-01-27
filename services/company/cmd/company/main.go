@@ -1,11 +1,15 @@
 package main
 
 import (
+	"company/internal/app"
 	"company/internal/config"
 	"company/internal/lib/logger/handlers/slogpretty"
+	"context"
 	"log/slog"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 const (
@@ -15,18 +19,49 @@ const (
 )
 
 var (
-	cfg config.Config
+	cfg = config.MustLoad()
 	wg  sync.WaitGroup
 )
 
 func main() {
 	log := setupLogger(cfg.Env)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	wg.Add(2)
+
 	log.Info("starting application",
 		slog.String("env", cfg.Env),
 		slog.Any("cfg", cfg),
 		slog.Int("port", cfg.ServicePort),
 	)
+
+	application := app.New(log, cfg.ServicePort, cfg.HttpPort, cfg.PostgresURI, cfg.TokenTTL)
+
+	go func() {
+		defer wg.Done()
+		application.GRPCSrv.MustRun()
+	}()
+
+	go func() {
+		defer wg.Done()
+		application.HTTPSrv.MustRun(ctx)
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	s := <-quit
+
+	log.Info("stopping application", slog.String("signal", s.String()))
+
+	application.HTTPSrv.Stop(ctx)
+	application.GRPCSrv.Stop()
+
+	wg.Wait()
+
+	log.Info("application stopped")
 
 }
 

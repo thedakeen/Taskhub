@@ -3,18 +3,27 @@ syntax = "proto3";
 package comp;
 
 
+import "google/api/annotations.proto";
+
+
+
 
 option go_package = "tp.comp.v1.;compv1";
 
 service Company{
-  rpc Company(GetCompanyRequest) returns (GetCompanyResponse);
+  rpc Company(GetCompanyRequest) returns (GetCompanyResponse){
+    option (google.api.http) = {
+      get: "/v1/company/{companyID}"
+    };
+  }
+
   rpc CompanyGithubIntegration(GetCompanyGithubIntegrationRequest) returns (GetCompanyGithubIntegrationResponse);
     }
 
 
 
 message GetCompanyRequest{
-  int64 company_id = 1;
+  int64 companyID = 1;
 }
 
 message GetCompanyResponse{
