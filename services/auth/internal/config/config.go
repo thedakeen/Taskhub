@@ -38,7 +38,7 @@ var (
 
 func MustLoad() *Config {
 	once.Do(func() {
-		err := godotenv.Load()
+		err := godotenv.Load("../.env")
 		if err != nil {
 			panic("No .env file found")
 		}
