@@ -33,7 +33,7 @@ func (s *Storage) DeleteInactiveUsers(ctx context.Context) error {
 func (s *Storage) GetUser(ctx context.Context, email string) (*entities.User, error) {
 	const op = "repository.user.GetUser"
 
-	query, err := s.Db.Prepare("SELECT id, email, username, password_hash FROM users WHERE email = $1")
+	query, err := s.Db.Prepare("SELECT id, email, username, password_hash FROM users WHERE email = $1 AND activated = true")
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
