@@ -13,6 +13,7 @@ import (
 )
 
 type Company interface {
+	AddCompany(ctx context.Context, installationID int64, companyName string, companyLogo string) (companyID int64, err error)
 	CompanyGithubIntegration(ctx context.Context, id int64) (companyName string, installationID int64, err error)
 	CompanyInfo(ctx context.Context, id int64) (*entities.Company, error)
 }
@@ -49,5 +50,19 @@ func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyReques
 		Description: "Very large company",
 		WebsiteUrl:  "google.com",
 		Logo:        "googol",
+	}, nil
+}
+
+func (s *serverAPI) AddCompany(ctx context.Context, req *companyv1.AddCompanyGithubIntegrationRequest) (*companyv1.AddCompanyGithubIntegrationResponse, error) {
+	companyID, err := s.company.AddCompany(ctx, req.InstallationId, req.CompanyName, req.LogoUrl)
+	if err != nil {
+		switch {
+		default:
+			return nil, status.Error(codes.Internal, "internal server error")
+		}
+	}
+
+	return &companyv1.AddCompanyGithubIntegrationResponse{
+		CompanyId: companyID,
 	}, nil
 }

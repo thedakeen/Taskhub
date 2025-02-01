@@ -2,6 +2,7 @@ package http
 
 import (
 	companyv1 "company/gen/company"
+	"company/internal/app/http/webhook"
 	"context"
 	"errors"
 	"fmt"
@@ -16,17 +17,19 @@ import (
 )
 
 type App struct {
-	log      *slog.Logger
-	httpPort int
-	grpcPort int
-	server   *http.Server
+	log            *slog.Logger
+	httpPort       int
+	grpcPort       int
+	server         *http.Server
+	webhookHandler *webhook.Handler
 }
 
-func New(log *slog.Logger, httpPort int, grpcPort int) *App {
+func New(log *slog.Logger, httpPort int, grpcPort int, webhookHandler *webhook.Handler) *App {
 	return &App{
-		log:      log,
-		httpPort: httpPort,
-		grpcPort: grpcPort,
+		log:            log,
+		httpPort:       httpPort,
+		grpcPort:       grpcPort,
+		webhookHandler: webhookHandler,
 	}
 }
 
@@ -62,7 +65,11 @@ func (app *App) Run(ctx context.Context) error {
 		return fmt.Errorf("%s:%w", op, err)
 	}
 
-	corsMux := app.setupCORS().Handler(mux)
+	httpMux := http.NewServeMux()
+	httpMux.Handle("/", mux)
+	httpMux.HandleFunc("/v1/webhooks", app.webhookHandler.HandleWebhook)
+
+	corsMux := app.setupCORS().Handler(httpMux)
 
 	app.server = &http.Server{
 		Addr:    l.Addr().String(),
@@ -107,10 +114,14 @@ func (app *App) Stop(ctx context.Context) {
 
 func (app *App) setupCORS() *cors.Cors {
 	return cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"*"},
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		Debug:            true,
+		//AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		//AllowCredentials: true,
+		//AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		//AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		Debug: true,
 	})
 }

@@ -37,7 +37,7 @@ func main() {
 		slog.Int("port", cfg.ServicePort),
 	)
 
-	application := app.New(log, cfg.ServicePort, cfg.HttpPort, cfg.PostgresURI, cfg.TokenTTL)
+	application := app.New(log, cfg.ServicePort, cfg.HttpPort, cfg.PostgresURI, cfg.TokenTTL, cfg.GithubWebhookSecret)
 
 	go func() {
 		defer wg.Done()
