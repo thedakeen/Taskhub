@@ -17,6 +17,7 @@ type Company struct {
 }
 
 type CompanyProvider interface {
+	AddGithubIntegration(ctx context.Context, installationID int64, companyName string, logoURL string) (int64, error)
 	GetGithubIntegration(ctx context.Context, id int64) (string, int64, error)
 	GetCompany(ctx context.Context, id int64) (*entities.Company, error)
 }
@@ -62,4 +63,25 @@ func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (string
 
 func (c Company) CompanyInfo(ctx context.Context, id int64) (*entities.Company, error) {
 	return &entities.Company{}, nil
+}
+
+func (c Company) AddCompany(ctx context.Context, installationID int64, companyName string, companyLogo string) (int64, error) {
+	const op = "company.AddCompany"
+
+	log := c.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("catching information via webhook")
+
+	companyID, err := c.compProvider.AddGithubIntegration(ctx, installationID, companyName, companyLogo)
+	if err != nil {
+		c.log.Error("company has not been added")
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+
+	log.Info("company integrated successfully via github")
+
+	return companyID, nil
+
 }

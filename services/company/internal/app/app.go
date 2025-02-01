@@ -3,6 +3,7 @@ package app
 import (
 	grpcapp "company/internal/app/grpc"
 	"company/internal/app/http"
+	"company/internal/app/http/webhook"
 	"company/internal/repository"
 	"company/internal/services/company"
 	"company/internal/storage/postgres"
@@ -16,7 +17,7 @@ type App struct {
 	Storage *repository.Storage
 }
 
-func New(log *slog.Logger, grpcPort int, httpPort int, storagePath string, tokenTTL time.Duration) *App {
+func New(log *slog.Logger, grpcPort int, httpPort int, storagePath string, tokenTTL time.Duration, webhookSecret string) *App {
 
 	storage, err := postgres.New(storagePath)
 
@@ -26,7 +27,10 @@ func New(log *slog.Logger, grpcPort int, httpPort int, storagePath string, token
 
 	companyService := company.New(log, storage, tokenTTL)
 	grpcApp := grpcapp.New(log, companyService, grpcPort)
-	httpApp := http.New(log, httpPort, grpcPort)
+
+	webhookHandler := webhook.NewHandler(log, companyService, webhookSecret)
+
+	httpApp := http.New(log, httpPort, grpcPort, webhookHandler)
 
 	return &App{
 		GRPCSrv: grpcApp,

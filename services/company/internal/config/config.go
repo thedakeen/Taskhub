@@ -16,6 +16,8 @@ type Config struct {
 	ServicePort int `env:"GRPC_COMPANY_SERVICE_PORT"`
 	HttpPort    int `env:"HTTP_COMPANY_SERVICE_PORT"`
 
+	GithubWebhookSecret string `env:"GITHUB_WEBHOOK_SECRET"`
+
 	ServiceTimeout time.Duration `env:"COMPANY_SERVICE_TIMEOUT"`
 }
 

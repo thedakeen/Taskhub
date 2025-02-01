@@ -17,6 +17,7 @@ service Company{
     };
   }
 
+
   rpc CompanyGithubIntegration(GetCompanyGithubIntegrationRequest) returns (GetCompanyGithubIntegrationResponse);
     }
 
@@ -38,11 +39,10 @@ message GetCompanyResponse{
 
 
 message GetCompanyGithubIntegrationRequest{
-  string company_id = 1;
+  int64 company_id = 1;
 }
 
 message GetCompanyGithubIntegrationResponse{
   string company_name = 1;
   int64 installation_id = 2;
 }
-
