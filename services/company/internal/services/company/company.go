@@ -18,7 +18,7 @@ type Company struct {
 
 type CompanyProvider interface {
 	AddGithubIntegration(ctx context.Context, installationID int64, companyName string, logoURL string) (int64, error)
-	GetGithubIntegration(ctx context.Context, id int64) (string, int64, error)
+	GetGithubIntegration(ctx context.Context, id int64) (int64, error)
 	GetCompany(ctx context.Context, id int64) (*entities.Company, error)
 }
 
@@ -33,7 +33,7 @@ func New(
 	}
 }
 
-func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (string, int64, error) {
+func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (int64, error) {
 	const op = "company.CompanyIntegration"
 
 	log := c.log.With(
@@ -41,28 +41,51 @@ func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (string
 		slog.Int64("id", id),
 	)
 
-	log.Info("getting information about company")
+	log.Info("getting information about github integration")
 
-	companyName, installationID, err := c.compProvider.GetGithubIntegration(ctx, id)
+	installationID, err := c.compProvider.GetGithubIntegration(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
 			c.log.Warn("no company found", slog.String("error", err.Error()))
-			return "", 0, fmt.Errorf("%s:%w", op, err)
+			return 0, fmt.Errorf("%s:%w", op, err)
 		default:
 			c.log.Warn("failed to get company integrations", slog.String("error", err.Error()))
-			return "", 0, fmt.Errorf("%s:%w", op, err)
+			return 0, fmt.Errorf("%s:%w", op, err)
 		}
 	}
 
-	log.Info("integration type got successfully")
+	log.Info("integration ID got successfully")
 
-	return companyName, installationID, nil
+	return installationID, nil
 
 }
 
 func (c Company) CompanyInfo(ctx context.Context, id int64) (*entities.Company, error) {
-	return &entities.Company{}, nil
+	const op = "company.CompanyInfo"
+
+	log := c.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("get information about company")
+
+	company, err := c.compProvider.GetCompany(ctx, id)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			c.log.Warn("no company found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			c.log.Warn("failed to get company information", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("company information got successfully")
+
+	return company, nil
+
 }
 
 func (c Company) AddCompany(ctx context.Context, installationID int64, companyName string, companyLogo string) (int64, error) {

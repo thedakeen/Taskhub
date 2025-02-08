@@ -1,11 +1,11 @@
 package entities
 
+import "database/sql"
+
 type Company struct {
-	ID              int64
-	CompanyName     string
-	Description     string
-	WebsiteURL      string
-	Logo            string
-	IntegrationType string
-	InstallationID  int64
+	ID          int64
+	CompanyName string
+	Description sql.NullString
+	WebsiteURL  sql.NullString
+	LogoURL     string
 }
