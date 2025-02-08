@@ -5,7 +5,9 @@ import (
 	"company/internal/config"
 	"company/internal/domain/entities"
 	"company/internal/grpc/structs"
+	"company/internal/storage"
 	"context"
+	"errors"
 	"github.com/go-playground/validator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -14,7 +16,7 @@ import (
 
 type Company interface {
 	AddCompany(ctx context.Context, installationID int64, companyName string, companyLogo string) (companyID int64, err error)
-	CompanyGithubIntegration(ctx context.Context, id int64) (companyName string, installationID int64, err error)
+	CompanyGithubIntegration(ctx context.Context, id int64) (installationID int64, err error)
 	CompanyInfo(ctx context.Context, id int64) (*entities.Company, error)
 }
 
@@ -45,24 +47,44 @@ func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyReques
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	return &companyv1.GetCompanyResponse{
-		CompanyName: "Google",
-		Description: "Very large company",
-		WebsiteUrl:  "google.com",
-		Logo:        "googol",
-	}, nil
-}
-
-func (s *serverAPI) AddCompany(ctx context.Context, req *companyv1.AddCompanyGithubIntegrationRequest) (*companyv1.AddCompanyGithubIntegrationResponse, error) {
-	companyID, err := s.company.AddCompany(ctx, req.InstallationId, req.CompanyName, req.LogoUrl)
+	company, err := s.company.CompanyInfo(ctx, req.GetCompanyID())
 	if err != nil {
 		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, err.Error())
 		default:
-			return nil, status.Error(codes.Internal, "internal server error")
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 	}
 
-	return &companyv1.AddCompanyGithubIntegrationResponse{
-		CompanyId: companyID,
+	return &companyv1.GetCompanyResponse{
+		CompanyName: company.CompanyName,
+		Description: company.Description.String,
+		WebsiteUrl:  company.WebsiteURL.String,
+		Logo:        company.LogoURL,
 	}, nil
+}
+
+func (s *serverAPI) CompanyGithubIntegration(ctx context.Context, req *companyv1.GetCompanyGithubIntegrationRequest) (*companyv1.GetCompanyGithubIntegrationResponse, error) {
+	companyIntegrationRequest := structs.CompanyIntegrationRequest{
+		CompanyID: req.CompanyId,
+	}
+
+	err := s.v.Struct(companyIntegrationRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	installationID, err := s.company.CompanyGithubIntegration(ctx, req.GetCompanyId())
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	return &companyv1.GetCompanyGithubIntegrationResponse{InstallationId: installationID}, nil
+
 }

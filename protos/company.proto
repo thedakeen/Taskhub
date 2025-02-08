@@ -19,12 +19,13 @@ service Company{
 
 
   rpc CompanyGithubIntegration(GetCompanyGithubIntegrationRequest) returns (GetCompanyGithubIntegrationResponse);
+
     }
 
 
 
 message GetCompanyRequest{
-  int64 companyID = 1;
+  int64 company_id = 1;
 }
 
 message GetCompanyResponse{
@@ -43,6 +44,5 @@ message GetCompanyGithubIntegrationRequest{
 }
 
 message GetCompanyGithubIntegrationResponse{
-  string company_name = 1;
-  int64 installation_id = 2;
+  int64 installation_id = 1;
 }
