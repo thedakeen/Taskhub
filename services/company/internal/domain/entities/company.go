@@ -1,6 +1,9 @@
 package entities
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 type Company struct {
 	ID          int64
@@ -8,4 +11,5 @@ type Company struct {
 	Description sql.NullString
 	WebsiteURL  sql.NullString
 	LogoURL     string
+	CreatedAt   time.Time
 }

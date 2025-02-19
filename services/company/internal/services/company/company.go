@@ -20,6 +20,7 @@ type CompanyProvider interface {
 	AddGithubIntegration(ctx context.Context, installationID int64, companyName string, logoURL string) (int64, error)
 	GetGithubIntegration(ctx context.Context, id int64) (int64, error)
 	GetCompany(ctx context.Context, id int64) (*entities.Company, error)
+	GetAllCompanies(ctx context.Context) ([]*entities.Company, error)
 }
 
 func New(
@@ -59,6 +60,32 @@ func (c Company) CompanyGithubIntegration(ctx context.Context, id int64) (int64,
 
 	return installationID, nil
 
+}
+
+func (c Company) AllCompaniesInfo(ctx context.Context) ([]*entities.Company, error) {
+	const op = "company.AllCompaniesInfo"
+
+	log := c.log.With(
+		slog.String("op", op),
+	)
+
+	log.Info("get all companies")
+
+	companies, err := c.compProvider.GetAllCompanies(ctx)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			c.log.Warn("no companies found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			c.log.Warn("failed to get companies", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("companies got successfully")
+
+	return companies, nil
 }
 
 func (c Company) CompanyInfo(ctx context.Context, id int64) (*entities.Company, error) {

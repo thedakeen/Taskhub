@@ -12,12 +12,14 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Company interface {
 	AddCompany(ctx context.Context, installationID int64, companyName string, companyLogo string) (companyID int64, err error)
 	CompanyGithubIntegration(ctx context.Context, id int64) (installationID int64, err error)
 	CompanyInfo(ctx context.Context, id int64) (*entities.Company, error)
+	AllCompaniesInfo(ctx context.Context) ([]*entities.Company, error)
 }
 
 type serverAPI struct {
@@ -37,6 +39,31 @@ func Register(gRPC *grpc.Server, company Company) {
 	})
 }
 
+func (s *serverAPI) Companies(ctx context.Context, req *companyv1.GetCompaniesRequest) (*companyv1.GetCompaniesResponse, error) {
+	companies, err := s.company.AllCompaniesInfo(ctx)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	var companyResponses []*companyv1.Companies
+	for _, c := range companies {
+		companyResponses = append(companyResponses, &companyv1.Companies{
+			CompanyId:   c.ID,
+			CompanyName: c.CompanyName,
+			Logo:        c.LogoURL,
+		})
+	}
+
+	return &companyv1.GetCompaniesResponse{
+		Companies: companyResponses,
+	}, nil
+}
+
 func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyRequest) (*companyv1.GetCompanyResponse, error) {
 	companyRequest := structs.CompanyRequest{
 		CompanyID: 1,
@@ -47,7 +74,7 @@ func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyReques
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	company, err := s.company.CompanyInfo(ctx, req.GetCompanyID())
+	company, err := s.company.CompanyInfo(ctx, req.GetCompanyId())
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
@@ -58,10 +85,12 @@ func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyReques
 	}
 
 	return &companyv1.GetCompanyResponse{
+		CompanyId:   company.ID,
 		CompanyName: company.CompanyName,
 		Description: company.Description.String,
 		WebsiteUrl:  company.WebsiteURL.String,
 		Logo:        company.LogoURL,
+		CreatedAt:   timestamppb.New(company.CreatedAt),
 	}, nil
 }
 

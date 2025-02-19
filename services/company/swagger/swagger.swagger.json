@@ -16,7 +16,29 @@
     "application/json"
   ],
   "paths": {
-    "/v1/company/{companyID}": {
+    "/v1/companies": {
+      "get": {
+        "operationId": "Company_Companies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/compGetCompaniesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Company"
+        ]
+      }
+    },
+    "/v1/company/{companyId}": {
       "get": {
         "operationId": "Company_Company",
         "responses": {
@@ -35,7 +57,7 @@
         },
         "parameters": [
           {
-            "name": "companyID",
+            "name": "companyId",
             "in": "path",
             "required": true,
             "type": "string",
@@ -49,6 +71,33 @@
     }
   },
   "definitions": {
+    "compCompanies": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "companyName": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        }
+      }
+    },
+    "compGetCompaniesResponse": {
+      "type": "object",
+      "properties": {
+        "companies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/compCompanies"
+          }
+        }
+      }
+    },
     "compGetCompanyGithubIntegrationResponse": {
       "type": "object",
       "properties": {
@@ -61,6 +110,10 @@
     "compGetCompanyResponse": {
       "type": "object",
       "properties": {
+        "companyId": {
+          "type": "string",
+          "format": "int64"
+        },
         "companyName": {
           "type": "string"
         },
@@ -72,6 +125,10 @@
         },
         "logo": {
           "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
