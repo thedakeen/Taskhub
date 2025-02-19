@@ -38,7 +38,7 @@
         ]
       }
     },
-    "/v1/company/{companyId}": {
+    "/v1/companies/{companyId}": {
       "get": {
         "operationId": "Company_Company",
         "responses": {
