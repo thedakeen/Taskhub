@@ -41,13 +41,13 @@ func request_Company_Company_0(ctx context.Context, marshaler runtime.Marshaler,
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["companyID"]
+	val, ok := pathParams["company_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "companyID")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "company_id")
 	}
-	protoReq.CompanyID, err = runtime.Int64(val)
+	protoReq.CompanyId, err = runtime.Int64(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "companyID", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "company_id", err)
 	}
 	msg, err := client.Company(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -59,15 +59,33 @@ func local_request_Company_Company_0(ctx context.Context, marshaler runtime.Mars
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["companyID"]
+	val, ok := pathParams["company_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "companyID")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "company_id")
 	}
-	protoReq.CompanyID, err = runtime.Int64(val)
+	protoReq.CompanyId, err = runtime.Int64(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "companyID", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "company_id", err)
 	}
 	msg, err := server.Company(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_Company_Companies_0(ctx context.Context, marshaler runtime.Marshaler, client CompanyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetCompaniesRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := client.Companies(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_Company_Companies_0(ctx context.Context, marshaler runtime.Marshaler, server CompanyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetCompaniesRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.Companies(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -83,7 +101,7 @@ func RegisterCompanyHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/comp.Company/Company", runtime.WithHTTPPathPattern("/v1/company/{companyID}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/comp.Company/Company", runtime.WithHTTPPathPattern("/v1/company/{company_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -96,6 +114,26 @@ func RegisterCompanyHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 		forward_Company_Company_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_Company_Companies_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/comp.Company/Companies", runtime.WithHTTPPathPattern("/v1/companies"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Company_Companies_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Company_Companies_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -141,7 +179,7 @@ func RegisterCompanyHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/comp.Company/Company", runtime.WithHTTPPathPattern("/v1/company/{companyID}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/comp.Company/Company", runtime.WithHTTPPathPattern("/v1/company/{company_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -154,13 +192,32 @@ func RegisterCompanyHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 		forward_Company_Company_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_Company_Companies_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/comp.Company/Companies", runtime.WithHTTPPathPattern("/v1/companies"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Company_Companies_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Company_Companies_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_Company_Company_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "company", "companyID"}, ""))
+	pattern_Company_Company_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "company", "company_id"}, ""))
+	pattern_Company_Companies_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "companies"}, ""))
 )
 
 var (
-	forward_Company_Company_0 = runtime.ForwardResponseMessage
+	forward_Company_Company_0   = runtime.ForwardResponseMessage
+	forward_Company_Companies_0 = runtime.ForwardResponseMessage
 )

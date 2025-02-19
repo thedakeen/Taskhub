@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Company_Company_FullMethodName                  = "/comp.Company/Company"
+	Company_Companies_FullMethodName                = "/comp.Company/Companies"
 	Company_CompanyGithubIntegration_FullMethodName = "/comp.Company/CompanyGithubIntegration"
 )
 
@@ -28,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CompanyClient interface {
 	Company(ctx context.Context, in *GetCompanyRequest, opts ...grpc.CallOption) (*GetCompanyResponse, error)
+	Companies(ctx context.Context, in *GetCompaniesRequest, opts ...grpc.CallOption) (*GetCompaniesResponse, error)
 	CompanyGithubIntegration(ctx context.Context, in *GetCompanyGithubIntegrationRequest, opts ...grpc.CallOption) (*GetCompanyGithubIntegrationResponse, error)
 }
 
@@ -49,6 +51,16 @@ func (c *companyClient) Company(ctx context.Context, in *GetCompanyRequest, opts
 	return out, nil
 }
 
+func (c *companyClient) Companies(ctx context.Context, in *GetCompaniesRequest, opts ...grpc.CallOption) (*GetCompaniesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCompaniesResponse)
+	err := c.cc.Invoke(ctx, Company_Companies_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *companyClient) CompanyGithubIntegration(ctx context.Context, in *GetCompanyGithubIntegrationRequest, opts ...grpc.CallOption) (*GetCompanyGithubIntegrationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCompanyGithubIntegrationResponse)
@@ -64,6 +76,7 @@ func (c *companyClient) CompanyGithubIntegration(ctx context.Context, in *GetCom
 // for forward compatibility.
 type CompanyServer interface {
 	Company(context.Context, *GetCompanyRequest) (*GetCompanyResponse, error)
+	Companies(context.Context, *GetCompaniesRequest) (*GetCompaniesResponse, error)
 	CompanyGithubIntegration(context.Context, *GetCompanyGithubIntegrationRequest) (*GetCompanyGithubIntegrationResponse, error)
 	mustEmbedUnimplementedCompanyServer()
 }
@@ -77,6 +90,9 @@ type UnimplementedCompanyServer struct{}
 
 func (UnimplementedCompanyServer) Company(context.Context, *GetCompanyRequest) (*GetCompanyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Company not implemented")
+}
+func (UnimplementedCompanyServer) Companies(context.Context, *GetCompaniesRequest) (*GetCompaniesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Companies not implemented")
 }
 func (UnimplementedCompanyServer) CompanyGithubIntegration(context.Context, *GetCompanyGithubIntegrationRequest) (*GetCompanyGithubIntegrationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CompanyGithubIntegration not implemented")
@@ -120,6 +136,24 @@ func _Company_Company_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Company_Companies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCompaniesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServer).Companies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Company_Companies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServer).Companies(ctx, req.(*GetCompaniesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Company_CompanyGithubIntegration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCompanyGithubIntegrationRequest)
 	if err := dec(in); err != nil {
@@ -148,6 +182,10 @@ var Company_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Company",
 			Handler:    _Company_Company_Handler,
+		},
+		{
+			MethodName: "Companies",
+			Handler:    _Company_Companies_Handler,
 		},
 		{
 			MethodName: "CompanyGithubIntegration",

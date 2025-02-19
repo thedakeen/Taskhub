@@ -52,10 +52,56 @@ func (s Storage) GetGithubIntegration(ctx context.Context, id int64) (installati
 
 }
 
+func (s Storage) GetAllCompanies(ctx context.Context) ([]*entities.Company, error) {
+	const op = "repository.company.GetAllCompanies"
+
+	query := "SELECT company_id, company_name, logo FROM companies"
+
+	rows, err := s.Db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
+
+	//totalRecords := 0
+	var companies []*entities.Company
+
+	for rows.Next() {
+		company := &entities.Company{}
+
+		err := rows.Scan(
+			&company.ID,
+			&company.CompanyName,
+			&company.LogoURL)
+
+		if err != nil {
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+
+		companies = append(companies, company)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	//if totalRecords == 0 {
+	//	return nil, storage.ErrNoRecordFound
+	//}
+
+	return companies, nil
+}
+
 func (s Storage) GetCompany(ctx context.Context, id int64) (*entities.Company, error) {
 	const op = "repository.company.GetCompany"
 
-	query, err := s.Db.Prepare("SELECT company_name, description, website, logo FROM companies WHERE company_id = $1")
+	query, err := s.Db.Prepare("SELECT company_id, company_name, description, website, logo, created_at FROM companies WHERE company_id = $1")
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
@@ -63,10 +109,12 @@ func (s Storage) GetCompany(ctx context.Context, id int64) (*entities.Company, e
 	var company entities.Company
 
 	err = query.QueryRowContext(ctx, id).Scan(
+		&company.ID,
 		&company.CompanyName,
 		&company.Description,
 		&company.WebsiteURL,
-		&company.LogoURL)
+		&company.LogoURL,
+		&company.CreatedAt)
 
 	if err != nil {
 		switch {
