@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Company_Company_FullMethodName                  = "/comp.Company/Company"
 	Company_Companies_FullMethodName                = "/comp.Company/Companies"
+	Company_Issue_FullMethodName                    = "/comp.Company/Issue"
+	Company_CompanyIssues_FullMethodName            = "/comp.Company/CompanyIssues"
 	Company_CompanyGithubIntegration_FullMethodName = "/comp.Company/CompanyGithubIntegration"
 )
 
@@ -30,6 +32,8 @@ const (
 type CompanyClient interface {
 	Company(ctx context.Context, in *GetCompanyRequest, opts ...grpc.CallOption) (*GetCompanyResponse, error)
 	Companies(ctx context.Context, in *GetCompaniesRequest, opts ...grpc.CallOption) (*GetCompaniesResponse, error)
+	Issue(ctx context.Context, in *GetIssueRequest, opts ...grpc.CallOption) (*GetIssueResponse, error)
+	CompanyIssues(ctx context.Context, in *GetIssuesOfCompanyRequest, opts ...grpc.CallOption) (*GetIssuesOfCompanyResponse, error)
 	CompanyGithubIntegration(ctx context.Context, in *GetCompanyGithubIntegrationRequest, opts ...grpc.CallOption) (*GetCompanyGithubIntegrationResponse, error)
 }
 
@@ -61,6 +65,26 @@ func (c *companyClient) Companies(ctx context.Context, in *GetCompaniesRequest, 
 	return out, nil
 }
 
+func (c *companyClient) Issue(ctx context.Context, in *GetIssueRequest, opts ...grpc.CallOption) (*GetIssueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetIssueResponse)
+	err := c.cc.Invoke(ctx, Company_Issue_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *companyClient) CompanyIssues(ctx context.Context, in *GetIssuesOfCompanyRequest, opts ...grpc.CallOption) (*GetIssuesOfCompanyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetIssuesOfCompanyResponse)
+	err := c.cc.Invoke(ctx, Company_CompanyIssues_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *companyClient) CompanyGithubIntegration(ctx context.Context, in *GetCompanyGithubIntegrationRequest, opts ...grpc.CallOption) (*GetCompanyGithubIntegrationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCompanyGithubIntegrationResponse)
@@ -77,6 +101,8 @@ func (c *companyClient) CompanyGithubIntegration(ctx context.Context, in *GetCom
 type CompanyServer interface {
 	Company(context.Context, *GetCompanyRequest) (*GetCompanyResponse, error)
 	Companies(context.Context, *GetCompaniesRequest) (*GetCompaniesResponse, error)
+	Issue(context.Context, *GetIssueRequest) (*GetIssueResponse, error)
+	CompanyIssues(context.Context, *GetIssuesOfCompanyRequest) (*GetIssuesOfCompanyResponse, error)
 	CompanyGithubIntegration(context.Context, *GetCompanyGithubIntegrationRequest) (*GetCompanyGithubIntegrationResponse, error)
 	mustEmbedUnimplementedCompanyServer()
 }
@@ -93,6 +119,12 @@ func (UnimplementedCompanyServer) Company(context.Context, *GetCompanyRequest) (
 }
 func (UnimplementedCompanyServer) Companies(context.Context, *GetCompaniesRequest) (*GetCompaniesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Companies not implemented")
+}
+func (UnimplementedCompanyServer) Issue(context.Context, *GetIssueRequest) (*GetIssueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Issue not implemented")
+}
+func (UnimplementedCompanyServer) CompanyIssues(context.Context, *GetIssuesOfCompanyRequest) (*GetIssuesOfCompanyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompanyIssues not implemented")
 }
 func (UnimplementedCompanyServer) CompanyGithubIntegration(context.Context, *GetCompanyGithubIntegrationRequest) (*GetCompanyGithubIntegrationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CompanyGithubIntegration not implemented")
@@ -154,6 +186,42 @@ func _Company_Companies_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Company_Issue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIssueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServer).Issue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Company_Issue_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServer).Issue(ctx, req.(*GetIssueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Company_CompanyIssues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetIssuesOfCompanyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServer).CompanyIssues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Company_CompanyIssues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServer).CompanyIssues(ctx, req.(*GetIssuesOfCompanyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Company_CompanyGithubIntegration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCompanyGithubIntegrationRequest)
 	if err := dec(in); err != nil {
@@ -186,6 +254,14 @@ var Company_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Companies",
 			Handler:    _Company_Companies_Handler,
+		},
+		{
+			MethodName: "Issue",
+			Handler:    _Company_Issue_Handler,
+		},
+		{
+			MethodName: "CompanyIssues",
+			Handler:    _Company_CompanyIssues_Handler,
 		},
 		{
 			MethodName: "CompanyGithubIntegration",

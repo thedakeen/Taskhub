@@ -25,10 +25,10 @@ func New(log *slog.Logger, grpcPort int, httpPort int, storagePath string, token
 		panic(err)
 	}
 
-	companyService := company.New(log, storage, tokenTTL)
-	grpcApp := grpcapp.New(log, companyService, grpcPort)
+	companyService := company.New(log, storage, storage, tokenTTL)
+	grpcApp := grpcapp.New(log, companyService, companyService, grpcPort)
 
-	webhookHandler := webhook.NewHandler(log, companyService, webhookSecret)
+	webhookHandler := webhook.NewHandler(log, companyService, companyService, webhookSecret)
 
 	httpApp := http.New(log, httpPort, grpcPort, webhookHandler)
 

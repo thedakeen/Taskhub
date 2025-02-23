@@ -4,7 +4,7 @@ CREATE TABLE companies (
                            description TEXT,
                            website VARCHAR(255),
                            logo VARCHAR(255),
-                           installation_id BIGSERIAL UNIQUE,
+                           installation_id BIGINT UNIQUE,
                            created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL DEFAULT NOW(),
                            updated_at TIMESTAMP(0) WITH TIME ZONE NOT NULL DEFAULT NOW()
 --                            project_key BIGSERIAL UNIQUE

@@ -107,7 +107,7 @@ func (app *App) Stop(ctx context.Context) {
 
 func (app *App) setupCORS() *cors.Cors {
 	return cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8082"},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8081"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
