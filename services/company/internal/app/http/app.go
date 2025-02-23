@@ -118,7 +118,7 @@ func (app *App) setupCORS() *cors.Cors {
 		AllowedMethods:   []string{"*"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
-		//AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		//AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8082"},
 		//AllowCredentials: true,
 		//AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		//AllowedHeaders:   []string{"Authorization", "Content-Type"},

@@ -25,9 +25,50 @@ service Company{
   }
 
 
+  rpc Issue(GetIssueRequest) returns (GetIssueResponse){
+    option (google.api.http) = {
+      get: "/v1/issues/{issue_id}"
+    };
+  }
+
+  rpc CompanyIssues(GetIssuesOfCompanyRequest) returns (GetIssuesOfCompanyResponse){
+    option (google.api.http) = {
+      get: "/v1/companies/{company_id}/issues"
+    };
+  }
+
+
   rpc CompanyGithubIntegration(GetCompanyGithubIntegrationRequest) returns (GetCompanyGithubIntegrationResponse);
 
     }
+
+
+
+// ISSUES //
+
+message GetIssuesOfCompanyRequest{
+  int64 company_id = 1;
+}
+
+message GetIssuesOfCompanyResponse{
+  repeated GetIssueResponse issues = 1;
+}
+
+
+
+message GetIssueRequest{
+  int64 issue_id = 1;
+}
+
+message GetIssueResponse{
+  string title = 1;
+  string body = 2;
+}
+
+
+
+// END OF ISSUES //
+
 
 // LIST OF COMPANIES //
 
