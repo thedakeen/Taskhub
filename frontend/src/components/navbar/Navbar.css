@@ -1,0 +1,33 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 20px;
+    /* Добавляем эти свойства */
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.navbar a{
+    color: var(--accent-color);
+}
+.nav-left, .nav-right {
+    display: flex;
+    /* Добавляем эти свойства */
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    font-size: 1.2rem;
+    list-style: none;
+}
+.nav-left li {
+    padding: 10px;
+}
+
+/* Добавляем стиль для правого элемента */
+.nav-right li {
+    padding: 10px;
+}
