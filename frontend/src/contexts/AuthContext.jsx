@@ -5,30 +5,33 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true); // ✅ Флаг загрузки состояния
     const [verificationCodeSent, setVerificationCodeSent] = useState(false);
     const API_BASE_URL = "http://localhost:8081";
 
-    // Загружаем токен при запуске
     useEffect(() => {
         const token = localStorage.getItem("authToken");
+        const email = localStorage.getItem("userEmail");
         if (token) {
             const decoded = decodeJWT(token);
             if (decoded) {
-                const userId = decoded.uid; // ✅ Достаем userId сразу
-                setUser({ token, id: userId });
-                console.log("User loaded:", userId);
+                const userId = decoded.uid;
+                setUser({ token, id: userId, email });
+                console.log("User loaded:", { id: userId, email });
             }
         }
+        setIsLoading(false); // ✅ Завершаем загрузку
     }, []);
-    // Функция логина
+
     const logIn = async (email, password) => {
         try {
             const response = await axios.post(`${API_BASE_URL}/v1/login`, { email, password });
             const { token } = response.data;
             if (token) {
                 const decoded = decodeJWT(token);
-                setUser({ token, id: decoded?.uid });
                 localStorage.setItem("authToken", token);
+                localStorage.setItem("userEmail", email);
+                setUser({ token, id: decoded?.uid, email });
             } else {
                 console.error("❌ В ответе от сервера нет токена:", response.data);
             }
@@ -38,21 +41,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-
-    const decodeJWT = (token) => {
-        try {
-            const payload = token.split(".")[1]; // Берём вторую часть
-            const decoded = JSON.parse(atob(payload)); // Декодируем Base64
-            return decoded;
-        } catch (error) {
-            console.error("Ошибка при декодировании JWT:", error);
-            return null;
-        }
-    };
-    // Функция регистрации
     const signUp = async (email, password, username) => {
-        console.log("Attempting to sign up with:", { email, password, username });
-
         try {
             await axios.post(`${API_BASE_URL}/v1/signup`, { email, password, username });
             setVerificationCodeSent(true);
@@ -63,21 +52,15 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Функция верификации кода
     const verifyCode = async (OTP, email) => {
-        console.log("Attempting to verify OTP:", { OTP, email });
-
         try {
             const response = await axios.post(`${API_BASE_URL}/v1/signup/confirm`, { email, otp: OTP });
-
-            console.log("Verification response received:", response.data);
             const { token } = response.data;
-
             if (token) {
                 localStorage.setItem("authToken", token);
-                setUser({ token });
+                localStorage.setItem("userEmail", email);
+                setUser({ token, email });
             }
-
             alert("Verification successful. You are now logged in.");
         } catch (error) {
             console.error("Verification failed. Error details:", error.response?.data || error.message);
@@ -85,23 +68,26 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Функция выхода
     const logOut = () => {
-        console.log("Logging out user");
         setUser(null);
         localStorage.removeItem("authToken");
+        localStorage.removeItem("userEmail");
         console.log("User logged out and token cleared.");
     };
 
+    const decodeJWT = (token) => {
+        try {
+            const payload = token.split(".")[1];
+            const decoded = JSON.parse(atob(payload));
+            return decoded;
+        } catch (error) {
+            console.error("Ошибка при декодировании JWT:", error);
+            return null;
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{
-            user,
-            logIn,
-            logOut,
-            signUp,
-            verifyCode,
-            verificationCodeSent,
-        }}>
+        <AuthContext.Provider value={{ user, isLoading, logIn, logOut, signUp, verifyCode, verificationCodeSent }}>
             {children}
         </AuthContext.Provider>
     );
