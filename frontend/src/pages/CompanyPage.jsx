@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom"; // Добавляем Link для перехода
 import styles from "../styles/Company.module.css";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
@@ -32,11 +32,13 @@ const CompanyInfo = () => {
         const fetchIssues = async () => {
             try {
                 const response = await fetch(`http://localhost:8082/v1/companies/${companyId}/issues`);
+
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }
                 const data = await response.json();
-                setIssues(data); // Сохраняем данные в state
+                setIssues(data.issues);
+                console.log(data);
             } catch (err) {
                 console.error("Ошибка получения issues:", err);
                 setError(err.message);
@@ -81,20 +83,21 @@ const CompanyInfo = () => {
                 {/* Секция Issues */}
                 <div className={styles.issuesSection}>
                     <h3>Company Tasks</h3>
-                    {issues.length > 0 ? (
-                        <ul className={styles.issuesList}>
-                            {issues.map((issue) => (
-                                <li key={issue.id} className={styles.issueItem}>
-                                    <strong>{issue.title}</strong> - {issue.description}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No tasks</p>
-                    )}
+                    <ul className={styles.issuesList}>
+                        {issues.map((issue, index) => (
+                            <li key={index} className={styles.issueItem}>
+                                <strong>{issue.title}</strong>
+                                {/* Используем индекс как временный идентификатор */}
+                                <Link to={`/issues/${index+1}`} className={styles.issueButton}>
+                                    View Issue
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+
                 </div>
             </div>
-            <Footer />
+            <Footer/>
         </>
     );
 };

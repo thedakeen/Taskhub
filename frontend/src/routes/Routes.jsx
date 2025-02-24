@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import React, { useContext } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "../pages/Home";
 import SignIn from "../pages/SingIn";
 import SignUp from "../pages/SignUp";
@@ -9,40 +9,27 @@ import AuthContext from "../contexts/AuthContext";
 import GitHubCallback from "../components/GitHubCallback";
 import CompaniesPage from "../pages/CompaniesPage";
 import CompanyInfo from "../pages/CompanyPage";
+import CompanyIssue from "../pages/Issue";
 
 export function AppRoutes() {
-    const { user } = useContext(AuthContext);
+    const { user, isLoading } = useContext(AuthContext);
 
-    const publicRoutes = [
-        { path: "/", element: <Home /> },
-        { path: "/signin", element: <SignIn /> },
-        { path: "/signup", element: <SignUp /> },
-        { path: "/signup/verification", element: <Verification /> },
-        { path: "/github/callback", element: <GitHubCallback /> },
-    ];
-
-    const privateRoutes = [
-        { path: "/profile/:developerID", element: <Profile /> },
-        { path: "/companies", element: <CompaniesPage /> },
-        { path: "/companies/:companyId", element: <CompanyInfo /> },
-    ];
+    if (isLoading) return <div>Loading...</div>; // ✅ Показываем "Загрузка..." вместо редиректа
 
     return (
         <Routes>
             {/* Public routes */}
-            {publicRoutes.map(({ path, element }) => (
-                <Route key={path} path={path} element={element} />
-            ))}
-
+            <Route path="/" element={<Home />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signup/verification" element={<Verification />} />
+            <Route path="/github/callback" element={<GitHubCallback />} />
 
             {/* Private routes */}
-            {privateRoutes.map(({ path, element }) => (
-                <Route
-                    key={path}
-                    path={path}
-                    element={user ? element : <Navigate to="/signin" replace />}
-                />
-            ))}
+            <Route path="/profile/:developerID" element={user ? <Profile /> : <Navigate to="/signin" replace />} />
+            <Route path="/companies" element={user ? <CompaniesPage /> : <Navigate to="/signin" replace />} />
+            <Route path="/companies/:companyId" element={user ? <CompanyInfo /> : <Navigate to="/signin" replace />} />
+            <Route path="/issues/:issueId" element={<CompanyIssue />} />
 
             {/* Fallback route */}
             <Route path="*" element={<h1>Page Not Found</h1>} />
