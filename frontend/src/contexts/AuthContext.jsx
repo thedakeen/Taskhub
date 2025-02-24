@@ -6,33 +6,28 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [verificationCodeSent, setVerificationCodeSent] = useState(false);
-    const [isGitHubLinked, setIsGitHubLinked] = useState(false); // 🟢 Добавлено состояние
     const API_BASE_URL = "http://localhost:8081";
 
     // Загружаем токен при запуске
     useEffect(() => {
         const token = localStorage.getItem("authToken");
         if (token) {
-            setUser({ token }); // Мы не знаем данные юзера, просто храним токен
+            const decoded = decodeJWT(token);
+            if (decoded) {
+                const userId = decoded.uid; // ✅ Достаем userId сразу
+                setUser({ token, id: userId });
+                console.log("User loaded:", userId);
+            }
         }
     }, []);
-
-
     // Функция логина
     const logIn = async (email, password) => {
-        console.log("Attempting to log in with:", { email, password });
-
         try {
-            const response = await axios.post(`${API_BASE_URL}/v1/login`, {
-                email,
-                password,
-            });
-
-            console.log("SignIn response received:", response.data);
+            const response = await axios.post(`${API_BASE_URL}/v1/login`, { email, password });
             const { token } = response.data;
-
             if (token) {
-                setUser({ token });
+                const decoded = decodeJWT(token);
+                setUser({ token, id: decoded?.uid });
                 localStorage.setItem("authToken", token);
             } else {
                 console.error("❌ В ответе от сервера нет токена:", response.data);
@@ -43,6 +38,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
+    const decodeJWT = (token) => {
+        try {
+            const payload = token.split(".")[1]; // Берём вторую часть
+            const decoded = JSON.parse(atob(payload)); // Декодируем Base64
+            return decoded;
+        } catch (error) {
+            console.error("Ошибка при декодировании JWT:", error);
+            return null;
+        }
+    };
     // Функция регистрации
     const signUp = async (email, password, username) => {
         console.log("Attempting to sign up with:", { email, password, username });
@@ -56,29 +62,7 @@ export const AuthProvider = ({ children }) => {
             alert("SignUp failed! Please try again.");
         }
     };
-    const checkGitHubStatus = async () => {
-        try {
-            const response = await fetch("/api/auth/developer-profile", {
-                credentials: "include", // Если нужен токен куки
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`, // Если нужен токен
-                },
-            });
 
-            if (!response.ok) {
-                throw new Error("Ошибка API");
-            }
-
-            const data = await response.json();
-            console.log("GitHub linked:", data.isGithubLinked);
-
-            return data.isGithubLinked;
-        } catch (error) {
-            console.error("Ошибка при проверке GitHub привязки:", error);
-            return false;
-        }
-    };
     // Функция верификации кода
     const verifyCode = async (OTP, email) => {
         console.log("Attempting to verify OTP:", { OTP, email });

@@ -35,7 +35,6 @@
     margin-bottom: 1rem;
 }
 
-
 .avatarContainer {
     margin-top: 0.25rem;
     max-width: 200px; /* максимальная ширина */
@@ -49,7 +48,6 @@
 .avatarImage {
     width: 100%;
     max-width: 200px; /* максимальная ширина */
-
 }
 
 .logoContainer {
@@ -60,4 +58,44 @@
     max-width: 100%;
     height: auto;
     display: block;
+}
+
+/* Стили для секции Issues */
+.issuesSection {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.issuesSection h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.issuesList {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.issueItem {
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.issueItem strong {
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.issueItem p {
+    margin-top: 5px;
+    color: #666;
 }

@@ -22,7 +22,7 @@ export function AppRoutes() {
     ];
 
     const privateRoutes = [
-        { path: "/profile", element: <Profile /> },
+        { path: "/profile/:developerID", element: <Profile /> },
         { path: "/companies", element: <CompaniesPage /> },
         { path: "/companies/:companyId", element: <CompanyInfo /> },
     ];
@@ -31,12 +31,9 @@ export function AppRoutes() {
         <Routes>
             {/* Public routes */}
             {publicRoutes.map(({ path, element }) => (
-                <Route
-                    key={path}
-                    path={path}
-                    element={user && path !== "/" ? <Navigate to="/profile" replace /> : element}
-                />
+                <Route key={path} path={path} element={element} />
             ))}
+
 
             {/* Private routes */}
             {privateRoutes.map(({ path, element }) => (
