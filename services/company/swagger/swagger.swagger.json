@@ -197,6 +197,10 @@
     "compGetIssueResponse": {
       "type": "object",
       "properties": {
+        "issueId": {
+          "type": "string",
+          "format": "int64"
+        },
         "title": {
           "type": "string"
         },

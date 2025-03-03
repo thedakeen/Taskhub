@@ -28,7 +28,7 @@ func (s Storage) CreateIssue(ctx context.Context, installationID int64, title st
 func (s Storage) GetIssue(ctx context.Context, id int64) (*entities.Issue, error) {
 	const op = "repository.issue.GetIssue"
 
-	query, err := s.Db.Prepare("SELECT title, body FROM issues WHERE id = $1")
+	query, err := s.Db.Prepare("SELECT id, title, body FROM issues WHERE id = $1")
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
@@ -36,8 +36,9 @@ func (s Storage) GetIssue(ctx context.Context, id int64) (*entities.Issue, error
 	var issue entities.Issue
 
 	err = query.QueryRowContext(ctx, id).Scan(
-		&issue.Body,
-		&issue.Title)
+		&issue.ID,
+		&issue.Title,
+		&issue.Body)
 
 	if err != nil {
 		switch {
@@ -54,7 +55,7 @@ func (s Storage) GetIssue(ctx context.Context, id int64) (*entities.Issue, error
 func (s Storage) GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities.Issue, error) {
 	const op = "repository.issue.GetAllIssues"
 
-	query := "SELECT i.title, i.body FROM issues i INNER JOIN companies c ON i.installation_id = c.installation_id WHERE c.company_id = $1"
+	query := "SELECT i.id, i.title, i.body FROM issues i INNER JOIN companies c ON i.installation_id = c.installation_id WHERE c.company_id = $1"
 
 	rows, err := s.Db.QueryContext(ctx, query, id)
 	if err != nil {
@@ -75,8 +76,9 @@ func (s Storage) GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities
 		issue := &entities.Issue{}
 
 		err := rows.Scan(
-			&issue.Body,
+			&issue.ID,
 			&issue.Title,
+			&issue.Body,
 		)
 
 		if err != nil {
