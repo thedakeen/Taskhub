@@ -71,8 +71,9 @@ func (s *serverAPI) CompanyIssues(ctx context.Context, req *companyv1.GetIssuesO
 	var issueResponses []*companyv1.GetIssueResponse
 	for _, i := range issues {
 		issueResponses = append(issueResponses, &companyv1.GetIssueResponse{
-			Title: i.Title,
-			Body:  i.Body,
+			IssueId: i.ID,
+			Title:   i.Title,
+			Body:    i.Body,
 		})
 	}
 
@@ -102,8 +103,9 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 	}
 
 	return &companyv1.GetIssueResponse{
-		Title: issue.Title,
-		Body:  issue.Body,
+		IssueId: issue.ID,
+		Title:   issue.Title,
+		Body:    issue.Body,
 	}, nil
 }
 
