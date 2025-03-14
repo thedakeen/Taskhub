@@ -19,6 +19,18 @@ type Config struct {
 	GithubWebhookSecret string `env:"GITHUB_WEBHOOK_SECRET"`
 
 	ServiceTimeout time.Duration `env:"COMPANY_SERVICE_TIMEOUT"`
+
+	Clients ClientsConfig
+}
+
+type Client struct {
+	Address      string        `env:"CLIENT_ADDRESS"`
+	Timeout      time.Duration `env:"CLIENT_TIMEOUT"`
+	RetriesCount int           `env:"CLIENT_RETRIES"`
+}
+
+type ClientsConfig struct {
+	Auth Client `env-prefix:"AUTH_"`
 }
 
 var (

@@ -320,7 +320,7 @@ func (s *serverAPI) IsTokenValid(ctx context.Context, req *authv1.IsTokenValidRe
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	token, err := jwt.Parse(req.GetToken(), func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(req.GetToken(), func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, err
 		}

@@ -1,6 +1,7 @@
 package grpcapp
 
 import (
+	authgrpc "company/internal/clients/auth/grpc"
 	companygrpc "company/internal/grpc/company"
 	"fmt"
 	"google.golang.org/grpc"
@@ -14,9 +15,9 @@ type App struct {
 	port       int
 }
 
-func New(log *slog.Logger, companyService companygrpc.Company, issueService companygrpc.Issue, port int) *App {
+func New(log *slog.Logger, companyService companygrpc.Company, issueService companygrpc.Issue, port int, authClient *authgrpc.Client) *App {
 	gRPCServer := grpc.NewServer()
-	companygrpc.Register(gRPCServer, companyService, issueService)
+	companygrpc.Register(gRPCServer, companyService, issueService, authClient)
 
 	return &App{
 		log:        log,
