@@ -2,6 +2,7 @@ package company
 
 import (
 	companyv1 "company/gen/company"
+	authgrpc "company/internal/clients/auth/grpc"
 	"company/internal/domain/entities"
 	"company/internal/grpc/structs"
 	"company/internal/storage"
@@ -10,8 +11,10 @@ import (
 	"github.com/go-playground/validator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 )
 
 type Company interface {
@@ -29,20 +32,22 @@ type Issue interface {
 
 type serverAPI struct {
 	companyv1.UnimplementedCompanyServer
-	company Company
-	issue   Issue
-	v       *validator.Validate
+	company    Company
+	issue      Issue
+	authClient *authgrpc.Client
+	v          *validator.Validate
 }
 
 //var (
 //	cfg = config.MustLoad()
 //)
 
-func Register(gRPC *grpc.Server, company Company, issue Issue) {
+func Register(gRPC *grpc.Server, company Company, issue Issue, authClient *authgrpc.Client) {
 	companyv1.RegisterCompanyServer(gRPC, &serverAPI{
-		company: company,
-		issue:   issue,
-		v:       validator.New(),
+		company:    company,
+		issue:      issue,
+		authClient: authClient,
+		v:          validator.New(),
 	})
 }
 
@@ -90,6 +95,26 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 	err := s.v.Struct(issueRequest)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "no metadata in request")
+	}
+
+	authHeader, ok := md["authorization"]
+	if !ok || len(authHeader) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "no authorization header")
+	}
+
+	tokenString := strings.TrimPrefix(authHeader[0], "Bearer ")
+
+	isValid, err := s.authClient.IsTokenValid(context.Background(), tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	if !isValid {
+		return nil, status.Error(codes.Unauthenticated, "invalid token")
 	}
 
 	issue, err := s.issue.IssueInfo(ctx, req.GetIssueId())

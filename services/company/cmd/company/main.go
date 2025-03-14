@@ -2,8 +2,10 @@ package main
 
 import (
 	"company/internal/app"
+	authgrpc "company/internal/clients/auth/grpc"
 	"company/internal/config"
 	"company/internal/lib/logger/handlers/slogpretty"
+	"company/internal/lib/logger/sl"
 	"context"
 	"log/slog"
 	"os"
@@ -37,7 +39,22 @@ func main() {
 		slog.Int("port", cfg.ServicePort),
 	)
 
-	application := app.New(log, cfg.ServicePort, cfg.HttpPort, cfg.PostgresURI, cfg.TokenTTL, cfg.GithubWebhookSecret)
+	log.Debug("debug messages are enabled")
+
+	authClient, err := authgrpc.New(
+		context.Background(),
+		log,
+		cfg.Clients.Auth.Address,
+		cfg.Clients.Auth.Timeout,
+		cfg.Clients.Auth.RetriesCount,
+	)
+	if err != nil {
+		log.Error("failed to init auth client", sl.Err(err))
+		os.Exit(1)
+	}
+
+	application := app.New(log, cfg.ServicePort, cfg.HttpPort, cfg.PostgresURI, cfg.TokenTTL, cfg.GithubWebhookSecret,
+		authClient)
 
 	go func() {
 		defer wg.Done()

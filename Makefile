@@ -12,6 +12,9 @@ protoc/auth:
   	--plugin=protoc-gen-grpc-gateway=${PROTOC_GATEWAY_PATH} \
   	--plugin=protoc-gen-openapiv2=${PROTOC_OPENAPIV2_PATH} \
   	--openapiv2_out=services/auth/swagger --openapiv2_opt=allow_merge=true,merge_file_name=swagger.json \
+  	--go_out=services/company/gen/auth --go_opt=paths=source_relative \
+    --go-grpc_out=services/company/gen/auth --go-grpc_opt=paths=source_relative \
+    --grpc-gateway_out=services/company/gen/auth --grpc-gateway_opt=paths=source_relative \
   	protos/auth.proto
 
 protoc/comp:
