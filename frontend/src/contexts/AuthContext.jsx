@@ -32,24 +32,58 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem("authToken", token);
                 localStorage.setItem("userEmail", email);
                 setUser({ token, id: decoded?.uid, email });
+                return { success: true };
             } else {
-                console.error("❌ В ответе от сервера нет токена:", response.data);
+                const errorMsg = "В ответе от сервера нет токена";
+                console.error(`❌ ${errorMsg}:`, response.data);
+                return { success: false, message: errorMsg };
             }
         } catch (error) {
+            let errorMessage = "Ошибка при входе в систему";
+
+            console.log(error.response.data.message +" status amodus");
+            // Детальная обработка ошибок
+            if (error.response) {
+                // Ответ от сервера был получен, но статус не 2xx
+                if(error.response.status === 400){
+                    errorMessage = "Error occurred, try again";
+                }
+                else if (error.response.status === 401) {
+                    errorMessage = "Неверный email или пароль";
+                } else if (error.response.status === 404) {
+                    errorMessage = "Сервер не найден. Проверьте подключение к интернету";
+                } else if (error.response.status === 500) {
+                    errorMessage = "Ошибка сервера. Попробуйте позже";
+                } else if (error.response.data && error.response.data.message) {
+                    errorMessage = error.response.data.message;
+                }
+            } else if (error.request) {
+                // Запрос был отправлен, но ответ не получен
+                errorMessage = "Сервер не отвечает. Проверьте подключение к интернету";
+            } else {
+                // Что-то пошло не так при настройке запроса
+                errorMessage = error.message || "Неизвестная ошибка";
+            }
+
             console.error("SignIn failed. Error details:", error.response?.data || error.message);
-            alert("SignIn failed! Please check your credentials.");
+
+            // Возвращаем объект с деталями ошибки
+            return { success: false, message: errorMessage };
         }
     };
 
     const signUp = async (email, password, username) => {
+        let errorMessage = "some Error";
+
         try {
             await axios.post(`${API_BASE_URL}/v1/signup`, { email, password, username });
             setVerificationCodeSent(true);
-            alert("Code sent to your email. Please check your inbox.");
         } catch (error) {
+            errorMessage = error.response.data.message
             console.error("SignUp failed. Error details:", error.response?.data || error.message);
-            alert("SignUp failed! Please try again.");
         }
+        return { success: false, message: errorMessage };
+
     };
 
     const verifyCode = async (OTP, email) => {

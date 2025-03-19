@@ -84,6 +84,9 @@
 }
 
 .issueItem {
+    display: flex;
+    align-items: center; /* Выравнивание по вертикали */
+    justify-content: space-between; /* Текст слева, кнопка справа */
     padding: 15px;
     border-radius: 5px;
     background-color: var(--primary-color);
@@ -101,13 +104,12 @@
 }
 
 .issueButton {
-    display: inline-block;
-    margin-top: 10px;
     padding: 8px 12px;
     background-color: #007bff;
     color: white;
     text-decoration: none;
     border-radius: 4px;
+    margin-left: auto; /* Отодвигаем кнопку вправо */
     font-weight: bold;
     transition: background-color 0.3s ease;
 }

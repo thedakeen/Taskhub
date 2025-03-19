@@ -14,13 +14,15 @@ const SignIn = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            await logIn(username, password); // Логинимся
-            navigate("/"); // ✅ Перенаправляем на главную страницу
-        } catch (err) {
-            setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+        const result = await logIn(username, password);
+
+        if (result.success) {
+            navigate('/');
+        } else {
+            setError(result.message);
         }
     };
+
 
 
     return (
@@ -30,6 +32,7 @@ const SignIn = () => {
                 <h1>Were happy your back!</h1>
                 <div className={style.login_body}>
                     <form onSubmit={handleSubmit}>
+                        {error && <div className={style.error_message}>{error}</div>}
                         <input
                             type="text"
                             value={username}
@@ -44,7 +47,6 @@ const SignIn = () => {
                             placeholder="Password"
                             required
                         />
-                        {error && <p className={style.error_message}>{error}</p>}
                         <button type="submit">Login</button>
                         <div className={style.login_footer}>
                             <Link to="/signup" className={style.signup}>Sign Up</Link>
