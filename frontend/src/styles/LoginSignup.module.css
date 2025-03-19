@@ -69,3 +69,20 @@ a:hover{
     color: var(--primary-color);
 }
 
+
+.error_message {
+    color: #ff3333;
+    background-color: #ffeeee;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    max-width: 300px;
+        border: 1px solid #ff3333;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+

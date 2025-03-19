@@ -31,12 +31,17 @@ const SignUp = () => {
             return;
         }
         setError('');
-        try {
-            await signUp(email, password, username);
-        } catch (err) {
-            setError(err.response?.data?.message || "SignUp failed. Please try again.");
+        const result = await signUp(email, password, username);
+
+        console.log(result+ " result");
+        if (result.success) {
+            navigate('/login');
+        } else {
+            setError(result.message);
         }
     };
+
+
 
     return (
         <div>
@@ -44,7 +49,10 @@ const SignUp = () => {
             <div className={style.login_container}>
                 <h1>Fill out the form</h1>
                 <div className={style.login_body}>
+
                     <form onSubmit={handleSubmit}>
+                        {error && <div className={style.error_message}>{error}</div>}
+
                         <input
                             type="text"
                             value={email}
@@ -77,7 +85,6 @@ const SignUp = () => {
                             placeholder="Repeat Password"
                             required
                         />
-                        {error && <p className={style.error_message}>{error}</p>}
                         <button type="submit">Sign Up</button>
                         <div className={style.login_footer}>
                             <Link to="/signIn" className={style.sign_in}>Sign In</Link>

@@ -88,7 +88,7 @@ const CompanyInfo = () => {
                             <li key={index} className={styles.issueItem}>
                                 <strong>{issue.title}</strong>
                                 {/* Используем индекс как временный идентификатор */}
-                                <Link to={`/issues/${index+1}`} className={styles.issueButton}>
+                                <Link to={`/issues/${issue.issueId}`} className={styles.issueButton}>
                                     View Issue
                                 </Link>
                             </li>
