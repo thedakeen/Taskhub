@@ -339,3 +339,24 @@ func (s *serverAPI) IsTokenValid(ctx context.Context, req *authv1.IsTokenValidRe
 		IsTokenValid: false,
 	}, nil
 }
+
+func (s *serverAPI) IsGithubLinked(ctx context.Context, req *authv1.IsGithubLinkedRequest) (*authv1.IsGithubLinkedResponse, error) {
+	developer, err := s.auth.DeveloperProfile(ctx, req.DevID)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, "failed to get developer")
+		}
+	}
+
+	if !developer.IsGithubLinked {
+		return &authv1.IsGithubLinkedResponse{IsGithubLinked: false}, nil
+	}
+
+	return &authv1.IsGithubLinkedResponse{
+		IsGithubLinked: true,
+	}, nil
+}

@@ -11,3 +11,7 @@ type CompanyIntegrationRequest struct {
 type IssueRequest struct {
 	IssueID int64 `validate:"required,min=0"`
 }
+
+type AssignDeveloperRequest struct {
+	IssueID int64 `validate:"required,min=0"`
+}

@@ -6,7 +6,9 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/fatih/color v1.17.0
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/go-github/v50 v50.2.0
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/joho/godotenv v1.5.1
@@ -26,7 +28,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

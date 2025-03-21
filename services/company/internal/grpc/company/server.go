@@ -28,6 +28,8 @@ type Issue interface {
 	AddIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
 	AllCompanyIssuesInfo(ctx context.Context, id int64) ([]*entities.Issue, error)
 	IssueInfo(ctx context.Context, id int64) (*entities.Issue, error)
+
+	AssignDeveloperToIssue(ctx context.Context, issueID, developerID int64) (int64, error)
 }
 
 type serverAPI struct {
@@ -132,6 +134,46 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 		Title:   issue.Title,
 		Body:    issue.Body,
 	}, nil
+}
+
+func (s *serverAPI) AssignDeveloper(ctx context.Context, req *companyv1.AssignDeveloperRequest) (*companyv1.AssignDeveloperResponse, error) {
+	assignDeveloperRequest := structs.AssignDeveloperRequest{
+		IssueID: req.IssueId,
+	}
+
+	err := s.v.Struct(assignDeveloperRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	tokenString, err := s.authenticate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	developerID, err := extractDeveloperID(tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token data")
+	}
+
+	isGithubLinked, err := s.authClient.IsGithubLinked(ctx, developerID)
+
+	if !isGithubLinked {
+		return nil, status.Error(codes.PermissionDenied, "link github account to solve tasks")
+	}
+
+	assignmentID, err := s.issue.AssignDeveloperToIssue(ctx, req.GetIssueId(), developerID)
+	if err != nil {
+		if errors.Is(err, storage.AlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "developer was already assigned")
+		}
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &companyv1.AssignDeveloperResponse{
+		AssignmentId: assignmentID,
+	}, nil
+
 }
 
 //////////////// END OF ISSUES ////////////////

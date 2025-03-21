@@ -224,6 +224,14 @@
         }
       }
     },
+    "authIsGithubLinkedResponse": {
+      "type": "object",
+      "properties": {
+        "isGithubLinked": {
+          "type": "boolean"
+        }
+      }
+    },
     "authIsTokenValidResponse": {
       "type": "object",
       "properties": {
