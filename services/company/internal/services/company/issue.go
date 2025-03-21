@@ -13,6 +13,8 @@ type IssueProvider interface {
 	CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
 	GetIssue(ctx context.Context, id int64) (*entities.Issue, error)
 	GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities.Issue, error)
+
+	CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error)
 }
 
 //////////////// ISSUES ////////////////
@@ -86,6 +88,35 @@ func (c Company) AddIssue(ctx context.Context, installationID int64, title strin
 	}
 
 	log.Info("issue integrated successfully via github")
+
+	return issueID, nil
+}
+
+// TODO: Issue assignment
+
+func (c Company) AssignDeveloperToIssue(ctx context.Context, issueID, developerID int64) (int64, error) {
+	const op = "company.AssignIssue"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.Int64("devID", developerID),
+		slog.Int64("issueID", issueID),
+	)
+
+	log.Info("assigning developer to issue")
+
+	issueID, err := c.issueProvider.CreateAssignment(ctx, issueID, developerID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.AlreadyExists):
+			c.log.Warn("developer already assigned")
+		default:
+			c.log.Error("developer has not been assigned")
+			return 0, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("issue assigned successfully")
 
 	return issueID, nil
 }

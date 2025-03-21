@@ -129,10 +129,48 @@
         "tags": [
           "Company"
         ]
+      },
+      "post": {
+        "operationId": "Company_AssignDeveloper",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/compAssignDeveloperResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "issueId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Company"
+        ]
       }
     }
   },
   "definitions": {
+    "compAssignDeveloperResponse": {
+      "type": "object",
+      "properties": {
+        "assignmentId": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "compCompanies": {
       "type": "object",
       "properties": {

@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 )
 
 func (s Storage) CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error) {
@@ -97,4 +98,27 @@ func (s Storage) GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities
 	//}
 
 	return issues, nil
+}
+
+func (s Storage) CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error) {
+	const op = "repository.issue.CreateAssignment"
+
+	var id int64
+
+	query := `INSERT INTO issue_assignments (issue_id, developer_id) VALUES ($1, $2) RETURNING assignment_id`
+
+	args := []any{issueID, developerID}
+	err := s.Db.QueryRowContext(ctx, query, args...).Scan(&id)
+	if err != nil {
+		var pqErr *pq.Error
+		switch {
+		case errors.As(err, &pqErr) && pqErr.Code == "23505":
+			return 0, storage.AlreadyExists
+
+		default:
+			return 0, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	return id, nil
 }

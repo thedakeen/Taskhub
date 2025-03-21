@@ -23,6 +23,7 @@ const (
 	Auth_RegisterConfirm_FullMethodName     = "/auth.Auth/RegisterConfirm"
 	Auth_Login_FullMethodName               = "/auth.Auth/Login"
 	Auth_IsTokenValid_FullMethodName        = "/auth.Auth/IsTokenValid"
+	Auth_IsGithubLinked_FullMethodName      = "/auth.Auth/IsGithubLinked"
 	Auth_LinkGithubAccount_FullMethodName   = "/auth.Auth/LinkGithubAccount"
 	Auth_UnlinkGithubAccount_FullMethodName = "/auth.Auth/UnlinkGithubAccount"
 	Auth_DeveloperProfile_FullMethodName    = "/auth.Auth/DeveloperProfile"
@@ -36,6 +37,7 @@ type AuthClient interface {
 	RegisterConfirm(ctx context.Context, in *RegisterConfirmRequest, opts ...grpc.CallOption) (*RegisterConfirmResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	IsTokenValid(ctx context.Context, in *IsTokenValidRequest, opts ...grpc.CallOption) (*IsTokenValidResponse, error)
+	IsGithubLinked(ctx context.Context, in *IsGithubLinkedRequest, opts ...grpc.CallOption) (*IsGithubLinkedResponse, error)
 	LinkGithubAccount(ctx context.Context, in *LinkGithubRequest, opts ...grpc.CallOption) (*LinkGithubResponse, error)
 	UnlinkGithubAccount(ctx context.Context, in *UnlinkGithubRequest, opts ...grpc.CallOption) (*UnlinkGithubResponse, error)
 	DeveloperProfile(ctx context.Context, in *GetDeveloperProfileRequest, opts ...grpc.CallOption) (*GetDeveloperProfileResponse, error)
@@ -89,6 +91,16 @@ func (c *authClient) IsTokenValid(ctx context.Context, in *IsTokenValidRequest, 
 	return out, nil
 }
 
+func (c *authClient) IsGithubLinked(ctx context.Context, in *IsGithubLinkedRequest, opts ...grpc.CallOption) (*IsGithubLinkedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IsGithubLinkedResponse)
+	err := c.cc.Invoke(ctx, Auth_IsGithubLinked_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authClient) LinkGithubAccount(ctx context.Context, in *LinkGithubRequest, opts ...grpc.CallOption) (*LinkGithubResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LinkGithubResponse)
@@ -127,6 +139,7 @@ type AuthServer interface {
 	RegisterConfirm(context.Context, *RegisterConfirmRequest) (*RegisterConfirmResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	IsTokenValid(context.Context, *IsTokenValidRequest) (*IsTokenValidResponse, error)
+	IsGithubLinked(context.Context, *IsGithubLinkedRequest) (*IsGithubLinkedResponse, error)
 	LinkGithubAccount(context.Context, *LinkGithubRequest) (*LinkGithubResponse, error)
 	UnlinkGithubAccount(context.Context, *UnlinkGithubRequest) (*UnlinkGithubResponse, error)
 	DeveloperProfile(context.Context, *GetDeveloperProfileRequest) (*GetDeveloperProfileResponse, error)
@@ -151,6 +164,9 @@ func (UnimplementedAuthServer) Login(context.Context, *LoginRequest) (*LoginResp
 }
 func (UnimplementedAuthServer) IsTokenValid(context.Context, *IsTokenValidRequest) (*IsTokenValidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsTokenValid not implemented")
+}
+func (UnimplementedAuthServer) IsGithubLinked(context.Context, *IsGithubLinkedRequest) (*IsGithubLinkedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IsGithubLinked not implemented")
 }
 func (UnimplementedAuthServer) LinkGithubAccount(context.Context, *LinkGithubRequest) (*LinkGithubResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LinkGithubAccount not implemented")
@@ -254,6 +270,24 @@ func _Auth_IsTokenValid_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_IsGithubLinked_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IsGithubLinkedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).IsGithubLinked(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_IsGithubLinked_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).IsGithubLinked(ctx, req.(*IsGithubLinkedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Auth_LinkGithubAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LinkGithubRequest)
 	if err := dec(in); err != nil {
@@ -330,6 +364,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IsTokenValid",
 			Handler:    _Auth_IsTokenValid_Handler,
+		},
+		{
+			MethodName: "IsGithubLinked",
+			Handler:    _Auth_IsGithubLinked_Handler,
 		},
 		{
 			MethodName: "LinkGithubAccount",

@@ -72,3 +72,17 @@ func (c *Client) IsTokenValid(ctx context.Context, token string) (bool, error) {
 
 	return resp.IsTokenValid, nil
 }
+
+func (c *Client) IsGithubLinked(ctx context.Context, id int64) (bool, error) {
+	const op = "grpc.IsGithubLinked"
+
+	resp, err := c.api.IsGithubLinked(ctx, &authv1.IsGithubLinkedRequest{
+		DevID: id,
+	})
+
+	if err != nil {
+		return false, fmt.Errorf("%s:%w", op, err)
+	}
+
+	return resp.IsGithubLinked, nil
+}
