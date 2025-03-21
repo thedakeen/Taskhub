@@ -57,7 +57,7 @@ func Register(gRPC *grpc.Server, company Company, issue Issue, authClient *authg
 
 func (s *serverAPI) CompanyIssues(ctx context.Context, req *companyv1.GetIssuesOfCompanyRequest) (*companyv1.GetIssuesOfCompanyResponse, error) {
 	issuesRequest := structs.CompanyRequest{
-		CompanyID: 1,
+		CompanyID: req.CompanyId,
 	}
 
 	err := s.v.Struct(issuesRequest)
@@ -91,7 +91,7 @@ func (s *serverAPI) CompanyIssues(ctx context.Context, req *companyv1.GetIssuesO
 
 func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (*companyv1.GetIssueResponse, error) {
 	issueRequest := structs.IssueRequest{
-		IssueID: 1,
+		IssueID: req.IssueId,
 	}
 
 	err := s.v.Struct(issueRequest)
@@ -205,7 +205,7 @@ func (s *serverAPI) Companies(ctx context.Context, req *companyv1.GetCompaniesRe
 
 func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyRequest) (*companyv1.GetCompanyResponse, error) {
 	companyRequest := structs.CompanyRequest{
-		CompanyID: 1,
+		CompanyID: req.CompanyId,
 	}
 
 	err := s.v.Struct(companyRequest)
