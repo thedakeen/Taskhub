@@ -30,6 +30,7 @@ type Issue interface {
 	IssueInfo(ctx context.Context, id int64) (*entities.Issue, error)
 
 	AssignDeveloperToIssue(ctx context.Context, issueID, developerID int64) (int64, error)
+	AddSolution(ctx context.Context, issueID, developerID int64, solution string) (int64, error)
 }
 
 type serverAPI struct {
@@ -172,6 +173,44 @@ func (s *serverAPI) AssignDeveloper(ctx context.Context, req *companyv1.AssignDe
 
 	return &companyv1.AssignDeveloperResponse{
 		AssignmentId: assignmentID,
+	}, nil
+
+}
+
+func (s *serverAPI) SubmitSolution(ctx context.Context, req *companyv1.SubmitSolutionRequest) (*companyv1.SubmitSolutionResponse, error) {
+	submitSolutionRequest := structs.SubmitSolutionRequest{
+		IssueID:  req.IssueId,
+		Solution: req.SolutionText,
+	}
+
+	err := s.v.Struct(submitSolutionRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	tokenString, err := s.authenticate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	developerID, err := extractDeveloperID(tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token data")
+	}
+
+	solutionID, err := s.issue.AddSolution(ctx, req.GetIssueId(), developerID, req.GetSolutionText())
+	if err != nil {
+		if errors.Is(err, storage.ErrNoRecordFound) {
+			return nil, status.Error(codes.PermissionDenied, "solution has not been submitted")
+		}
+		if errors.Is(err, storage.AlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "solution already submitted")
+		}
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &companyv1.SubmitSolutionResponse{
+		SolutionId: solutionID,
 	}, nil
 
 }

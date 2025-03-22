@@ -43,6 +43,12 @@ service Company{
     };
   }
 
+  rpc SubmitSolution(SubmitSolutionRequest) returns (SubmitSolutionResponse){
+    option (google.api.http) = {
+      post: "/v1/issues/{issue_id}/submit"
+    };
+  }
+
   rpc CompanyGithubIntegration(GetCompanyGithubIntegrationRequest) returns (GetCompanyGithubIntegrationResponse);
 
     }
@@ -78,6 +84,15 @@ message AssignDeveloperRequest{
 
 message AssignDeveloperResponse{
   int64 assignment_id = 1;
+}
+
+message SubmitSolutionRequest{
+  int64 issue_id = 1;
+  string solution_text = 2;
+}
+
+message SubmitSolutionResponse{
+  int64 solution_id = 1;
 }
 
 

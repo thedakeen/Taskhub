@@ -122,3 +122,65 @@ func (s Storage) CreateAssignment(ctx context.Context, issueID, developerID int6
 
 	return id, nil
 }
+
+func (s Storage) CreateSolution(ctx context.Context, assignmentID int64, solution string) (int64, error) {
+	const op = "repository.issue.CreateSolution"
+
+	tx, err := s.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+
+	// TODO: Wrap
+	defer tx.Rollback()
+
+	var solutionID int64
+	err = tx.QueryRowContext(ctx, `
+		INSERT INTO issue_solutions (assignment_id, solution_text)
+		VALUES ($1, $2) RETURNING solution_id
+	`, assignmentID, solution).Scan(&solutionID)
+
+	if err != nil {
+		var pqErr *pq.Error
+		switch {
+		case errors.As(err, &pqErr) && pqErr.Code == "23505":
+			return 0, storage.AlreadyExists
+		default:
+			return 0, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		UPDATE issue_assignments 
+		SET status = 'completed', completed_at = NOW() 
+		WHERE assignment_id = $1
+	`, assignmentID)
+	if err != nil {
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+
+	return solutionID, nil
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (s Storage) GetAssignmentID(ctx context.Context, issueID, developerID int64) (int64, error) {
+	var assignmentID int64
+
+	err := s.Db.QueryRowContext(ctx, `
+		SELECT assignment_id FROM issue_assignments 
+		WHERE issue_id = $1 AND developer_id = $2
+	`, issueID, developerID).Scan(&assignmentID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, storage.ErrNoRecordFound
+		}
+		return 0, err
+	}
+	return assignmentID, nil
+}

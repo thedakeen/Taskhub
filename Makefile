@@ -49,7 +49,7 @@ vendor-proto:
 
 
 .PHONY: db/migrations/new
-db/migrations/new/auth:
+db/migrations/new:
 	@echo 'Creating migration files for ${name}...'
 	migrate create -seq -ext=sql -dir=D:/ProgramData/workspacego/diploma/services/auth/migrations ${name}
 
