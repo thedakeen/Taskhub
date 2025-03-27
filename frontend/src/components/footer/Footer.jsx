@@ -8,7 +8,7 @@ const Footer = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: "100%"
+            width: "100%",
         }}>
             <p style={{ color: "var(--primary-color)" }}>
                 &copy; 2025 Task Hub. All Rights Reserved.
