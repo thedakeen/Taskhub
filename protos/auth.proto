@@ -33,6 +33,8 @@ service Auth{
 
   rpc IsTokenValid(IsTokenValidRequest) returns (IsTokenValidResponse);
 
+  rpc IsGithubLinked(IsGithubLinkedRequest) returns (IsGithubLinkedResponse);
+
   rpc LinkGithubAccount(LinkGithubRequest) returns (LinkGithubResponse){
     option (google.api.http) = {
       post: "/v1/profile/github"
@@ -106,6 +108,14 @@ message UnlinkGithubRequest {
 
 message UnlinkGithubResponse {
   bool success = 1;
+}
+
+message IsGithubLinkedRequest{
+  int64 devID = 1;
+}
+
+message IsGithubLinkedResponse{
+  bool isGithubLinked = 1;
 }
 
 

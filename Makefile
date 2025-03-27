@@ -49,15 +49,20 @@ vendor-proto:
 
 
 .PHONY: db/migrations/new
-db/migrations/new/auth:
+db/migrations/new:
 	@echo 'Creating migration files for ${name}...'
 	migrate create -seq -ext=sql -dir=D:/ProgramData/workspacego/diploma/services/auth/migrations ${name}
 
 
-.PHONY: db/migrations/up
-db/migrations/up/auth:
-	@echo 'Running up migrations for auth service...'
+.PHONY: db/migrations
+db/migrations/up:
+	@echo 'Running up migrations...'
 	migrate -path=D:/ProgramData/workspacego/diploma/services/auth/migrations -database=${POSTGRES_URI} up
+
+db/migrations/down:
+	@echo 'Running up migrations ...'
+	migrate -path=D:/ProgramData/workspacego/diploma/services/auth/migrations -database=${POSTGRES_URI} down 1
+
 
 
 

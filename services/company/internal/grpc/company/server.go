@@ -28,6 +28,9 @@ type Issue interface {
 	AddIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
 	AllCompanyIssuesInfo(ctx context.Context, id int64) ([]*entities.Issue, error)
 	IssueInfo(ctx context.Context, id int64) (*entities.Issue, error)
+
+	AssignDeveloperToIssue(ctx context.Context, issueID, developerID int64) (int64, error)
+	AddSolution(ctx context.Context, issueID, developerID int64, solution string) (int64, error)
 }
 
 type serverAPI struct {
@@ -55,7 +58,7 @@ func Register(gRPC *grpc.Server, company Company, issue Issue, authClient *authg
 
 func (s *serverAPI) CompanyIssues(ctx context.Context, req *companyv1.GetIssuesOfCompanyRequest) (*companyv1.GetIssuesOfCompanyResponse, error) {
 	issuesRequest := structs.CompanyRequest{
-		CompanyID: 1,
+		CompanyID: req.CompanyId,
 	}
 
 	err := s.v.Struct(issuesRequest)
@@ -89,7 +92,7 @@ func (s *serverAPI) CompanyIssues(ctx context.Context, req *companyv1.GetIssuesO
 
 func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (*companyv1.GetIssueResponse, error) {
 	issueRequest := structs.IssueRequest{
-		IssueID: 1,
+		IssueID: req.IssueId,
 	}
 
 	err := s.v.Struct(issueRequest)
@@ -134,6 +137,84 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 	}, nil
 }
 
+func (s *serverAPI) AssignDeveloper(ctx context.Context, req *companyv1.AssignDeveloperRequest) (*companyv1.AssignDeveloperResponse, error) {
+	assignDeveloperRequest := structs.AssignDeveloperRequest{
+		IssueID: req.IssueId,
+	}
+
+	err := s.v.Struct(assignDeveloperRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	tokenString, err := s.authenticate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	developerID, err := extractDeveloperID(tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token data")
+	}
+
+	isGithubLinked, err := s.authClient.IsGithubLinked(ctx, developerID)
+
+	if !isGithubLinked {
+		return nil, status.Error(codes.PermissionDenied, "link github account to solve tasks")
+	}
+
+	assignmentID, err := s.issue.AssignDeveloperToIssue(ctx, req.GetIssueId(), developerID)
+	if err != nil {
+		if errors.Is(err, storage.AlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "developer was already assigned")
+		}
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &companyv1.AssignDeveloperResponse{
+		AssignmentId: assignmentID,
+	}, nil
+
+}
+
+func (s *serverAPI) SubmitSolution(ctx context.Context, req *companyv1.SubmitSolutionRequest) (*companyv1.SubmitSolutionResponse, error) {
+	submitSolutionRequest := structs.SubmitSolutionRequest{
+		IssueID:  req.IssueId,
+		Solution: req.SolutionText,
+	}
+
+	err := s.v.Struct(submitSolutionRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	tokenString, err := s.authenticate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	developerID, err := extractDeveloperID(tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token data")
+	}
+
+	solutionID, err := s.issue.AddSolution(ctx, req.GetIssueId(), developerID, req.GetSolutionText())
+	if err != nil {
+		if errors.Is(err, storage.ErrNoRecordFound) {
+			return nil, status.Error(codes.PermissionDenied, "solution has not been submitted")
+		}
+		if errors.Is(err, storage.AlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "solution already submitted")
+		}
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &companyv1.SubmitSolutionResponse{
+		SolutionId: solutionID,
+	}, nil
+
+}
+
 //////////////// END OF ISSUES ////////////////
 
 func (s *serverAPI) Companies(ctx context.Context, req *companyv1.GetCompaniesRequest) (*companyv1.GetCompaniesResponse, error) {
@@ -163,7 +244,7 @@ func (s *serverAPI) Companies(ctx context.Context, req *companyv1.GetCompaniesRe
 
 func (s *serverAPI) Company(ctx context.Context, req *companyv1.GetCompanyRequest) (*companyv1.GetCompanyResponse, error) {
 	companyRequest := structs.CompanyRequest{
-		CompanyID: 1,
+		CompanyID: req.CompanyId,
 	}
 
 	err := s.v.Struct(companyRequest)
