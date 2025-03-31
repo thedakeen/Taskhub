@@ -11,7 +11,7 @@ import (
 
 type IssueProvider interface {
 	CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
-	GetIssue(ctx context.Context, id int64) (*entities.Issue, error)
+	GetIssue(ctx context.Context, id int64, devID *int64) (*entities.Issue, error)
 	GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities.Issue, error)
 
 	CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error)
@@ -47,7 +47,7 @@ func (c Company) AllCompanyIssuesInfo(ctx context.Context, id int64) ([]*entitie
 	return issues, nil
 }
 
-func (c Company) IssueInfo(ctx context.Context, id int64) (*entities.Issue, error) {
+func (c Company) IssueInfo(ctx context.Context, id int64, devID *int64) (*entities.Issue, error) {
 	const op = "company.IssueInfo"
 
 	log := c.log.With(
@@ -56,7 +56,7 @@ func (c Company) IssueInfo(ctx context.Context, id int64) (*entities.Issue, erro
 
 	log.Info("get information about issue")
 
-	issue, err := c.issueProvider.GetIssue(ctx, id)
+	issue, err := c.issueProvider.GetIssue(ctx, id, devID)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):

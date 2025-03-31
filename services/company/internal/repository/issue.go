@@ -26,20 +26,46 @@ func (s Storage) CreateIssue(ctx context.Context, installationID int64, title st
 	return id, nil
 }
 
-func (s Storage) GetIssue(ctx context.Context, id int64) (*entities.Issue, error) {
+func (s Storage) GetIssue(ctx context.Context, issueID int64, developerID *int64) (*entities.Issue, error) {
 	const op = "repository.issue.GetIssue"
+	var queryStr string
 
-	query, err := s.Db.Prepare("SELECT id, title, body FROM issues WHERE id = $1")
+	if developerID == nil {
+		queryStr = `SELECT id, title, body FROM issues WHERE id = $1`
+	} else {
+		queryStr = `
+			SELECT 
+				i.id,
+				i.title,
+				i.body,
+				a.status AS assignment_status,
+				s.solution_text,
+				s.status AS solution_status
+			FROM issues i
+			LEFT JOIN issue_assignments a ON i.id = a.issue_id AND a.developer_id = $2
+			LEFT JOIN issue_solutions s ON a.assignment_id = s.assignment_id
+			WHERE i.id = $1
+		`
+	}
+
+	stmt, err := s.Db.Prepare(queryStr)
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w", op, err)
 	}
 
 	var issue entities.Issue
-
-	err = query.QueryRowContext(ctx, id).Scan(
-		&issue.ID,
-		&issue.Title,
-		&issue.Body)
+	if developerID == nil {
+		err = stmt.QueryRowContext(ctx, issueID).Scan(&issue.ID, &issue.Title, &issue.Body)
+	} else {
+		err = stmt.QueryRowContext(ctx, issueID, *developerID).Scan(
+			&issue.ID,
+			&issue.Title,
+			&issue.Body,
+			&issue.AssignmentStatus,
+			&issue.SolutionText,
+			&issue.SolutionStatus,
+		)
+	}
 
 	if err != nil {
 		switch {
