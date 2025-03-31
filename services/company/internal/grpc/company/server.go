@@ -11,10 +11,8 @@ import (
 	"github.com/go-playground/validator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"strings"
 )
 
 type Company interface {
@@ -27,7 +25,7 @@ type Company interface {
 type Issue interface {
 	AddIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
 	AllCompanyIssuesInfo(ctx context.Context, id int64) ([]*entities.Issue, error)
-	IssueInfo(ctx context.Context, id int64) (*entities.Issue, error)
+	IssueInfo(ctx context.Context, id int64, devID *int64) (*entities.Issue, error)
 
 	AssignDeveloperToIssue(ctx context.Context, issueID, developerID int64) (int64, error)
 	AddSolution(ctx context.Context, issueID, developerID int64, solution string) (int64, error)
@@ -100,27 +98,23 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Error(codes.Unauthenticated, "no metadata in request")
-	}
-
-	authHeader, ok := md["authorization"]
-	if !ok || len(authHeader) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "no authorization header")
-	}
-
-	tokenString := strings.TrimPrefix(authHeader[0], "Bearer ")
-
-	isValid, err := s.authClient.IsTokenValid(context.Background(), tokenString)
+	tokenString, err := s.authenticate2(ctx)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error())
-	}
-	if !isValid {
-		return nil, status.Error(codes.Unauthenticated, "invalid token")
+		return nil, err
 	}
 
-	issue, err := s.issue.IssueInfo(ctx, req.GetIssueId())
+	var developerIDPtr *int64
+	if tokenString != "" {
+		developerID, err := extractDeveloperID(tokenString)
+		if err != nil {
+			return nil, err
+		}
+		if developerID != 0 {
+			developerIDPtr = &developerID
+		}
+	}
+
+	issue, err := s.issue.IssueInfo(ctx, req.GetIssueId(), developerIDPtr)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
@@ -134,6 +128,10 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 		IssueId: issue.ID,
 		Title:   issue.Title,
 		Body:    issue.Body,
+
+		AssignmentStatus: issue.AssignmentStatus.String,
+		SolutionText:     issue.SolutionText.String,
+		SolutionStatus:   issue.SolutionStatus.String,
 	}, nil
 }
 

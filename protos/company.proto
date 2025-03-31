@@ -75,6 +75,9 @@ message GetIssueResponse{
   int64 issue_id = 1;
   string title = 2;
   string body = 3;
+  string assignment_status = 4;
+  string solution_text = 5;
+  string solution_status = 6;
 }
 
 

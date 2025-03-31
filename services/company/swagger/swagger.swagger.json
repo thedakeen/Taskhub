@@ -281,6 +281,15 @@
         },
         "body": {
           "type": "string"
+        },
+        "assignmentStatus": {
+          "type": "string"
+        },
+        "solutionText": {
+          "type": "string"
+        },
+        "solutionStatus": {
+          "type": "string"
         }
       }
     },
