@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/v1/api/me": {
+      "post": {
+        "operationId": "Auth_UserInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/authUserInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/authUserInfoRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/v1/login": {
       "post": {
         "operationId": "Auth_Login",
@@ -329,6 +361,31 @@
       "properties": {
         "success": {
           "type": "boolean"
+        }
+      }
+    },
+    "authUserInfoRequest": {
+      "type": "object"
+    },
+    "authUserInfoResponse": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "companyId": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

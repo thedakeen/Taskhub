@@ -64,6 +64,16 @@ db/migrations/down:
 	migrate -path=D:/ProgramData/workspacego/diploma/services/auth/migrations -database=${POSTGRES_URI} down 1
 
 
+.PHONY: all auth company run
+
+run:
+	start /b cmd /c "cd services/auth && go run ./cmd/auth 2>&1" & \
+	start /b cmd /c "cd services/company && go run ./cmd/company 2>&1"
+
+
+
+
+
 
 
 
