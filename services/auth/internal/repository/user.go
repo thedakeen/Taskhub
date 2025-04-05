@@ -30,7 +30,7 @@ func (s *Storage) DeleteInactiveUsers(ctx context.Context) error {
 //	panic("implement me")
 //}
 
-func (s *Storage) GetUser(ctx context.Context, email string) (*entities.User, error) {
+func (s *Storage) GetUserByEmail(ctx context.Context, email string) (*entities.User, error) {
 	const op = "repository.user.GetUser"
 
 	query, err := s.Db.Prepare("SELECT id, email, username, password_hash FROM users WHERE email = $1 AND activated = true")
@@ -245,4 +245,43 @@ func (s *Storage) GetDeveloper(ctx context.Context, devID int64) (*entities.Deve
 
 	return &developer, nil
 
+}
+
+func (s *Storage) GetUserByID(ctx context.Context, id int64) (*entities.User, error) {
+	const op = "repository.user.GetUserByID"
+
+	query, err := s.Db.Prepare(
+		`SELECT           
+    		u.id, 
+            u.username, 
+            u.email, 
+            u.role,
+            cu.company_id
+        FROM users u
+        LEFT JOIN company_users cu ON u.id = cu.user_id
+        WHERE u.id = $1`)
+
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	var user entities.User
+
+	err = query.QueryRowContext(ctx, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Role,
+		&user.CompanyID)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, storage.ErrNoRecordFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }

@@ -22,6 +22,7 @@ const (
 	Auth_Register_FullMethodName            = "/auth.Auth/Register"
 	Auth_RegisterConfirm_FullMethodName     = "/auth.Auth/RegisterConfirm"
 	Auth_Login_FullMethodName               = "/auth.Auth/Login"
+	Auth_UserInfo_FullMethodName            = "/auth.Auth/UserInfo"
 	Auth_IsTokenValid_FullMethodName        = "/auth.Auth/IsTokenValid"
 	Auth_IsGithubLinked_FullMethodName      = "/auth.Auth/IsGithubLinked"
 	Auth_LinkGithubAccount_FullMethodName   = "/auth.Auth/LinkGithubAccount"
@@ -36,6 +37,7 @@ type AuthClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	RegisterConfirm(ctx context.Context, in *RegisterConfirmRequest, opts ...grpc.CallOption) (*RegisterConfirmResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
 	IsTokenValid(ctx context.Context, in *IsTokenValidRequest, opts ...grpc.CallOption) (*IsTokenValidResponse, error)
 	IsGithubLinked(ctx context.Context, in *IsGithubLinkedRequest, opts ...grpc.CallOption) (*IsGithubLinkedResponse, error)
 	LinkGithubAccount(ctx context.Context, in *LinkGithubRequest, opts ...grpc.CallOption) (*LinkGithubResponse, error)
@@ -75,6 +77,16 @@ func (c *authClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.C
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, Auth_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserInfoResponse)
+	err := c.cc.Invoke(ctx, Auth_UserInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +150,7 @@ type AuthServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	RegisterConfirm(context.Context, *RegisterConfirmRequest) (*RegisterConfirmResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error)
 	IsTokenValid(context.Context, *IsTokenValidRequest) (*IsTokenValidResponse, error)
 	IsGithubLinked(context.Context, *IsGithubLinkedRequest) (*IsGithubLinkedResponse, error)
 	LinkGithubAccount(context.Context, *LinkGithubRequest) (*LinkGithubResponse, error)
@@ -161,6 +174,9 @@ func (UnimplementedAuthServer) RegisterConfirm(context.Context, *RegisterConfirm
 }
 func (UnimplementedAuthServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedAuthServer) UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserInfo not implemented")
 }
 func (UnimplementedAuthServer) IsTokenValid(context.Context, *IsTokenValidRequest) (*IsTokenValidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsTokenValid not implemented")
@@ -248,6 +264,24 @@ func _Auth_Login_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_UserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).UserInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_UserInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).UserInfo(ctx, req.(*UserInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -360,6 +394,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _Auth_Login_Handler,
+		},
+		{
+			MethodName: "UserInfo",
+			Handler:    _Auth_UserInfo_Handler,
 		},
 		{
 			MethodName: "IsTokenValid",

@@ -31,6 +31,13 @@ service Auth{
     };
   }
 
+  rpc UserInfo(UserInfoRequest) returns (UserInfoResponse){
+    option (google.api.http) = {
+      post: "/v1/api/me"
+      body: "*"
+    };
+  }
+
   rpc IsTokenValid(IsTokenValidRequest) returns (IsTokenValidResponse);
 
   rpc IsGithubLinked(IsGithubLinkedRequest) returns (IsGithubLinkedResponse);
@@ -84,6 +91,17 @@ message LoginResponse{
   string token = 1;
 }
 
+message UserInfoRequest{
+}
+
+message UserInfoResponse{
+  int64 user_id = 1;
+  string username = 2;
+  string email = 3;
+  string role = 4;
+  int64 company_id = 5;
+}
+
 message IsTokenValidRequest{
   string token = 1;
 }
@@ -91,6 +109,8 @@ message IsTokenValidRequest{
 message IsTokenValidResponse{
   bool isTokenValid = 1;
 }
+
+
 
 ////////////////////////////////   Github OAuth   ////////////////////////////////
 

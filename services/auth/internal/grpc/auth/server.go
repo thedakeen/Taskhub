@@ -29,6 +29,7 @@ type Auth interface {
 	LinkGithubAccount(ctx context.Context, userID int64, githubID int64, githubUsername string, avatarURL string) (success bool, message string, err error)
 	UnlinkGithubAccount(ctx context.Context, userID int64) (success bool, err error)
 	DeveloperProfile(ctx context.Context, devID int64) (*entities.DeveloperProfile, error)
+	UserInfo(ctx context.Context, id int64) (*entities.User, error)
 }
 
 type serverAPI struct {
@@ -306,6 +307,35 @@ func (s *serverAPI) DeveloperProfile(ctx context.Context, req *authv1.GetDevelop
 		CvUrl:          cvUrl,
 		Bio:            bio,
 		Email:          developer.Email,
+	}, nil
+}
+
+func (s *serverAPI) UserInfo(ctx context.Context, req *authv1.UserInfoRequest) (*authv1.UserInfoResponse, error) {
+	claims, err := s.authorizeUser(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	userID, _ := claims["uid"].(float64)
+
+	currentUserID := int64(userID)
+
+	user, err := s.auth.UserInfo(ctx, currentUserID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, "failed to get user info")
+		}
+	}
+
+	return &authv1.UserInfoResponse{
+		UserId:    user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Role:      user.Role,
+		CompanyId: user.CompanyID.Int64,
 	}, nil
 }
 
