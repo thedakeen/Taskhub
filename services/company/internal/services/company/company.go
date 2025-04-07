@@ -14,6 +14,7 @@ type Company struct {
 	log           *slog.Logger
 	compProvider  CompanyProvider
 	issueProvider IssueProvider
+	asSolProvider AssignmentSolutionProvider
 	tokenTTL      time.Duration
 }
 
@@ -30,10 +31,12 @@ func New(
 	log *slog.Logger,
 	compProvider CompanyProvider,
 	issueProvider IssueProvider,
+	asSolProvider AssignmentSolutionProvider,
 	tokenTTL time.Duration) *Company {
 	return &Company{
 		compProvider:  compProvider,
 		issueProvider: issueProvider,
+		asSolProvider: asSolProvider,
 		log:           log,
 		tokenTTL:      tokenTTL,
 	}
