@@ -193,9 +193,116 @@ func (s Storage) CreateSolution(ctx context.Context, assignmentID int64, solutio
 
 }
 
+func (s Storage) GetAllIssueSolutions(ctx context.Context, id int64) ([]*entities.Solution, error) {
+	const op = "repository.issue.GetAllSolutions"
+
+	query := `
+        SELECT 
+            s.solution_id, 
+            s.assignment_id, 
+            s.solution_text, 
+            s.status,
+            a.assigned_at,
+            a.completed_at
+        FROM 
+            issue_solutions s
+        JOIN 
+            issue_assignments a ON s.assignment_id = a.assignment_id
+        WHERE 
+            a.issue_id = $1
+    `
+
+	rows, err := s.Db.QueryContext(ctx, query, id)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
+
+	//totalRecords := 0
+	var solutions []*entities.Solution
+
+	for rows.Next() {
+		solution := &entities.Solution{}
+
+		err := rows.Scan(
+			&solution.ID,
+			&solution.AssignmentID,
+			&solution.SolutionText,
+			&solution.Status,
+			&solution.AssignedAt,
+			&solution.CompletedAt,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+
+		solutions = append(solutions, solution)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	if len(solutions) == 0 {
+		return nil, storage.ErrNoRecordFound
+	}
+
+	return solutions, nil
+}
+
+func (s Storage) GetSolution(ctx context.Context, issueID int64, solutionID int64) (*entities.Solution, error) {
+	const op = "repository.issue.GetSolution"
+
+	query := `
+        SELECT 
+            s.solution_id, 
+            s.assignment_id, 
+            s.solution_text, 
+            s.status,
+            a.assigned_at,
+            a.completed_at
+        FROM 
+            issue_solutions s
+        JOIN 
+            issue_assignments a ON s.assignment_id = a.assignment_id
+        WHERE 
+            a.issue_id = $1 AND s.solution_id = $2
+    `
+
+	solution := &entities.Solution{}
+	err := s.Db.QueryRowContext(ctx, query, issueID, solutionID).Scan(
+		&solution.ID,
+		&solution.AssignmentID,
+		&solution.SolutionText,
+		&solution.Status,
+		&solution.AssignedAt,
+		&solution.CompletedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, storage.ErrNoRecordFound
+		default:
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	return solution, nil
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (s Storage) GetAssignmentID(ctx context.Context, issueID, developerID int64) (int64, error) {
+	const op = "repository.issue.GetAssignmentID"
+
 	var assignmentID int64
 
 	err := s.Db.QueryRowContext(ctx, `
@@ -206,7 +313,29 @@ func (s Storage) GetAssignmentID(ctx context.Context, issueID, developerID int64
 		if errors.Is(err, sql.ErrNoRows) {
 			return 0, storage.ErrNoRecordFound
 		}
-		return 0, err
+		return 0, fmt.Errorf("%s:%w", op, err)
 	}
 	return assignmentID, nil
+}
+
+func (s Storage) GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int64, error) {
+	const op = "repository.issue.GetCompanyIDByIssueID"
+
+	var companyID int64
+
+	err := s.Db.QueryRowContext(ctx, `
+		SELECT c.company_id
+		FROM issues i
+		JOIN companies c ON i.installation_id = c.installation_id
+		WHERE i.id = $1
+	`, issueID).Scan(&companyID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, storage.ErrNoRecordFound
+		}
+		return 0, fmt.Errorf("%s:%w", op, err)
+	}
+
+	return companyID, nil
 }

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func extractDeveloperID(tokenString string) (int64, error) {
+func extractUserID(tokenString string) (int64, error) {
 	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
 
 	if err != nil {

@@ -160,6 +160,75 @@
         ]
       }
     },
+    "/v1/issues/{issueId}/solutions": {
+      "get": {
+        "operationId": "Company_IssueSolutions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/compGetSolutionsOfIssueResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "issueId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Company"
+        ]
+      }
+    },
+    "/v1/issues/{issueId}/solutions/{solutionId}": {
+      "get": {
+        "operationId": "Company_IssueSolution",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/compGetIssueSolutionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "issueId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "solutionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Company"
+        ]
+      }
+    },
     "/v1/issues/{issueId}/submit": {
       "post": {
         "operationId": "Company_SubmitSolution",
@@ -293,6 +362,33 @@
         }
       }
     },
+    "compGetIssueSolutionResponse": {
+      "type": "object",
+      "properties": {
+        "solutionId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "assignmentId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "solutionText": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "assignedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "compGetIssuesOfCompanyResponse": {
       "type": "object",
       "properties": {
@@ -301,6 +397,18 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/compGetIssueResponse"
+          }
+        }
+      }
+    },
+    "compGetSolutionsOfIssueResponse": {
+      "type": "object",
+      "properties": {
+        "solutions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/compGetIssueSolutionResponse"
           }
         }
       }

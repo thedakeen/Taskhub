@@ -9,6 +9,8 @@ import (
 	"log/slog"
 )
 
+// TODO: delegate interfaces
+
 type IssueProvider interface {
 	CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
 	GetIssue(ctx context.Context, id int64, devID *int64) (*entities.Issue, error)
@@ -17,6 +19,10 @@ type IssueProvider interface {
 	CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error)
 	CreateSolution(ctx context.Context, assignmentID int64, solution string) (int64, error)
 	GetAssignmentID(ctx context.Context, issueID, developerID int64) (int64, error)
+	GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int64, error)
+
+	GetAllIssueSolutions(ctx context.Context, id int64) ([]*entities.Solution, error)
+	GetSolution(ctx context.Context, issueID int64, solutionID int64) (*entities.Solution, error)
 }
 
 //////////////// ISSUES ////////////////
@@ -160,6 +166,59 @@ func (c Company) AddSolution(ctx context.Context, issueID, developerID int64, so
 	log.Info("solution submitted successfully")
 
 	return solutionID, nil
+}
+
+func (c Company) GetIssueSolutions(ctx context.Context, issueID int64) ([]*entities.Solution, error) {
+	const op = "company.GetIssueSolutions"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.Int64("issueID", issueID),
+	)
+
+	log.Info("getting solutions for issue")
+
+	solutions, err := c.issueProvider.GetAllIssueSolutions(ctx, issueID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			c.log.Warn("no solutions found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			c.log.Warn("failed to get solutions", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("solutions retrieved successfully")
+	return solutions, nil
+}
+
+func (c Company) GetIssueSolution(ctx context.Context, issueID, solutionID int64) (*entities.Solution, error) {
+	const op = "company.GetIssueSolution"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.Int64("issueID", issueID),
+		slog.Int64("solutionID", solutionID),
+	)
+
+	log.Info("getting specific solution")
+
+	solution, err := c.issueProvider.GetSolution(ctx, issueID, solutionID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			c.log.Warn("solution not found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			c.log.Warn("failed to get solution", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("solution retrieved successfully")
+	return solution, nil
 }
 
 //////////////// END OF ISSUES ////////////////
