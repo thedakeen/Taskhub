@@ -60,7 +60,6 @@ const CompanyIssue = () => {
             setSubmitting(true);
             setSubmitError(null);
             setSubmitSuccess(false);
-
             const response = await fetch(
                 `http://localhost:8082/v1/issues/${issueId}/submit?solutionText=${encodeURIComponent(solutionText)}`,
                 {
