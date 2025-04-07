@@ -15,11 +15,13 @@ type IssueProvider interface {
 	CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error)
 	GetIssue(ctx context.Context, id int64, devID *int64) (*entities.Issue, error)
 	GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities.Issue, error)
+	GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int64, error)
+}
 
+type AssignmentSolutionProvider interface {
 	CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error)
 	CreateSolution(ctx context.Context, assignmentID int64, solution string) (int64, error)
 	GetAssignmentID(ctx context.Context, issueID, developerID int64) (int64, error)
-	GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int64, error)
 
 	GetAllIssueSolutions(ctx context.Context, id int64) ([]*entities.Solution, error)
 	GetSolution(ctx context.Context, issueID int64, solutionID int64) (*entities.Solution, error)
@@ -111,7 +113,7 @@ func (c Company) AssignDeveloperToIssue(ctx context.Context, issueID, developerI
 
 	log.Info("assigning developer to issue")
 
-	issueID, err := c.issueProvider.CreateAssignment(ctx, issueID, developerID)
+	issueID, err := c.asSolProvider.CreateAssignment(ctx, issueID, developerID)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.AlreadyExists):
@@ -139,7 +141,7 @@ func (c Company) AddSolution(ctx context.Context, issueID, developerID int64, so
 
 	log.Info("submitting task solution")
 
-	assignmentID, err := c.issueProvider.GetAssignmentID(ctx, issueID, developerID)
+	assignmentID, err := c.asSolProvider.GetAssignmentID(ctx, issueID, developerID)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
@@ -151,7 +153,7 @@ func (c Company) AddSolution(ctx context.Context, issueID, developerID int64, so
 		}
 	}
 
-	solutionID, err := c.issueProvider.CreateSolution(ctx, assignmentID, solution)
+	solutionID, err := c.asSolProvider.CreateSolution(ctx, assignmentID, solution)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.AlreadyExists):
@@ -178,7 +180,7 @@ func (c Company) GetIssueSolutions(ctx context.Context, issueID int64) ([]*entit
 
 	log.Info("getting solutions for issue")
 
-	solutions, err := c.issueProvider.GetAllIssueSolutions(ctx, issueID)
+	solutions, err := c.asSolProvider.GetAllIssueSolutions(ctx, issueID)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
@@ -205,7 +207,7 @@ func (c Company) GetIssueSolution(ctx context.Context, issueID, solutionID int64
 
 	log.Info("getting specific solution")
 
-	solution, err := c.issueProvider.GetSolution(ctx, issueID, solutionID)
+	solution, err := c.asSolProvider.GetSolution(ctx, issueID, solutionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):

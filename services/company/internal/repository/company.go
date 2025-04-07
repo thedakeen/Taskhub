@@ -15,7 +15,7 @@ type Storage struct {
 	Db *sql.DB
 }
 
-func (s Storage) AddGithubIntegration(ctx context.Context, installationID int64, companyName string, logoURL string) (int64, error) {
+func (s *Storage) AddGithubIntegration(ctx context.Context, installationID int64, companyName string, logoURL string) (int64, error) {
 	const op = "repository.company.AddGithubIntegration"
 
 	var id int64
@@ -31,7 +31,7 @@ func (s Storage) AddGithubIntegration(ctx context.Context, installationID int64,
 	return id, nil
 }
 
-func (s Storage) GetGithubIntegration(ctx context.Context, id int64) (installationID int64, err error) {
+func (s *Storage) GetGithubIntegration(ctx context.Context, id int64) (installationID int64, err error) {
 	const op = "repository.company.CompanyIntegration"
 
 	query, err := s.Db.Prepare("SELECT installation_id FROM companies WHERE company_id = $1")
@@ -54,7 +54,7 @@ func (s Storage) GetGithubIntegration(ctx context.Context, id int64) (installati
 
 }
 
-func (s Storage) GetAllCompanies(ctx context.Context) ([]*entities.Company, error) {
+func (s *Storage) GetAllCompanies(ctx context.Context) ([]*entities.Company, error) {
 	const op = "repository.company.GetAllCompanies"
 
 	query := "SELECT company_id, company_name, logo FROM companies"
@@ -100,7 +100,7 @@ func (s Storage) GetAllCompanies(ctx context.Context) ([]*entities.Company, erro
 	return companies, nil
 }
 
-func (s Storage) GetCompany(ctx context.Context, id int64) (*entities.Company, error) {
+func (s *Storage) GetCompany(ctx context.Context, id int64) (*entities.Company, error) {
 	const op = "repository.company.GetCompany"
 
 	query, err := s.Db.Prepare("SELECT company_id, company_name, description, website, logo, created_at FROM companies WHERE company_id = $1")
@@ -130,7 +130,7 @@ func (s Storage) GetCompany(ctx context.Context, id int64) (*entities.Company, e
 	return &company, nil
 }
 
-func (s Storage) IsCompanyRepresentative(ctx context.Context, userID int64, companyID int64) (bool, error) {
+func (s *Storage) IsCompanyRepresentative(ctx context.Context, userID int64, companyID int64) (bool, error) {
 	const op = "repository.user.IsCompanyRepresentative"
 
 	var isRepresentative bool
