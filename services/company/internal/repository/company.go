@@ -129,3 +129,23 @@ func (s Storage) GetCompany(ctx context.Context, id int64) (*entities.Company, e
 
 	return &company, nil
 }
+
+func (s Storage) IsCompanyRepresentative(ctx context.Context, userID int64, companyID int64) (bool, error) {
+	const op = "repository.user.IsCompanyRepresentative"
+
+	var isRepresentative bool
+	query := `
+        SELECT EXISTS (
+            SELECT 1 FROM users u
+            JOIN company_users cu ON u.id = cu.user_id
+            WHERE u.id = $1 AND cu.company_id = $2 AND u.role = 'company'
+        )
+    `
+
+	err := s.Db.QueryRowContext(ctx, query, userID, companyID).Scan(&isRepresentative)
+	if err != nil {
+		return false, fmt.Errorf("%s:%w", op, err)
+	}
+
+	return isRepresentative, nil
+}

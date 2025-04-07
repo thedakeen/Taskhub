@@ -22,6 +22,8 @@ type CompanyProvider interface {
 	GetGithubIntegration(ctx context.Context, id int64) (int64, error)
 	GetCompany(ctx context.Context, id int64) (*entities.Company, error)
 	GetAllCompanies(ctx context.Context) ([]*entities.Company, error)
+
+	IsCompanyRepresentative(ctx context.Context, userID int64, companyID int64) (bool, error)
 }
 
 func New(
@@ -137,4 +139,44 @@ func (c Company) AddCompany(ctx context.Context, installationID int64, companyNa
 
 	return companyID, nil
 
+}
+
+func (c Company) VerifyCompanyRepresentative(ctx context.Context, userID int64, issueID int64) (bool, error) {
+	const op = "company.VerifyCompanyRepresentative"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.Int64("userID", userID),
+		slog.Int64("issueID", issueID),
+	)
+
+	log.Info("verifying company representative access")
+
+	companyID, err := c.issueProvider.GetCompanyIDByIssueID(ctx, issueID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			log.Warn("no company found for issue", slog.String("error", err.Error()))
+			return false, fmt.Errorf("%s:%w", op, err)
+		default:
+			log.Warn("failed to get company for issue", slog.String("error", err.Error()))
+			return false, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	isRepresentative, err := c.compProvider.IsCompanyRepresentative(ctx, userID, companyID)
+	if err != nil {
+		log.Warn("failed to verify representative status", slog.String("error", err.Error()))
+		return false, fmt.Errorf("%s:%w", op, err)
+	}
+
+	if !isRepresentative {
+		log.Info("user is not a company representative",
+			slog.Int64("userID", userID),
+			slog.Int64("companyID", companyID))
+	} else {
+		log.Info("user verified as company representative")
+	}
+
+	return isRepresentative, nil
 }
