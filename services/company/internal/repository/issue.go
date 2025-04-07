@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 )
 
-func (s Storage) CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error) {
+func (s *Storage) CreateIssue(ctx context.Context, installationID int64, title string, body string) (int64, error) {
 	const op = "repository.issue.AddIssue"
 
 	var id int64
@@ -26,7 +26,7 @@ func (s Storage) CreateIssue(ctx context.Context, installationID int64, title st
 	return id, nil
 }
 
-func (s Storage) GetIssue(ctx context.Context, issueID int64, developerID *int64) (*entities.Issue, error) {
+func (s *Storage) GetIssue(ctx context.Context, issueID int64, developerID *int64) (*entities.Issue, error) {
 	const op = "repository.issue.GetIssue"
 	var queryStr string
 
@@ -79,7 +79,7 @@ func (s Storage) GetIssue(ctx context.Context, issueID int64, developerID *int64
 	return &issue, nil
 }
 
-func (s Storage) GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities.Issue, error) {
+func (s *Storage) GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities.Issue, error) {
 	const op = "repository.issue.GetAllIssues"
 
 	query := "SELECT i.id, i.title, i.body FROM issues i INNER JOIN companies c ON i.installation_id = c.installation_id WHERE c.company_id = $1"
@@ -126,7 +126,7 @@ func (s Storage) GetAllCompanyIssues(ctx context.Context, id int64) ([]*entities
 	return issues, nil
 }
 
-func (s Storage) CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error) {
+func (s *Storage) CreateAssignment(ctx context.Context, issueID, developerID int64) (int64, error) {
 	const op = "repository.issue.CreateAssignment"
 
 	var id int64
@@ -149,7 +149,7 @@ func (s Storage) CreateAssignment(ctx context.Context, issueID, developerID int6
 	return id, nil
 }
 
-func (s Storage) CreateSolution(ctx context.Context, assignmentID int64, solution string) (int64, error) {
+func (s *Storage) CreateSolution(ctx context.Context, assignmentID int64, solution string) (int64, error) {
 	const op = "repository.issue.CreateSolution"
 
 	tx, err := s.Db.BeginTx(ctx, nil)
@@ -193,7 +193,7 @@ func (s Storage) CreateSolution(ctx context.Context, assignmentID int64, solutio
 
 }
 
-func (s Storage) GetAllIssueSolutions(ctx context.Context, id int64) ([]*entities.Solution, error) {
+func (s *Storage) GetAllIssueSolutions(ctx context.Context, id int64) ([]*entities.Solution, error) {
 	const op = "repository.issue.GetAllSolutions"
 
 	query := `
@@ -257,7 +257,7 @@ func (s Storage) GetAllIssueSolutions(ctx context.Context, id int64) ([]*entitie
 	return solutions, nil
 }
 
-func (s Storage) GetSolution(ctx context.Context, issueID int64, solutionID int64) (*entities.Solution, error) {
+func (s *Storage) GetSolution(ctx context.Context, issueID int64, solutionID int64) (*entities.Solution, error) {
 	const op = "repository.issue.GetSolution"
 
 	query := `
@@ -300,7 +300,7 @@ func (s Storage) GetSolution(ctx context.Context, issueID int64, solutionID int6
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (s Storage) GetAssignmentID(ctx context.Context, issueID, developerID int64) (int64, error) {
+func (s *Storage) GetAssignmentID(ctx context.Context, issueID, developerID int64) (int64, error) {
 	const op = "repository.issue.GetAssignmentID"
 
 	var assignmentID int64
@@ -318,7 +318,7 @@ func (s Storage) GetAssignmentID(ctx context.Context, issueID, developerID int64
 	return assignmentID, nil
 }
 
-func (s Storage) GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int64, error) {
+func (s *Storage) GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int64, error) {
 	const op = "repository.issue.GetCompanyIDByIssueID"
 
 	var companyID int64
