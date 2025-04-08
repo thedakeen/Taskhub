@@ -46,6 +46,7 @@ service Company{
   rpc SubmitSolution(SubmitSolutionRequest) returns (SubmitSolutionResponse){
     option (google.api.http) = {
       post: "/v1/issues/{issue_id}/submit"
+      body: "solution_text"
     };
   }
 
