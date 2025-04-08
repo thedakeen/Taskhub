@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from "react-router-dom"; // Добавляем Link для перехода
+import React, {useContext, useEffect, useState} from 'react';
+import {useParams,Link} from "react-router-dom";
 import styles from "../styles/Company.module.css";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
+import AuthContext from "../contexts/AuthContext";
 
 const CompanyInfo = () => {
     const { companyId } = useParams();
     const [companyData, setCompanyData] = useState(null);
     const [issues, setIssues] = useState([]); // Состояние для хранения issues
     const [error, setError] = useState(null);
+
 
     useEffect(() => {
         const fetchCompanyData = async () => {
@@ -87,9 +89,7 @@ const CompanyInfo = () => {
                         {issues.map((issue, index) => (
                             <li key={index} className={styles.issueItem}>
                                 <strong>{issue.title}</strong>
-                                {/* Используем индекс как временный идентификатор */}
-                                <Link to={`/issues/${issue.issueId}`} className={styles.issueButton}>
-                                    View Issue
+                                <Link to={`/issues/${issue.issueId}`} className={styles.issueButton}>            View Issue
                                 </Link>
                             </li>
                         ))}
