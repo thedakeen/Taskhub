@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 
 public class AdminServer {
     private static final Dotenv dotenv = Dotenv.configure()
-            .directory("Taskhub/services/.env") // Путь к services/.env относительно services/admin/
+            .directory("Taskhub/services/.env") // путь к .env
             .load();
     private static final String SECRET_KEY = dotenv.get("JWT_SIGNED_STRING");
     private static final String DB_URL = convertPostgresUriToJdbc(dotenv.get("POSTGRES_URI"));
