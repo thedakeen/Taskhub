@@ -29,7 +29,8 @@ type UserSaver interface {
 }
 
 type UserProvider interface {
-	GetUser(ctx context.Context, email string) (*entities.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*entities.User, error)
+	GetUserByID(ctx context.Context, id int64) (*entities.User, error)
 
 	GetDeveloper(ctx context.Context, devID int64) (*entities.DeveloperProfile, error)
 }
@@ -132,7 +133,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (string
 
 	log.Info("attempting to login user")
 
-	user, err := a.userProvider.GetUser(ctx, email)
+	user, err := a.userProvider.GetUserByEmail(ctx, email)
 	if err != nil {
 		switch {
 		case errors.Is(err, storage.ErrNoRecordFound):
@@ -244,4 +245,30 @@ func (a *Auth) DeveloperProfile(ctx context.Context, devID int64) (*entities.Dev
 	log.Info("profile got successfully")
 
 	return developer, nil
+}
+
+func (a *Auth) UserInfo(ctx context.Context, id int64) (*entities.User, error) {
+	const op = "auth.UserInfo"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("userID", id))
+
+	log.Info("attempting to get user info")
+
+	user, err := a.userProvider.GetUserByID(ctx, id)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			a.log.Warn("no user found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			a.log.Warn("failed to get user", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("user got successfully")
+
+	return user, nil
 }

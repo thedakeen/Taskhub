@@ -3,14 +3,6 @@
 @import "tailwindcss/utilities";
 
 
-/*:root {*/
-/*  --primary-color: #D79922;  !* Основной цвет *!*/
-/*  --secondary-color: #2779a7; !* Вторичный *!*/
-/*  --accent-color: #F13C20;    !* Акцентный цвет *!*/
-/*  --text-color: #ffffff;      !* Цвет текста *!*/
-/*  --background-color: #EFE2BA; !* Фон *!*/
-/*  --dark-gray: #4b5563;       !* Дополнительный темный цвет *!*/
-/*}*/
 :root {
   --primary-color: white;  /* Основной цвет */
   --secondary-color: #1E1E1E; /* Вторичный */

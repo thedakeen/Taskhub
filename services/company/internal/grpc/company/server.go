@@ -20,6 +20,7 @@ type Company interface {
 	CompanyGithubIntegration(ctx context.Context, id int64) (installationID int64, err error)
 	CompanyInfo(ctx context.Context, id int64) (*entities.Company, error)
 	AllCompaniesInfo(ctx context.Context) ([]*entities.Company, error)
+	VerifyCompanyRepresentative(ctx context.Context, userID int64, issueID int64) (bool, error)
 }
 
 type Issue interface {
@@ -29,6 +30,9 @@ type Issue interface {
 
 	AssignDeveloperToIssue(ctx context.Context, issueID, developerID int64) (int64, error)
 	AddSolution(ctx context.Context, issueID, developerID int64, solution string) (int64, error)
+
+	GetIssueSolutions(ctx context.Context, issueID int64) ([]*entities.Solution, error)
+	GetIssueSolution(ctx context.Context, issueID, solutionID int64) (*entities.Solution, error)
 }
 
 type serverAPI struct {
@@ -105,7 +109,7 @@ func (s *serverAPI) Issue(ctx context.Context, req *companyv1.GetIssueRequest) (
 
 	var developerIDPtr *int64
 	if tokenString != "" {
-		developerID, err := extractDeveloperID(tokenString)
+		developerID, err := extractUserID(tokenString)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +154,7 @@ func (s *serverAPI) AssignDeveloper(ctx context.Context, req *companyv1.AssignDe
 		return nil, err
 	}
 
-	developerID, err := extractDeveloperID(tokenString)
+	developerID, err := extractUserID(tokenString)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "invalid token data")
 	}
@@ -191,7 +195,7 @@ func (s *serverAPI) SubmitSolution(ctx context.Context, req *companyv1.SubmitSol
 		return nil, err
 	}
 
-	developerID, err := extractDeveloperID(tokenString)
+	developerID, err := extractUserID(tokenString)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "invalid token data")
 	}
@@ -211,6 +215,113 @@ func (s *serverAPI) SubmitSolution(ctx context.Context, req *companyv1.SubmitSol
 		SolutionId: solutionID,
 	}, nil
 
+}
+
+func (s *serverAPI) IssueSolutions(ctx context.Context, req *companyv1.GetSolutionsOfIssueRequest) (*companyv1.GetSolutionsOfIssueResponse, error) {
+	issueSolutionsRequest := structs.IssueSolutionsRequest{
+		IssueID: req.IssueId,
+	}
+
+	err := s.v.Struct(issueSolutionsRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	tokenString, err := s.authenticate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userID, err := extractUserID(tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token data")
+	}
+
+	isRepresentative, err := s.company.VerifyCompanyRepresentative(ctx, userID, req.GetIssueId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to verify authorization")
+	}
+
+	if !isRepresentative {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+
+	solutions, err := s.issue.GetIssueSolutions(ctx, req.GetIssueId())
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, "no solutions found")
+		default:
+			return nil, status.Error(codes.Internal, "failed to get solutions")
+		}
+	}
+
+	var solutionResponses []*companyv1.GetIssueSolutionResponse
+	for _, solution := range solutions {
+
+		solutionResponses = append(solutionResponses, &companyv1.GetIssueSolutionResponse{
+			SolutionId:   solution.ID,
+			AssignmentId: solution.AssignmentID,
+			SolutionText: solution.SolutionText,
+			Status:       solution.Status,
+			AssignedAt:   timestamppb.New(solution.AssignedAt),
+			CompletedAt:  timestamppb.New(solution.CompletedAt),
+		})
+	}
+
+	return &companyv1.GetSolutionsOfIssueResponse{
+		Solutions: solutionResponses,
+	}, nil
+}
+
+func (s *serverAPI) IssueSolution(ctx context.Context, req *companyv1.GetIssueSolutionRequest) (*companyv1.GetIssueSolutionResponse, error) {
+	issueSolutionRequest := structs.IssueSolutionRequest{
+		IssueID:    req.IssueId,
+		SolutionID: req.SolutionId,
+	}
+
+	err := s.v.Struct(issueSolutionRequest)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	tokenString, err := s.authenticate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	userID, err := extractUserID(tokenString)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid token data")
+	}
+
+	isRepresentative, err := s.company.VerifyCompanyRepresentative(ctx, userID, req.GetIssueId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to verify authorization")
+	}
+
+	if !isRepresentative {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+
+	solution, err := s.issue.GetIssueSolution(ctx, req.GetIssueId(), req.GetSolutionId())
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, "solution not found")
+		default:
+			return nil, status.Error(codes.Internal, "failed to get solution")
+		}
+	}
+
+	return &companyv1.GetIssueSolutionResponse{
+		SolutionId:   solution.ID,
+		AssignmentId: solution.AssignmentID,
+		SolutionText: solution.SolutionText,
+		Status:       solution.Status,
+		AssignedAt:   timestamppb.New(solution.AssignedAt),
+		CompletedAt:  timestamppb.New(solution.CompletedAt),
+	}, nil
 }
 
 //////////////// END OF ISSUES ////////////////

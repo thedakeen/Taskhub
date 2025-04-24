@@ -1,0 +1,25 @@
+syntax = "proto3";
+package admin;
+import "google/api/annotations.proto";
+option java_package = "com.taskhub.admin.v1";
+option java_outer_classname = "AdminProto";
+
+service AdminPanel {
+  rpc CheckRole(CheckRoleRequest) returns (CheckRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/admin/check-role"
+      body: "*"
+    };
+  }
+}
+
+message CheckRoleRequest {
+  string token = 1;
+}
+
+message CheckRoleResponse {
+  bool isAdmin = 1;
+  string role = 2;
+  int64 userID = 3;
+  string message = 4;
+}

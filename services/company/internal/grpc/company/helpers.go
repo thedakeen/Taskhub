@@ -3,6 +3,7 @@ package company
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -10,7 +11,7 @@ import (
 	"strings"
 )
 
-func extractDeveloperID(tokenString string) (int64, error) {
+func extractUserID(tokenString string) (int64, error) {
 	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
 
 	if err != nil {
@@ -30,7 +31,7 @@ func extractDeveloperID(tokenString string) (int64, error) {
 	return int64(uid), nil
 }
 
-// for special post/patch methods, to restrict unwanted requests
+// authenticate for special post/patch methods, to restrict unwanted requests
 func (s *serverAPI) authenticate(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -47,6 +48,8 @@ func (s *serverAPI) authenticate(ctx context.Context) (string, error) {
 		return "", status.Error(codes.Unauthenticated, "empty token")
 	}
 
+	fmt.Println("Received token:", tokenString)
+
 	isValid, err := s.authClient.IsTokenValid(context.Background(), tokenString)
 	if err != nil {
 		return "", status.Error(codes.Unauthenticated, err.Error())
@@ -58,7 +61,7 @@ func (s *serverAPI) authenticate(ctx context.Context) (string, error) {
 	return tokenString, nil
 }
 
-// for general methods, mostly GET
+// authenticate2 for general methods, mostly GET
 func (s *serverAPI) authenticate2(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
