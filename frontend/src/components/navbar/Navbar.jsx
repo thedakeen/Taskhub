@@ -11,7 +11,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="nav-left">
                 <div className="logo-container">
-                    <svg width="50" height="50" viewBox="0 0 342 381" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="30" height="30" viewBox="0 0 342 381" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M162.478 338.935C162.478 343.353 166.059 346.935 170.478 346.935C174.896 346.935 178.478 343.353 178.478 338.935L162.478 338.935ZM178.478 38.9352C178.478 34.5169 174.896 30.9352 170.478 30.9352C166.059 30.9352 162.478 34.5169 162.478 38.9352L178.478 38.9352ZM178.478 338.935L178.478 38.9352L162.478 38.9352L162.478 338.935L178.478 338.935Z"
                             fill="#AF52DE"/>

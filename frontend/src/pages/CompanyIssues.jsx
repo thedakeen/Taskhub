@@ -1,19 +1,24 @@
 
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useParams } from "react-router-dom";
 import styles from "../styles/Company.module.css";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
+import AuthContext from "../contexts/AuthContext";
 
 const CompanyIssues = () => {
     const { companyId } = useParams();
     const [companyData, setCompanyData] = useState(null);
     const [error, setError] = useState(null);
+    const { user } = useContext(AuthContext);
+
 
     useEffect(() => {
         const fetchCompanyData = async () => {
             try {
                 const response = await fetch(`http://localhost:8082/v1/companies/${companyId}`);
+
+                console.log(user.token+" token "+user)
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }

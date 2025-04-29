@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true); // ✅ Флаг загрузки состояния
+    const [isLoading, setIsLoading] = useState(true);
     const [verificationCodeSent, setVerificationCodeSent] = useState(false);
     const API_BASE_URL = "http://localhost:8081";
 
@@ -25,13 +25,21 @@ export const AuthProvider = ({ children }) => {
 
     const logIn = async (email, password) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/v1/login`, { email, password });
+            const response = await axios.post(
+                `${API_BASE_URL}/v1/login`,
+                { email, password }
+            );
             const { token } = response.data;
+
             if (token) {
                 const decoded = decodeJWT(token);
                 localStorage.setItem("authToken", token);
                 localStorage.setItem("userEmail", email);
                 setUser({ token, id: decoded?.uid, email });
+
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+
                 return { success: true };
             } else {
                 const errorMsg = "В ответе от сервера нет токена";
