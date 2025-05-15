@@ -242,3 +242,11 @@ p {
 .fadeIn {
     animation: fadeIn 0.3s ease-out forwards;
 }
+.profileRight h3{
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent-color);
+    color: var(--text-color);
+    font-weight: 600;
+}

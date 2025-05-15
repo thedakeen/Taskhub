@@ -19,9 +19,8 @@ import styles from "../styles/CompanyIssue.module.css";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 const { Content, Sider } = Layout;
-const { Title, Paragraph, Text } = Typography;
+const {Text } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
 
 const CompanyIssue = () => {
     const { issueId } = useParams();

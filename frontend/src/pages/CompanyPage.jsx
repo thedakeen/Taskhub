@@ -10,8 +10,6 @@ const CompanyInfo = () => {
     const [issues, setIssues] = useState([]); // Состояние для хранения issues
     const [error, setError] = useState(null);
 
-
-
     useEffect(() => {
         const fetchCompanyData = async () => {
             try {
@@ -65,36 +63,72 @@ const CompanyInfo = () => {
             <Navbar />
             <div className={styles.companyContainer}>
                 <h2 className={styles.companyName}>{companyData.companyName}</h2>
-                <div className={styles.contentWrapper}>
+
+                {/* Основной контейнер для верхних блоков (аватар + описание) */}
+                <div className={styles.companyContentContainer}>
                     <div className={styles.left}>
+                        <h3>Company Info</h3>
                         <div className={styles.avatarContainer}>
                             <img
                                 src={companyData.logo}
-                                alt="Profile"
+                                alt="Company Logo"
                                 className={styles.avatarImage}
                             />
                         </div>
-                        <p><strong>Website:</strong> {companyData.websiteUrl}</p>
+                        <div className={styles.websiteLink}>
+                            <span className={styles.statLabel}>Website:</span>
+                            <a href={companyData.websiteUrl} className={styles.statValue}>{companyData.websiteUrl}</a>
+                        </div>
                     </div>
                     <div className={styles.right}>
-                        <p><strong>Work with us since:</strong> {formattedDate}</p>
-                        <p><strong>About us:</strong> {companyData.description}</p>
+                        <h3>About Company</h3>
+                        <div className={styles.descriptionBlock}>
+                            <div className={styles.descriptionItem}>
+                                <span className={styles.descriptionLabel}>Work with us since:</span>
+                                <span className={styles.descriptionValue}>{formattedDate}</span>
+                            </div>
+                            <div className={styles.aboutText}>
+                                <p>{companyData.description}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Секция Issues */}
-                <div className={styles.issuesSection}>
-                    <h3>Company Tasks</h3>
-                    <ul className={styles.issuesList}>
-                        {issues.map((issue, index) => (
-                            <li key={index} className={styles.issueItem}>
-                                <strong>{issue.title}</strong>
-                                <Link to={`/issues/${issue.issueId}`} className={styles.issueButton}>            View Issue
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
+                {/* Основной контейнер для контента компании - задачи и статистика */}
+                <div className={styles.companyContentContainer}>
+                    {/* Секция задач слева */}
+                    <div className={styles.issuesSection}>
+                        <h3>Tasks</h3>
+                        <ol className={styles.issuesList}>
+                            {issues.map((issue, index) => (
+                                <li key={index} className={index % 2 === 0 ? styles.even : styles.odd}>
+                                    <Link to={`/issues/${issue.issueId}`} className={styles.issueItem}>
+                                        <span className={styles.issueTitle}>{issue.title}</span>
+                                        <span className={styles.devsCount}>{issue.developers?.length || 0} devs</span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
 
+                    {/* Заглушка для правого блока с данными */}
+                    <div className={styles.statsSection}>
+                        <h3>Company Stats</h3>
+                        <div className={styles.statBlock}>
+                            <div className={styles.statItem}>
+                                <span className={styles.statLabel}>Total tasks:</span>
+                                <span className={styles.statValue}>{issues.length}</span>
+                            </div>
+                            <div className={styles.statItem}>
+                                <span className={styles.statLabel}>Active projects:</span>
+                                <span className={styles.statValue}>4</span>
+                            </div>
+                            <div className={styles.statItem}>
+                                <span className={styles.statLabel}>Team members:</span>
+                                <span className={styles.statValue}>12</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <Footer/>

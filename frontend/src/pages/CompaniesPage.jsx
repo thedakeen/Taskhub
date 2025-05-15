@@ -39,7 +39,7 @@ export default function CompaniesPage() {
         <>
             <Navbar />
             <div className={styles.companyPageContainer}>
-                <h1 className={styles.pageTitle}>Наши компании</h1>
+                <h1 className={styles.pageTitle}>Companies we collaborate with</h1>
                 {loading && <p>Загрузка...</p>}
                 <div className={styles.companyGrid}>
                     {dataToShow.map((company, index) => (

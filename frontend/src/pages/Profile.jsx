@@ -66,35 +66,37 @@ const Profile = () => {
                 <div className={styles.profileRight}>
                     <div className={styles.topPanel}>
                         <div className={styles.panelContent}>
-                            <h2 className={styles.panelTitle}>Профиль разработчика</h2>
+                            <h3 className={styles.panelTitle}>Профиль разработчика</h3>
                             {!isGithubLinked ? (
                                 <GithubAuthButton />
                             ) : (
                                 <div className={styles.githubLinked}>
-                                    <svg className={styles.checkIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    <svg className={styles.checkIcon} fill="none" stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                              d="M5 13l4 4L19 7"/>
                                     </svg>
-                                    GitHub привязан
                                     <a
                                         href={`https://github.com/${profileData.githubUsername}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className={styles.githubLink}
                                     >
-                                         @{profileData.githubUsername}
+                                        {}@{profileData.githubUsername}
                                     </a>
                                 </div>
+
                             )}
                         </div>
                     </div>
 
-                {/* Content that appears after GitHub is linked */}
-                {isGithubLinked && (
-                    <div className={styles.fadeIn}>
-                        {/* Experience - Full Width */}
-                        <div className={styles.fullWidthSection}>
-                            <h2 className={styles.sectionTitle}>Опыт работы</h2>
-                            <div className={styles.contentItem}>
+                    {/* Content that appears after GitHub is linked */}
+                    {isGithubLinked && (
+                        <div className={styles.fadeIn}>
+                            {/* Experience - Full Width */}
+                            <div className={styles.fullWidthSection}>
+                                <h3 className={styles.sectionTitle}>Опыт работы</h3>
+                                <div className={styles.contentItem}>
                                 <p className={styles.contentTitle}>Senior Frontend Developer</p>
                                 <p className={styles.contentSubtitle}>Tech Company</p>
                                 <p className={styles.contentDate}>2020 - настоящее время</p>
@@ -104,7 +106,7 @@ const Profile = () => {
                         {/* Three Equal Columns */}
                         <div className={styles.threeColumnGrid}>
                             <div className={styles.gridCard}>
-                                <h2 className={styles.sectionTitle}>Образование</h2>
+                                <h3 className={styles.sectionTitle}>Образование</h3>
                                 <div className={styles.contentItem}>
                                     <p className={styles.contentTitle}>МГУ им. Ломоносова</p>
                                     <p className={styles.contentSubtitle}>Факультет ВМК</p>
@@ -113,7 +115,7 @@ const Profile = () => {
                             </div>
 
                             <div className={styles.gridCard}>
-                                <h2 className={styles.sectionTitle}>Языки</h2>
+                                <h3 className={styles.sectionTitle}>Языки</h3>
                                 <div className={styles.contentItem}>
                                     <p className={styles.contentTitle}>Английский</p>
                                     <p className={styles.contentSubtitle}>C1 Advanced</p>
@@ -125,7 +127,7 @@ const Profile = () => {
                             </div>
 
                             <div className={styles.gridCard}>
-                                <h2 className={styles.sectionTitle}>Сертификаты</h2>
+                                <h3 className={styles.sectionTitle}>Сертификаты</h3>
                                 <div className={styles.contentItem}>
                                     <p className={styles.contentTitle}>AWS Solutions Architect</p>
                                     <p className={styles.contentDate}>2023</p>
@@ -135,7 +137,7 @@ const Profile = () => {
 
                         <div className={styles.twoColumnGrid}>
                             <div className={styles.gridCard}>
-                                <h2 className={styles.sectionTitle}>Образование</h2>
+                                <h3 className={styles.sectionTitle}>Образование</h3>
                                 <div className={styles.contentItem}>
                                     <p className={styles.contentTitle}>МГУ им. Ломоносова</p>
                                     <p className={styles.contentSubtitle}>Факультет ВМК</p>
@@ -144,7 +146,7 @@ const Profile = () => {
                             </div>
 
                             <div className={styles.gridCard}>
-                                <h2 className={styles.sectionTitle}>Языки</h2>
+                                <h3 className={styles.sectionTitle}>Языки</h3>
                                 <div className={styles.contentItem}>
                                     <p className={styles.contentTitle}>Английский</p>
                                     <p className={styles.contentSubtitle}>C1 Advanced</p>
