@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: taskhub-admin-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: 'postgres'
+    password: '0000'
+    url: jdbc:postgresql://localhost:5432/taskhub_db
+  jpa:
+    hibernate:
+      ddl-auto: validate
+server:
+  port: 8090
+
+
+security:
+  jwt:
+    secret: s7Ndh+pPznbHbS*+9Pk8qGWhTzbpa@tw
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
