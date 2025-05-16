@@ -17,7 +17,7 @@
   ],
   "paths": {
     "/v1/api/me": {
-      "post": {
+      "get": {
         "operationId": "Auth_UserInfo",
         "responses": {
           "200": {
@@ -33,16 +33,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/authUserInfoRequest"
-            }
-          }
-        ],
         "tags": [
           "Auth"
         ]
@@ -363,9 +353,6 @@
           "type": "boolean"
         }
       }
-    },
-    "authUserInfoRequest": {
-      "type": "object"
     },
     "authUserInfoResponse": {
       "type": "object",
