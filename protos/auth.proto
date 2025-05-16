@@ -33,8 +33,7 @@ service Auth{
 
   rpc UserInfo(UserInfoRequest) returns (UserInfoResponse){
     option (google.api.http) = {
-      post: "/v1/api/me"
-      body: "*"
+      get: "/v1/api/me"
     };
   }
 
