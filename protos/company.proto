@@ -64,11 +64,53 @@ service Company{
 
   rpc CompanyGithubIntegration(GetCompanyGithubIntegrationRequest) returns (GetCompanyGithubIntegrationResponse);
 
+
+
+  rpc DeveloperSolutions(GetDeveloperSolutionsRequest) returns (GetDeveloperSolutionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/developers/{developer_id}/solutions"
+    };
+  }
+
+  rpc DeveloperInProgressTasks(GetDeveloperInProgressTasksRequest) returns (GetDeveloperInProgressTasksResponse) {
+    option (google.api.http) = {
+      get: "/v1/developers/{developer_id}/tasks/in-progress"
+    };
+  }
+
     }
 
 
 
+
+
+
 // ISSUES //
+
+message GetDeveloperSolutionsRequest {
+  int64 developer_id = 1;
+}
+
+message GetDeveloperSolutionsResponse {
+  repeated GetIssueSolutionResponse solutions = 1;
+}
+
+message GetDeveloperInProgressTasksRequest {
+  int64 developer_id = 1;
+}
+
+message GetDeveloperTaskResponse {
+  int64 assignment_id = 1;
+  int64 issue_id = 2;
+  string status = 3;
+  google.protobuf.Timestamp assigned_at = 4;
+  string issue_title = 5;
+  string issue_body = 6;
+}
+
+message GetDeveloperInProgressTasksResponse {
+  repeated GetDeveloperTaskResponse tasks = 1;
+}
 
 message GetIssuesOfCompanyRequest{
   int64 company_id = 1;

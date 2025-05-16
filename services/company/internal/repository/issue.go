@@ -339,3 +339,137 @@ func (s *Storage) GetCompanyIDByIssueID(ctx context.Context, issueID int64) (int
 
 	return companyID, nil
 }
+
+func (s *Storage) GetDeveloperIssueSolutions(ctx context.Context, developerID int64) ([]*entities.Solution, error) {
+	const op = "repository.issue.GetDeveloperIssueSolutions"
+
+	query := `
+        SELECT 
+            s.solution_id, 
+            s.assignment_id, 
+            s.solution_text, 
+            s.status,
+            a.assigned_at,
+            a.completed_at
+        FROM 
+            issue_solutions s
+        JOIN 
+            issue_assignments a ON s.assignment_id = a.assignment_id
+        WHERE 
+            a.developer_id = $1
+        ORDER BY
+            a.assigned_at DESC
+    `
+
+	rows, err := s.Db.QueryContext(ctx, query, developerID)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			// handle error
+		}
+	}(rows)
+
+	var solutions []*entities.Solution
+
+	for rows.Next() {
+		solution := &entities.Solution{}
+
+		err := rows.Scan(
+			&solution.ID,
+			&solution.AssignmentID,
+			&solution.SolutionText,
+			&solution.Status,
+			&solution.AssignedAt,
+			&solution.CompletedAt,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+
+		solutions = append(solutions, solution)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	if len(solutions) == 0 {
+		return nil, storage.ErrNoRecordFound
+	}
+
+	return solutions, nil
+}
+
+func (s *Storage) GetDeveloperInProgressAssignments(ctx context.Context, developerID int64) ([]*entities.Assignment, error) {
+	const op = "repository.issue.GetDeveloperInProgressAssignments"
+
+	query := `
+        SELECT 
+            a.assignment_id, 
+            a.issue_id, 
+            a.developer_id,
+            a.status,
+            a.assigned_at,
+            a.completed_at,
+            i.title as issue_title,
+            i.body as issue_body
+        FROM 
+            issue_assignments a
+        JOIN 
+            issues i ON a.issue_id = i.id
+        WHERE 
+            a.developer_id = $1 AND a.status = 'in_progress'
+        ORDER BY
+            a.assigned_at DESC
+    `
+
+	rows, err := s.Db.QueryContext(ctx, query, developerID)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			// handle error
+		}
+	}(rows)
+
+	var assignments []*entities.Assignment
+
+	for rows.Next() {
+		assignment := &entities.Assignment{}
+
+		err := rows.Scan(
+			&assignment.ID,
+			&assignment.IssueID,
+			&assignment.DeveloperID,
+			&assignment.Status,
+			&assignment.AssignedAt,
+			&assignment.CompletedAt,
+			&assignment.IssueTitle,
+			&assignment.IssueBody,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+
+		assignments = append(assignments, assignment)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s:%w", op, err)
+	}
+
+	if len(assignments) == 0 {
+		return nil, storage.ErrNoRecordFound
+	}
+
+	return assignments, nil
+}

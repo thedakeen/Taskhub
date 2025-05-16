@@ -100,6 +100,68 @@
         ]
       }
     },
+    "/v1/developers/{developerId}/solutions": {
+      "get": {
+        "operationId": "Company_DeveloperSolutions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/compGetDeveloperSolutionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "developerId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Company"
+        ]
+      }
+    },
+    "/v1/developers/{developerId}/tasks/in-progress": {
+      "get": {
+        "operationId": "Company_DeveloperInProgressTasks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/compGetDeveloperInProgressTasksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "developerId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Company"
+        ]
+      }
+    },
     "/v1/issues/{issueId}": {
       "get": {
         "operationId": "Company_Issue",
@@ -256,9 +318,11 @@
           },
           {
             "name": "solutionText",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
@@ -335,6 +399,56 @@
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "compGetDeveloperInProgressTasksResponse": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/compGetDeveloperTaskResponse"
+          }
+        }
+      }
+    },
+    "compGetDeveloperSolutionsResponse": {
+      "type": "object",
+      "properties": {
+        "solutions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/compGetIssueSolutionResponse"
+          }
+        }
+      }
+    },
+    "compGetDeveloperTaskResponse": {
+      "type": "object",
+      "properties": {
+        "assignmentId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "issueId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "assignedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "issueTitle": {
+          "type": "string"
+        },
+        "issueBody": {
+          "type": "string"
         }
       }
     },

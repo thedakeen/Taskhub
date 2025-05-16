@@ -197,14 +197,15 @@ func local_request_Company_AssignDeveloper_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-var filter_Company_SubmitSolution_0 = &utilities.DoubleArray{Encoding: map[string]int{"issue_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
 func request_Company_SubmitSolution_0(ctx context.Context, marshaler runtime.Marshaler, client CompanyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq SubmitSolutionRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.SolutionText); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	val, ok := pathParams["issue_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "issue_id")
@@ -212,12 +213,6 @@ func request_Company_SubmitSolution_0(ctx context.Context, marshaler runtime.Mar
 	protoReq.IssueId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "issue_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Company_SubmitSolution_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.SubmitSolution(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -229,6 +224,9 @@ func local_request_Company_SubmitSolution_0(ctx context.Context, marshaler runti
 		metadata runtime.ServerMetadata
 		err      error
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.SolutionText); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	val, ok := pathParams["issue_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "issue_id")
@@ -236,12 +234,6 @@ func local_request_Company_SubmitSolution_0(ctx context.Context, marshaler runti
 	protoReq.IssueId, err = runtime.Int64(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "issue_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Company_SubmitSolution_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.SubmitSolution(ctx, &protoReq)
 	return msg, metadata, err
@@ -332,6 +324,78 @@ func local_request_Company_IssueSolution_0(ctx context.Context, marshaler runtim
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "solution_id", err)
 	}
 	msg, err := server.IssueSolution(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_Company_DeveloperSolutions_0(ctx context.Context, marshaler runtime.Marshaler, client CompanyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetDeveloperSolutionsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["developer_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "developer_id")
+	}
+	protoReq.DeveloperId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "developer_id", err)
+	}
+	msg, err := client.DeveloperSolutions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_Company_DeveloperSolutions_0(ctx context.Context, marshaler runtime.Marshaler, server CompanyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetDeveloperSolutionsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["developer_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "developer_id")
+	}
+	protoReq.DeveloperId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "developer_id", err)
+	}
+	msg, err := server.DeveloperSolutions(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_Company_DeveloperInProgressTasks_0(ctx context.Context, marshaler runtime.Marshaler, client CompanyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetDeveloperInProgressTasksRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["developer_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "developer_id")
+	}
+	protoReq.DeveloperId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "developer_id", err)
+	}
+	msg, err := client.DeveloperInProgressTasks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_Company_DeveloperInProgressTasks_0(ctx context.Context, marshaler runtime.Marshaler, server CompanyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetDeveloperInProgressTasksRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["developer_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "developer_id")
+	}
+	protoReq.DeveloperId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "developer_id", err)
+	}
+	msg, err := server.DeveloperInProgressTasks(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -500,6 +564,46 @@ func RegisterCompanyHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 		forward_Company_IssueSolution_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_Company_DeveloperSolutions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/comp.Company/DeveloperSolutions", runtime.WithHTTPPathPattern("/v1/developers/{developer_id}/solutions"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Company_DeveloperSolutions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Company_DeveloperSolutions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_Company_DeveloperInProgressTasks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/comp.Company/DeveloperInProgressTasks", runtime.WithHTTPPathPattern("/v1/developers/{developer_id}/tasks/in-progress"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_Company_DeveloperInProgressTasks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Company_DeveloperInProgressTasks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -677,27 +781,65 @@ func RegisterCompanyHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 		forward_Company_IssueSolution_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_Company_DeveloperSolutions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/comp.Company/DeveloperSolutions", runtime.WithHTTPPathPattern("/v1/developers/{developer_id}/solutions"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Company_DeveloperSolutions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Company_DeveloperSolutions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_Company_DeveloperInProgressTasks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/comp.Company/DeveloperInProgressTasks", runtime.WithHTTPPathPattern("/v1/developers/{developer_id}/tasks/in-progress"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_Company_DeveloperInProgressTasks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_Company_DeveloperInProgressTasks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_Company_Company_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "companies", "company_id"}, ""))
-	pattern_Company_Companies_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "companies"}, ""))
-	pattern_Company_Issue_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "issues", "issue_id"}, ""))
-	pattern_Company_CompanyIssues_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "companies", "company_id", "issues"}, ""))
-	pattern_Company_AssignDeveloper_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "issues", "issue_id"}, ""))
-	pattern_Company_SubmitSolution_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "issues", "issue_id", "submit"}, ""))
-	pattern_Company_IssueSolutions_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "issues", "issue_id", "solutions"}, ""))
-	pattern_Company_IssueSolution_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "issues", "issue_id", "solutions", "solution_id"}, ""))
+	pattern_Company_Company_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "companies", "company_id"}, ""))
+	pattern_Company_Companies_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "companies"}, ""))
+	pattern_Company_Issue_0                    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "issues", "issue_id"}, ""))
+	pattern_Company_CompanyIssues_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "companies", "company_id", "issues"}, ""))
+	pattern_Company_AssignDeveloper_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "issues", "issue_id"}, ""))
+	pattern_Company_SubmitSolution_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "issues", "issue_id", "submit"}, ""))
+	pattern_Company_IssueSolutions_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "issues", "issue_id", "solutions"}, ""))
+	pattern_Company_IssueSolution_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "issues", "issue_id", "solutions", "solution_id"}, ""))
+	pattern_Company_DeveloperSolutions_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "developers", "developer_id", "solutions"}, ""))
+	pattern_Company_DeveloperInProgressTasks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 2, 4}, []string{"v1", "developers", "developer_id", "tasks", "in-progress"}, ""))
 )
 
 var (
-	forward_Company_Company_0         = runtime.ForwardResponseMessage
-	forward_Company_Companies_0       = runtime.ForwardResponseMessage
-	forward_Company_Issue_0           = runtime.ForwardResponseMessage
-	forward_Company_CompanyIssues_0   = runtime.ForwardResponseMessage
-	forward_Company_AssignDeveloper_0 = runtime.ForwardResponseMessage
-	forward_Company_SubmitSolution_0  = runtime.ForwardResponseMessage
-	forward_Company_IssueSolutions_0  = runtime.ForwardResponseMessage
-	forward_Company_IssueSolution_0   = runtime.ForwardResponseMessage
+	forward_Company_Company_0                  = runtime.ForwardResponseMessage
+	forward_Company_Companies_0                = runtime.ForwardResponseMessage
+	forward_Company_Issue_0                    = runtime.ForwardResponseMessage
+	forward_Company_CompanyIssues_0            = runtime.ForwardResponseMessage
+	forward_Company_AssignDeveloper_0          = runtime.ForwardResponseMessage
+	forward_Company_SubmitSolution_0           = runtime.ForwardResponseMessage
+	forward_Company_IssueSolutions_0           = runtime.ForwardResponseMessage
+	forward_Company_IssueSolution_0            = runtime.ForwardResponseMessage
+	forward_Company_DeveloperSolutions_0       = runtime.ForwardResponseMessage
+	forward_Company_DeveloperInProgressTasks_0 = runtime.ForwardResponseMessage
 )

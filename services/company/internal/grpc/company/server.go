@@ -33,6 +33,9 @@ type Issue interface {
 
 	GetIssueSolutions(ctx context.Context, issueID int64) ([]*entities.Solution, error)
 	GetIssueSolution(ctx context.Context, issueID, solutionID int64) (*entities.Solution, error)
+
+	GetDeveloperSolutions(ctx context.Context, developerID int64) ([]*entities.Solution, error)
+	GetDeveloperInProgressTasks(ctx context.Context, developerID int64) ([]*entities.Assignment, error)
 }
 
 type serverAPI struct {
@@ -321,6 +324,74 @@ func (s *serverAPI) IssueSolution(ctx context.Context, req *companyv1.GetIssueSo
 		Status:       solution.Status,
 		AssignedAt:   timestamppb.New(solution.AssignedAt),
 		CompletedAt:  timestamppb.New(solution.CompletedAt),
+	}, nil
+}
+
+func (s *serverAPI) DeveloperSolutions(ctx context.Context, req *companyv1.GetDeveloperSolutionsRequest) (*companyv1.GetDeveloperSolutionsResponse, error) {
+	developerID := req.DeveloperId
+
+	if developerID <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid developer ID")
+	}
+
+	solutions, err := s.issue.GetDeveloperSolutions(ctx, developerID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, "no solutions found")
+		default:
+			return nil, status.Error(codes.Internal, "failed to get solutions")
+		}
+	}
+
+	var solutionResponses []*companyv1.GetIssueSolutionResponse
+	for _, solution := range solutions {
+		solutionResponses = append(solutionResponses, &companyv1.GetIssueSolutionResponse{
+			SolutionId:   solution.ID,
+			AssignmentId: solution.AssignmentID,
+			SolutionText: solution.SolutionText,
+			Status:       solution.Status,
+			AssignedAt:   timestamppb.New(solution.AssignedAt),
+			CompletedAt:  timestamppb.New(solution.CompletedAt),
+		})
+	}
+
+	return &companyv1.GetDeveloperSolutionsResponse{
+		Solutions: solutionResponses,
+	}, nil
+}
+
+func (s *serverAPI) DeveloperInProgressTasks(ctx context.Context, req *companyv1.GetDeveloperInProgressTasksRequest) (*companyv1.GetDeveloperInProgressTasksResponse, error) {
+	developerID := req.DeveloperId
+
+	if developerID <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "invalid developer ID")
+	}
+
+	assignments, err := s.issue.GetDeveloperInProgressTasks(ctx, developerID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			return nil, status.Error(codes.NotFound, "no tasks in progress found")
+		default:
+			return nil, status.Error(codes.Internal, "failed to get tasks in progress")
+		}
+	}
+
+	var taskResponses []*companyv1.GetDeveloperTaskResponse
+	for _, assignment := range assignments {
+		taskResponses = append(taskResponses, &companyv1.GetDeveloperTaskResponse{
+			AssignmentId: assignment.ID,
+			IssueId:      assignment.IssueID,
+			Status:       assignment.Status,
+			AssignedAt:   timestamppb.New(assignment.AssignedAt),
+			IssueTitle:   assignment.IssueTitle,
+			IssueBody:    assignment.IssueBody,
+		})
+	}
+
+	return &companyv1.GetDeveloperInProgressTasksResponse{
+		Tasks: taskResponses,
 	}, nil
 }
 
