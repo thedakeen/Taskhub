@@ -97,9 +97,8 @@
 /* Третья секция */
 .cardsSection {
     background: linear-gradient(to bottom, #0a2351, var(--background-color));
-
     padding: 4rem 0;
-    overflow: hidden;
+    height: 100%;
 }
 
 /* Контейнер карусели */
@@ -150,7 +149,6 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
     width: 10px; /* Задаем фиксированную ширину */
-    height: 170px; /* Уменьшаем высоту */
     display: flex;
     align-items: center; /* Центрируем контент внутри карточки */
     justify-content: center;

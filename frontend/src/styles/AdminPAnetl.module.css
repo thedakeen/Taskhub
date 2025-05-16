@@ -1,0 +1,375 @@
+/* AdminPanel.module.css */
+
+/* Основные стили для макета */
+.adminLayout {
+    min-height: 100vh;
+    background-color: #f9fafb;
+}
+
+/* Основной контейнер содержимого */
+.mainContent {
+    width: 100%;
+}
+
+/* Шапка */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    height: 4rem;
+    padding: 0 1.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.navButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.navButton {
+    padding: 0.5rem 1rem;
+    background-color: #f3f4f6;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    border: none;
+    cursor: pointer;
+}
+
+.navButton:hover {
+    background-color: #e5e7eb;
+}
+
+.navButtonActive {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.navButtonActive:hover {
+    background-color: #2563eb;
+}
+
+.userMenu {
+    display: flex;
+    align-items: center;
+}
+
+.logoutButton {
+    display: flex;
+    align-items: center;
+    background-color: #ef4444;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    margin-left: 1rem;
+    border: none;
+    cursor: pointer;
+}
+
+.logoutButton:hover {
+    background-color: #dc2626;
+}
+
+.logoutIcon {
+    margin-right: 0.25rem;
+}
+
+/* Основное содержимое */
+.content {
+    padding: 1.5rem;
+}
+
+/* Карточка с содержимым */
+.card {
+    background-color: white;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.addButton {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.addButton:hover {
+    background-color: #2563eb;
+}
+
+/* Поиск */
+.searchContainer {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.searchInput {
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    width: 16rem;
+}
+
+.searchInput:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Лоадер */
+.loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 0;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    border-radius: 9999px;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-bottom: 2px solid #3b82f6;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Таблица */
+.tableContainer {
+    overflow-x: auto;
+}
+
+.table {
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.tableHeader {
+    background-color: #f9fafb;
+}
+
+.tableHeaderCell {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tableBody {
+    background-color: white;
+}
+
+.tableRow {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tableRow:hover {
+    background-color: #f9fafb;
+}
+
+.tableCell {
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Стили для статуса */
+.statusBadge {
+    padding: 0.125rem 0.5rem;
+    display: inline-flex;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+}
+
+.statusAdmin {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.statusUser {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+/* Переключатель админ-прав */
+.switchContainer {
+    display: flex;
+    align-items: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 1.25rem;
+    width: 2.25rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    border: none;
+}
+
+.switchOn {
+    background-color: #2563eb;
+}
+
+.switchOff {
+    background-color: #9ca3af;
+}
+
+.switchHandle {
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: white;
+    border-radius: 9999px;
+    transform: translateX(0.25rem);
+    transition: transform 0.2s;
+}
+
+.switchHandleOn {
+    transform: translateX(1.25rem);
+}
+
+/* Кнопки действий */
+.actionButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionButton {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+}
+
+.editButton {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.editButton:hover {
+    background-color: #2563eb;
+}
+
+.deleteButton {
+    background-color: #ef4444;
+    color: white;
+}
+
+.deleteButton:hover {
+    background-color: #dc2626;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.paginationInfo {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.paginationControls {
+    display: flex;
+}
+
+.paginationButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.paginationButtonLeft {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.paginationButtonRight {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+.paginationButtonActive {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.paginationButtonInactive {
+    background-color: white;
+    color: #4b5563;
+}
+
+.paginationButtonInactive:hover {
+    background-color: #f9fafb;
+}
+
+.paginationButtonDisabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Уведомления */
+.notification {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    border-left-width: 4px;
+    font-weight: 500;
+}
+
+.notificationSuccess {
+    background-color: #d1fae5;
+    border-left-color: #10b981;
+    color: #065f46;
+}
+
+.notificationError {
+    background-color: #fee2e2;
+    border-left-color: #ef4444;
+    color: #b91c1c;
+}
+
+.notificationInfo {
+    background-color: #dbeafe;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+}

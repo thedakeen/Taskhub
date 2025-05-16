@@ -1,5 +1,14 @@
+import MonacoEditor from 'react-monaco-editor';
+import { useParams } from "react-router-dom";
+import Navbar from "../components/navbar/Navbar";
+import Footer from "../components/footer/Footer";
+import IssueSolutions from "../components/IssueSolutions";
+import AuthContext from "../contexts/AuthContext";
+import styles from "../styles/CompanyIssue.module.css";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import moment from 'moment';
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Layout, Typography, Select, Button, Divider, Tabs, Tooltip, Space, message } from 'antd';
+import { Layout, Typography, Select, Button, Divider, Tabs, Tooltip, Space, message ,Badge,Card, List } from 'antd';
 import {
     CodeOutlined,
     FullscreenOutlined,
@@ -10,13 +19,7 @@ import {
     DownloadOutlined,
     BulbOutlined, CloudUploadOutlined
 } from '@ant-design/icons';
-import MonacoEditor from 'react-monaco-editor';
-import { useParams } from "react-router-dom";
-import Navbar from "../components/navbar/Navbar";
-import Footer from "../components/footer/Footer";
-import AuthContext from "../contexts/AuthContext";
-import styles from "../styles/CompanyIssue.module.css";
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+
 
 const { Content, Sider } = Layout;
 const {Text } = Typography;
@@ -33,6 +36,7 @@ const CompanyIssue = () => {
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [submitError, setSubmitError] = useState(null);
     const { user } = useContext(AuthContext);
+    const [userData, setUserData] = useState(null);
 
     // Code editor state
     const [selectedLanguage, setSelectedLanguage] = useState('javascript');
@@ -138,6 +142,52 @@ int main() {
         }
     }, [issueId, user]);
 
+
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            // try {
+            //     const response = await fetch(`http://localhost:8081/v1/api/me`);
+            //     if (!response.ok) {
+            //         throw new Error(`Ошибка сети: ${response.status}`);
+            //     }
+            //     const data = await response.json();
+            //     console.log(data)
+            //     setUserData(data);
+            // } catch (err) {
+            //     console.error("Ошибка получения профиля:", err);
+            //     setError(err.message);
+            // }
+            try {
+                const response = await fetch(`http://localhost:8081/v1/api/me`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${user?.token}`, // если требуется
+                    },
+                    body: JSON.stringify({}) // если нужно отправить данные
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(data);
+                setUserData(data);
+
+                if(data.role === "company") {
+                    setIsSubscribed(false);
+                }
+            } catch (err) {
+                console.error("Ошибка получения профиля:", err);
+                setError(err.message);
+            }
+        };
+
+        fetchUserData()
+    }, [user]); // Перезапуск запроса при изменении ID
+
     // Handle resizer mouse events
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -197,6 +247,7 @@ int main() {
 
         return () => window.removeEventListener('resize', resizeEditor);
     }, []);
+
 
 
     const startResize = (e) => {
@@ -323,6 +374,7 @@ int main() {
             }
         }
     };
+
 
     const runCode = () => {
         setIsRunning(true);
@@ -491,6 +543,7 @@ int main() {
         }
     };
 
+
     const consoleStyle = {
         backgroundColor: '#1e1e1e',
         color: '#fff',
@@ -506,7 +559,7 @@ int main() {
     return (
         <>
             <Navbar />
-            <Layout style={{ minHeight: 'calc(100vh - 50px)', display: 'flex', overflow:'hidden' }}>
+            <Layout style={{ minHeight: 'calc(100vh - 50px)', display: 'flex', overflow:'hidden', backgroundColor:'#121212' }}>
 
                 {isSubscribed && (
                     <>
@@ -517,9 +570,10 @@ int main() {
                                 position: 'relative',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                borderRight: isResizing ? '2px solid #1890ff' : '1px solid #f0f0f0',
+                                // borderRight: isResizing ? '2px solid #1890ff' : '1px solid #f0f0f0',
                                 height: '100%',
                                 overflow: 'hidden'
+
                             }}
                         >
                             <div style={{
@@ -527,20 +581,20 @@ int main() {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 padding: '10px',
-                                backgroundColor: '#fafafa',
-                                borderBottom: '1px solid #f0f0f0'
+                                backgroundColor:'#121212',
+                                // border: '1px solid #f0f0f0'
                             }}>
                                 <div style={{display: 'flex', alignItems: 'center'}}>
-                                    <CodeOutlined style={{fontSize: 18, marginRight: 8}}/>
+                                    <CodeOutlined style={{fontSize: 18, marginRight: 8,color:"white"}}/>
                                     <Select
-                                        style={{width: 150}}
+                                        style={{width: 150, height: 25}}
                                         value={selectedLanguage}
                                         onChange={handleLanguageChange}
                                     >
-                                        <Option value="javascript">JavaScript</Option>
-                                        <Option value="python">Python</Option>
-                                        <Option value="java">Java</Option>
-                                        <Option value="cpp">C++</Option>
+                                        <Option value="javascript" style={{border: "none"}}>JavaScript</Option>
+                                        <Option value="python" style={{border: "none"}}>Python</Option>
+                                        <Option value="java" style={{border: "none"}}>Java</Option>
+                                        <Option value="cpp" style={{border: "none"}}>C++</Option>
                                     </Select>
                                 </div>
                                 <Space>
@@ -750,128 +804,110 @@ int main() {
                     style={{
                         padding: '20px',
                         overflow: 'auto',
-                        backgroundColor: '#fafafa',
+                        backgroundColor: '#121212',
                         display: isFullscreenEditor ? 'none' : 'block'
                     }}
                 >
                     <div className={styles.issueHeader}>
                         <h1 className={styles.issueTitle}>{issue.title}</h1>
                         <div className={styles.issueInfo}>
-                            <span className={styles.issueId}>ID: {issue.issueId}</span>
+                            {/*<span className={styles.issueId}>ID: {issue.issueId}</span>*/}
+
                             <span className={`${styles.statusBadge} ${getStatusBadgeClass(issue.assignmentStatus)}`}>
-                                {issue.assignmentStatus || "Ожидает обработки"}
+                                Status: {issue.assignmentStatus || "Ожидает обработки"}
                             </span>
                         </div>
                     </div>
                     <Divider/>
 
-                    <Tabs
-                        defaultActiveKey="description"
-                        items={[
-                            {
-                                key: 'description',
-                                label: 'Описание',
-                                children: (
-                                    <div className={styles.issueDescription}>
-                                        <p>{issue.body}</p>
+                    {
+                        userData.role === "company" ? (
+                            <IssueSolutions issueId={issueId}/>
+                        ) : (
+                            <div   style={{ backgroundColor: "white", padding: "20px" }}>
+                                <Tabs
+                                    defaultActiveKey="description"
+                                    items={[
+                                        {
+                                            key: 'description',
+                                            label: 'Описание',
+                                            children: (
+                                                <div >
+                                                    <p>{issue.body}</p>
+                                                </div>
+                                            )
+                                        },
+                                        {
+                                            key: 'requirements',
+                                            label: 'Требования',
+                                            children: (
+                                                <div >
+                                                    <ul style={{ paddingLeft: "20px", margin: 0 }}>
+                                                        <li style={{ marginBottom: "8px" }}>Реализуйте решение, которое соответствует описанию задачи</li>
+                                                        <li style={{ marginBottom: "8px" }}>Обработайте все возможные краевые случаи</li>
+                                                        <li style={{ marginBottom: "8px" }}>Оптимизируйте решение по времени и памяти</li>
+                                                        <li style={{ marginBottom: "8px" }}>Используйте понятные имена переменных и функций</li>
+                                                        <li style={{ marginBottom: "8px" }}>Добавьте комментарии, поясняющие ключевые моменты решения</li>
+                                                    </ul>
+                                                </div>
+                                            )
+                                        },
+                                        {
+                                            key: 'examples',
+                                            label: 'Примеры',
+                                            children: (
+                                                <div >
+                                                    <div style={{
+                                                        backgroundColor: '#c6c6c6',
+                                                        padding: '10px',
+                                                        borderRadius: '4px',
+                                                        marginBottom: '10px'
+                                                    }}>
+                                                        <div><strong>Ввод:</strong> 5</div>
+                                                        <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 5</div>
+                                                    </div>
+                                                    <div style={{
+                                                        backgroundColor: '#c6c6c6',
+                                                        padding: '10px',
+                                                        borderRadius: '4px'
+                                                    }}>
+                                                        <div><strong>Ввод:</strong> 10</div>
+                                                        <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 10</div>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
+                                    ]}
+                                    styles={{
+                                        tabBar: {
+                                            color: 'white',
+                                        },
+                                        inkBar: {
+                                            backgroundColor: 'white',
+                                        }
+                                    }}
+                                />
+
+                                <Divider />
+
+                            {!isSubscribed && issue.assignmentStatus !== "completed" ? (
+                                <Button
+                                    type="primary"
+                                    onClick={handleSubscribe}
+                                    style={{ width: '30%', display: 'block', margin: '0 auto' }}
+                                >
+                                    Подписаться на задание
+                                </Button>
+                            ) : issue.assignmentStatus === "completed" ? (
+                                <div className={styles.completedMessage}>
+                                    <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '4px', marginBottom: '10px' }}>
+                                        <Text strong style={{ color: '#52c41a' }}>Задание уже выполнено</Text>
                                     </div>
-                                )
-                            },
-                            {
-                                key: 'requirements',
-                                label: 'Требования',
-                                children: (
-                                    <ul>
-                                        <li>Реализуйте решение, которое соответствует описанию задачи</li>
-                                        <li>Обработайте все возможные краевые случаи</li>
-                                        <li>Оптимизируйте решение по времени и памяти</li>
-                                        <li>Используйте понятные имена переменных и функций</li>
-                                        <li>Добавьте комментарии, поясняющие ключевые моменты решения</li>
-                                    </ul>
-                                )
-                            },
-                            {
-                                key: 'examples',
-                                label: 'Примеры',
-                                children: (
-                                    <>
-                                        <div style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', marginBottom: '10px' }}>
-                                            <div><strong>Ввод:</strong> 5</div>
-                                            <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 5</div>
-                                        </div>
-                                        <div style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
-                                            <div><strong>Ввод:</strong> 10</div>
-                                            <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 10</div>
-                                        </div>
-                                    </>
-                                )
-                            },
-                            // {
-                            //     key: 'console',
-                            //     label: 'Консоль',
-                            //     children:
-                            //         (<>
-                            //             <div style={{
-                            //                 display: 'flex',
-                            //                 justifyContent: 'space-between',
-                            //                 padding: '0 10px',
-                            //                 marginBottom: '5px'
-                            //             }}>
-                            //                 <Text type="secondary">Результаты выполнения кода</Text>
-                            //                 <Space>
-                            //                     <Button
-                            //                         size="small"
-                            //                         icon={<ClearOutlined/>}
-                            //                         onClick={clearConsole}
-                            //                     >
-                            //                         Очистить
-                            //                     </Button>
-                            //                 </Space>
-                            //             </div>
-                            //             <div style={{
-                            //                 ...consoleStyle,
-                            //                 margin: '0 10px 10px 10px',
-                            //                 height: 'calc(100% - 35px)'
-                            //             }}>
-                            //                 {consoleOutput.length > 0 ? (
-                            //                     consoleOutput.map((log, index) => (
-                            //                         <div key={index} style={{marginBottom: '4px'}}>
-                            //                             <span style={{color: '#75bfff'}}>&gt;</span> {log}
-                            //                         </div>
-                            //                     ))
-                            //                 ) : consoleError ? (
-                            //                     <div style={{color: '#ff5555'}}>
-                            //                         <strong>Ошибка:</strong> {consoleError}
-                            //                     </div>
-                            //                 ) : (
-                            //                     <div style={{color: '#999'}}>
-                            //                         Консоль пуста. Запустите код, чтобы увидеть результаты.
-                            //                     </div>
-                            //                 )}
-                            //             </div>
-                            //         </>)
-                            // }
-                        ]}
-                    />
-
-
-                    <Divider />
-
-                    {!isSubscribed && issue.assignmentStatus !== "completed" ? (
-                        <Button
-                            type="primary"
-                            onClick={handleSubscribe}
-                            style={{ width: '30%', display: 'block', margin: '0 auto' }}
-                        >
-                            Подписаться на задание
-                        </Button>
-                    ) : issue.assignmentStatus === "completed" ? (
-                        <div className={styles.completedMessage}>
-                            <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '4px', marginBottom: '10px' }}>
-                                <Text strong style={{ color: '#52c41a' }}>Задание уже выполнено</Text>
+                                </div>
+                            ) : null}
                             </div>
-                        </div>
-                    ) : null}
+                        )
+                    }
                 </Sider>
             </Layout>
         </>

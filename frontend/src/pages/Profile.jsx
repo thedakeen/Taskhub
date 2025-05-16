@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from 'react';
 import styles from "../styles/Profile.module.css";
 import '../App.css';
@@ -6,12 +5,15 @@ import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
 import GithubAuthButton from "../components/GitHubLogin";
 import AuthContext from "../contexts/AuthContext";
+import {Link} from "react-router-dom";
 
 const Profile = () => {
     const { user } = useContext(AuthContext);
     const [isGithubLinked, setIsGithubLinked] = useState(true);
     const [profileData, setProfileData] = useState(null);
     const [error, setError] = useState(null);
+    const [tasksInProgress, setTasksInProgress] = useState([]);
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -29,7 +31,26 @@ const Profile = () => {
         };
 
         fetchProfile();
-    }, [user.id]); // Перезапуск запроса при изменении ID
+    }, [user.id]);
+
+    useEffect(() => {
+        const fetchTasksInProgress = async () => {
+            try {
+                const response = await fetch(`http://localhost:8081/v1/developers/${user.id}/tasks/in-progress`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log("data:" +data );
+                setTasksInProgress(data || []);
+            } catch (err) {
+                console.error("Ошибка получения задач:", err);
+                setTasksInProgress([]);
+            }
+        };
+
+        fetchTasksInProgress();
+    }, [user.id]);
 
     if (error) return <div>Ошибка: {error}</div>;
     if (!profileData) return <div>Загрузка...</div>;
@@ -82,10 +103,9 @@ const Profile = () => {
                                         rel="noopener noreferrer"
                                         className={styles.githubLink}
                                     >
-                                        {}@{profileData.githubUsername}
+                                        @{profileData.githubUsername}
                                     </a>
                                 </div>
-
                             )}
                         </div>
                     </div>
@@ -97,69 +117,81 @@ const Profile = () => {
                             <div className={styles.fullWidthSection}>
                                 <h3 className={styles.sectionTitle}>Опыт работы</h3>
                                 <div className={styles.contentItem}>
-                                <p className={styles.contentTitle}>Senior Frontend Developer</p>
-                                <p className={styles.contentSubtitle}>Tech Company</p>
-                                <p className={styles.contentDate}>2020 - настоящее время</p>
+                                    <p className={styles.contentTitle}>Senior Frontend Developer</p>
+                                    <p className={styles.contentSubtitle}>Tech Company</p>
+                                    <p className={styles.contentDate}>2020 - настоящее время</p>
+                                </div>
+                            </div>
+
+                            {/* Three Equal Columns */}
+                            <div className={styles.threeColumnGrid}>
+                                <div className={styles.gridCard}>
+                                    <h3 className={styles.sectionTitle}>Tasks</h3>
+                                    <div className={styles.contentItem}>
+                                        <ol className={styles.issuesList}>
+                                            {tasksInProgress && tasksInProgress.length > 0 ? (
+                                                tasksInProgress.map((issue, index) => (
+                                                    <li key={index} className={index % 2 === 0 ? styles.even : styles.odd}>
+                                                        <Link to={`/issues/${issue.issueId}`} className={styles.issueItem}>
+                                                            <span className={styles.issueTitle}>{issue.title}</span>
+                                                            <span
+                                                                className={styles.devsCount}>{issue.developers?.length || 0} devs</span>
+                                                        </Link>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <p>Нет активных задач</p>
+                                            )}
+                                        </ol>
+                                    </div>
+                                </div>
+
+                                <div className={styles.gridCard}>
+                                    <h3 className={styles.sectionTitle}>Языки</h3>
+                                    <div className={styles.contentItem}>
+                                        <p className={styles.contentTitle}>Английский</p>
+                                        <p className={styles.contentSubtitle}>C1 Advanced</p>
+                                    </div>
+                                    <div className={styles.contentItem}>
+                                        <p className={styles.contentTitle}>Русский</p>
+                                        <p className={styles.contentSubtitle}>Родной</p>
+                                    </div>
+                                </div>
+
+                                <div className={styles.gridCard}>
+                                    <h3 className={styles.sectionTitle}>Сертификаты</h3>
+                                    <div className={styles.contentItem}>
+                                        <p className={styles.contentTitle}>AWS Solutions Architect</p>
+                                        <p className={styles.contentDate}>2023</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={styles.twoColumnGrid}>
+                                <div className={styles.gridCard}>
+                                    <h3 className={styles.sectionTitle}>Образование</h3>
+                                    <div className={styles.contentItem}>
+                                        <p className={styles.contentTitle}>МГУ им. Ломоносова</p>
+                                        <p className={styles.contentSubtitle}>Факультет ВМК</p>
+                                        <p className={styles.contentDate}>2015 - 2019</p>
+                                    </div>
+                                </div>
+
+                                <div className={styles.gridCard}>
+                                    <h3 className={styles.sectionTitle}>Языки</h3>
+                                    <div className={styles.contentItem}>
+                                        <p className={styles.contentTitle}>Английский</p>
+                                        <p className={styles.contentSubtitle}>C1 Advanced</p>
+                                    </div>
+                                    <div className={styles.contentItem}>
+                                        <p className={styles.contentTitle}>Русский</p>
+                                        <p className={styles.contentSubtitle}>Родной</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        {/* Three Equal Columns */}
-                        <div className={styles.threeColumnGrid}>
-                            <div className={styles.gridCard}>
-                                <h3 className={styles.sectionTitle}>Образование</h3>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>МГУ им. Ломоносова</p>
-                                    <p className={styles.contentSubtitle}>Факультет ВМК</p>
-                                    <p className={styles.contentDate}>2015 - 2019</p>
-                                </div>
-                            </div>
-
-                            <div className={styles.gridCard}>
-                                <h3 className={styles.sectionTitle}>Языки</h3>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>Английский</p>
-                                    <p className={styles.contentSubtitle}>C1 Advanced</p>
-                                </div>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>Русский</p>
-                                    <p className={styles.contentSubtitle}>Родной</p>
-                                </div>
-                            </div>
-
-                            <div className={styles.gridCard}>
-                                <h3 className={styles.sectionTitle}>Сертификаты</h3>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>AWS Solutions Architect</p>
-                                    <p className={styles.contentDate}>2023</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className={styles.twoColumnGrid}>
-                            <div className={styles.gridCard}>
-                                <h3 className={styles.sectionTitle}>Образование</h3>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>МГУ им. Ломоносова</p>
-                                    <p className={styles.contentSubtitle}>Факультет ВМК</p>
-                                    <p className={styles.contentDate}>2015 - 2019</p>
-                                </div>
-                            </div>
-
-                            <div className={styles.gridCard}>
-                                <h3 className={styles.sectionTitle}>Языки</h3>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>Английский</p>
-                                    <p className={styles.contentSubtitle}>C1 Advanced</p>
-                                </div>
-                                <div className={styles.contentItem}>
-                                    <p className={styles.contentTitle}>Русский</p>
-                                    <p className={styles.contentSubtitle}>Родной</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
             </div>
             <Footer />
         </>

@@ -12,11 +12,21 @@
     font-weight: bold;
     margin-bottom: 15px;
 }
+.ant-tabs-tab {
+    color: white !important;
+}
+.statusBadge{
+    /*padding-left: 10px;*/
+}
+
 
 .issueBody {
     font-size: 18px;
     color: #333;
     line-height: 1.6;
+}
+.issueHeader{
+
 }
 
 .loading,
