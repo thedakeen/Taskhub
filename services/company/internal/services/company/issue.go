@@ -25,6 +25,9 @@ type AssignmentSolutionProvider interface {
 
 	GetAllIssueSolutions(ctx context.Context, id int64) ([]*entities.Solution, error)
 	GetSolution(ctx context.Context, issueID int64, solutionID int64) (*entities.Solution, error)
+
+	GetDeveloperIssueSolutions(ctx context.Context, developerID int64) ([]*entities.Solution, error)
+	GetDeveloperInProgressAssignments(ctx context.Context, developerID int64) ([]*entities.Assignment, error)
 }
 
 //////////////// ISSUES ////////////////
@@ -224,3 +227,55 @@ func (c Company) GetIssueSolution(ctx context.Context, issueID, solutionID int64
 }
 
 //////////////// END OF ISSUES ////////////////
+
+func (c Company) GetDeveloperSolutions(ctx context.Context, developerID int64) ([]*entities.Solution, error) {
+	const op = "company.GetDeveloperSolutions"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.Int64("developerID", developerID),
+	)
+
+	log.Info("getting all solutions for developer")
+
+	solutions, err := c.asSolProvider.GetDeveloperIssueSolutions(ctx, developerID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			c.log.Warn("no solutions found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			c.log.Warn("failed to get solutions", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("solutions retrieved successfully", slog.Int("count", len(solutions)))
+	return solutions, nil
+}
+
+func (c Company) GetDeveloperInProgressTasks(ctx context.Context, developerID int64) ([]*entities.Assignment, error) {
+	const op = "company.GetDeveloperInProgressTasks"
+
+	log := c.log.With(
+		slog.String("op", op),
+		slog.Int64("developerID", developerID),
+	)
+
+	log.Info("getting all in-progress tasks for developer")
+
+	assignments, err := c.asSolProvider.GetDeveloperInProgressAssignments(ctx, developerID)
+	if err != nil {
+		switch {
+		case errors.Is(err, storage.ErrNoRecordFound):
+			c.log.Warn("no tasks in progress found", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		default:
+			c.log.Warn("failed to get tasks in progress", slog.String("error", err.Error()))
+			return nil, fmt.Errorf("%s:%w", op, err)
+		}
+	}
+
+	log.Info("in-progress tasks retrieved successfully", slog.Int("count", len(assignments)))
+	return assignments, nil
+}

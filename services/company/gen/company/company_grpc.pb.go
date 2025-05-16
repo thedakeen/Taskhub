@@ -28,6 +28,8 @@ const (
 	Company_IssueSolutions_FullMethodName           = "/comp.Company/IssueSolutions"
 	Company_IssueSolution_FullMethodName            = "/comp.Company/IssueSolution"
 	Company_CompanyGithubIntegration_FullMethodName = "/comp.Company/CompanyGithubIntegration"
+	Company_DeveloperSolutions_FullMethodName       = "/comp.Company/DeveloperSolutions"
+	Company_DeveloperInProgressTasks_FullMethodName = "/comp.Company/DeveloperInProgressTasks"
 )
 
 // CompanyClient is the client API for Company service.
@@ -43,6 +45,8 @@ type CompanyClient interface {
 	IssueSolutions(ctx context.Context, in *GetSolutionsOfIssueRequest, opts ...grpc.CallOption) (*GetSolutionsOfIssueResponse, error)
 	IssueSolution(ctx context.Context, in *GetIssueSolutionRequest, opts ...grpc.CallOption) (*GetIssueSolutionResponse, error)
 	CompanyGithubIntegration(ctx context.Context, in *GetCompanyGithubIntegrationRequest, opts ...grpc.CallOption) (*GetCompanyGithubIntegrationResponse, error)
+	DeveloperSolutions(ctx context.Context, in *GetDeveloperSolutionsRequest, opts ...grpc.CallOption) (*GetDeveloperSolutionsResponse, error)
+	DeveloperInProgressTasks(ctx context.Context, in *GetDeveloperInProgressTasksRequest, opts ...grpc.CallOption) (*GetDeveloperInProgressTasksResponse, error)
 }
 
 type companyClient struct {
@@ -143,6 +147,26 @@ func (c *companyClient) CompanyGithubIntegration(ctx context.Context, in *GetCom
 	return out, nil
 }
 
+func (c *companyClient) DeveloperSolutions(ctx context.Context, in *GetDeveloperSolutionsRequest, opts ...grpc.CallOption) (*GetDeveloperSolutionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDeveloperSolutionsResponse)
+	err := c.cc.Invoke(ctx, Company_DeveloperSolutions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *companyClient) DeveloperInProgressTasks(ctx context.Context, in *GetDeveloperInProgressTasksRequest, opts ...grpc.CallOption) (*GetDeveloperInProgressTasksResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDeveloperInProgressTasksResponse)
+	err := c.cc.Invoke(ctx, Company_DeveloperInProgressTasks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CompanyServer is the server API for Company service.
 // All implementations must embed UnimplementedCompanyServer
 // for forward compatibility.
@@ -156,6 +180,8 @@ type CompanyServer interface {
 	IssueSolutions(context.Context, *GetSolutionsOfIssueRequest) (*GetSolutionsOfIssueResponse, error)
 	IssueSolution(context.Context, *GetIssueSolutionRequest) (*GetIssueSolutionResponse, error)
 	CompanyGithubIntegration(context.Context, *GetCompanyGithubIntegrationRequest) (*GetCompanyGithubIntegrationResponse, error)
+	DeveloperSolutions(context.Context, *GetDeveloperSolutionsRequest) (*GetDeveloperSolutionsResponse, error)
+	DeveloperInProgressTasks(context.Context, *GetDeveloperInProgressTasksRequest) (*GetDeveloperInProgressTasksResponse, error)
 	mustEmbedUnimplementedCompanyServer()
 }
 
@@ -192,6 +218,12 @@ func (UnimplementedCompanyServer) IssueSolution(context.Context, *GetIssueSoluti
 }
 func (UnimplementedCompanyServer) CompanyGithubIntegration(context.Context, *GetCompanyGithubIntegrationRequest) (*GetCompanyGithubIntegrationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CompanyGithubIntegration not implemented")
+}
+func (UnimplementedCompanyServer) DeveloperSolutions(context.Context, *GetDeveloperSolutionsRequest) (*GetDeveloperSolutionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeveloperSolutions not implemented")
+}
+func (UnimplementedCompanyServer) DeveloperInProgressTasks(context.Context, *GetDeveloperInProgressTasksRequest) (*GetDeveloperInProgressTasksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeveloperInProgressTasks not implemented")
 }
 func (UnimplementedCompanyServer) mustEmbedUnimplementedCompanyServer() {}
 func (UnimplementedCompanyServer) testEmbeddedByValue()                 {}
@@ -376,6 +408,42 @@ func _Company_CompanyGithubIntegration_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Company_DeveloperSolutions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeveloperSolutionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServer).DeveloperSolutions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Company_DeveloperSolutions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServer).DeveloperSolutions(ctx, req.(*GetDeveloperSolutionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Company_DeveloperInProgressTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeveloperInProgressTasksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServer).DeveloperInProgressTasks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Company_DeveloperInProgressTasks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServer).DeveloperInProgressTasks(ctx, req.(*GetDeveloperInProgressTasksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Company_ServiceDesc is the grpc.ServiceDesc for Company service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -418,6 +486,14 @@ var Company_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CompanyGithubIntegration",
 			Handler:    _Company_CompanyGithubIntegration_Handler,
+		},
+		{
+			MethodName: "DeveloperSolutions",
+			Handler:    _Company_DeveloperSolutions_Handler,
+		},
+		{
+			MethodName: "DeveloperInProgressTasks",
+			Handler:    _Company_DeveloperInProgressTasks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

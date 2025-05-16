@@ -9,7 +9,6 @@ import (
 	"fmt"
 )
 
-//TODO s *Storage
 
 type Storage struct {
 	Db *sql.DB
