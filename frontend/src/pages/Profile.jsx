@@ -12,7 +12,7 @@ const Profile = () => {
     const [isGithubLinked, setIsGithubLinked] = useState(true);
     const [profileData, setProfileData] = useState(null);
     const [error, setError] = useState(null);
-    const [tasksInProgress, setTasksInProgress] = useState([]);
+    const [tasksInProgress, setTasksInProgress] = useState({ tasks: [] });
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -36,21 +36,33 @@ const Profile = () => {
     useEffect(() => {
         const fetchTasksInProgress = async () => {
             try {
-                const response = await fetch(`http://localhost:8081/v1/developers/${user.id}/tasks/in-progress`);
+                const response = await fetch(
+                    `http://localhost:8082/v1/developers/${user.id}/tasks/in-progress`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user?.token}`
+                        }
+                    }
+                );
+
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }
+
                 const data = await response.json();
-                console.log("data:" +data );
-                setTasksInProgress(data || []);
+                console.log("Tasks data:", data);
+
+                // Убедитесь, что data содержит поле tasks
+                setTasksInProgress(data.tasks ? { tasks: data.tasks } : { tasks: [] });
             } catch (err) {
                 console.error("Ошибка получения задач:", err);
-                setTasksInProgress([]);
+                setTasksInProgress({ tasks: [] });
             }
         };
 
         fetchTasksInProgress();
-    }, [user.id]);
+    }, [user.id, user?.token]);
+
 
     if (error) return <div>Ошибка: {error}</div>;
     if (!profileData) return <div>Загрузка...</div>;
@@ -129,15 +141,17 @@ const Profile = () => {
                                     <h3 className={styles.sectionTitle}>Tasks</h3>
                                     <div className={styles.contentItem}>
                                         <ol className={styles.issuesList}>
-                                            {tasksInProgress && tasksInProgress.length > 0 ? (
-                                                tasksInProgress.map((issue, index) => (
-                                                    <li key={index} className={index % 2 === 0 ? styles.even : styles.odd}>
-                                                        <Link to={`/issues/${issue.issueId}`} className={styles.issueItem}>
-                                                            <span className={styles.issueTitle}>{issue.title}</span>
-                                                            <span
-                                                                className={styles.devsCount}>{issue.developers?.length || 0} devs</span>
-                                                        </Link>
+                                            {tasksInProgress.tasks?.length > 0 ? (
+                                                tasksInProgress.tasks.map((task, index) => (
+                                                    <Link to={`/issues/${task.issueId}`} сlassName={styles.issueItem}>
+
+                                                    <li key={task.assignmentId || index}
+                                                        className={index % 2 === 0 ? styles.even : styles.odd}>
+                                                            <span className={styles.issueTitle}>{task.issueTitle}</span>
+                                                            <span className={styles.issueId}>id:{task.assignmentId} </span>
                                                     </li>
+                                                    </Link>
+
                                                 ))
                                             ) : (
                                                 <p>Нет активных задач</p>

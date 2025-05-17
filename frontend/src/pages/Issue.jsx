@@ -146,43 +146,53 @@ int main() {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            // try {
-            //     const response = await fetch(`http://localhost:8081/v1/api/me`);
-            //     if (!response.ok) {
-            //         throw new Error(`Ошибка сети: ${response.status}`);
-            //     }
-            //     const data = await response.json();
-            //     console.log(data)
-            //     setUserData(data);
-            // } catch (err) {
-            //     console.error("Ошибка получения профиля:", err);
-            //     setError(err.message);
-            // }
             try {
-                const response = await fetch(`http://localhost:8081/v1/api/me`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${user?.token}`, // если требуется
-                    },
-                    body: JSON.stringify({}) // если нужно отправить данные
-                });
 
+                const response = await fetch(
+                    `http://localhost:8081/v1/api/me`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user?.token}`
+                        }
+                    });
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }
-
                 const data = await response.json();
-                console.log(data);
-                setUserData(data);
-
+                console.log(data)
                 if(data.role === "company") {
                     setIsSubscribed(false);
                 }
+                setUserData(data);
             } catch (err) {
                 console.error("Ошибка получения профиля:", err);
                 setError(err.message);
             }
+            // try {
+            //     const response = await fetch(`http://localhost:8081/v1/api/me`, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             Authorization: `Bearer ${user?.token}`, // если требуется
+            //         },
+            //         body: JSON.stringify({}) // если нужно отправить данные
+            //     });
+            //
+            //     if (!response.ok) {
+            //         throw new Error(`Ошибка сети: ${response.status}`);
+            //     }
+            //
+            //     const data = await response.json();
+            //     console.log(data);
+            //     setUserData(data);
+            //
+            //     if(data.role === "company") {
+            //         setIsSubscribed(false);
+            //     }
+            // } catch (err) {
+            //     console.error("Ошибка получения профиля:", err);
+            //     setError(err.message);
+            // }
         };
 
         fetchUserData()
@@ -821,7 +831,12 @@ int main() {
                     <Divider/>
 
                     {
-                        userData.role === "company" ? (
+                        !userData ? (
+                            <div style={{ padding: '20px', textAlign: 'center' }}>
+                                <div className={styles.loadingSpinner}></div>
+                                <p>Loading user data...</p>
+                            </div>
+                        ) : userData.role === "company" ? (
                             <IssueSolutions issueId={issueId}/>
                         ) : (
                             <div   style={{ backgroundColor: "white", padding: "20px" }}>

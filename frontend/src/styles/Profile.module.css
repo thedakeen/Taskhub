@@ -167,6 +167,28 @@ p {
 .contentItem {
     margin-bottom: 0.5rem;
 }
+.issuesList{
+    padding-left: 0;
+}
+.issuesList li {
+    padding: 0.5rem 1rem;
+    padding-left: 0;
+    margin: 0.5rem 0;
+    border-bottom: 1px solid var(--primary-color);
+    transition: all 0.3s ease; /* Плавные изменения */
+    cursor: pointer; /* Курсор-указатель */
+}
+
+.issuesList li:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Легкая подсветка */
+    transform: translateX(5px); /* Сдвиг вправо */
+}
+.issueId{
+    float: right;
+    margin-top:auto;
+    font-size: 0.7rem;
+    color: var(--dark-gray);
+}
 
 .contentTitle {
     margin: auto;
