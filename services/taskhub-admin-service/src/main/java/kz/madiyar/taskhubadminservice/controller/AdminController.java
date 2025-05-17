@@ -1,7 +1,10 @@
 package kz.madiyar.taskhubadminservice.controller;
 
 
+import kz.madiyar.taskhubadminservice.model.entity.Company;
+import kz.madiyar.taskhubadminservice.model.entity.CompanyUser;
 import kz.madiyar.taskhubadminservice.model.entity.User;
+import kz.madiyar.taskhubadminservice.model.requests.CompanyUpdateRequest;
 import kz.madiyar.taskhubadminservice.model.requests.RoleUpdateRequest;
 import kz.madiyar.taskhubadminservice.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +26,19 @@ public class AdminController {
     }
 
     @PutMapping("/update-user-role/{userId}")
-    public ResponseEntity<User> updateUserRole(@PathVariable Long userId,
-                                           @RequestBody RoleUpdateRequest request
+    public ResponseEntity<CompanyUser> updateUserRole(@PathVariable Long userId,
+                                                      @RequestBody RoleUpdateRequest request
     ) {
-        return adminService.updateUserRole(userId, request.getRole())
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(
+                adminService.updateUserRole(request.getCompanyId(), userId, request.getRole()));
     }
+
+    @PutMapping("update-company/{companyId}")
+    public ResponseEntity<Company> updateCompany(@PathVariable Long companyId,
+                                                 @RequestBody CompanyUpdateRequest request){
+        return ResponseEntity.ok(adminService.updateCompany(companyId, request));
+    }
+
 
 
 

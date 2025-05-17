@@ -5,5 +5,6 @@ import lombok.Data;
 
 @Data
 public class RoleUpdateRequest {
+    private Long companyId;
     private User.Role role;
 }
