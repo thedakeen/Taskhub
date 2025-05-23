@@ -1,3 +1,5 @@
+CREATE EXTENSION citext;
+
 CREATE TABLE users(
                           id BIGSERIAL PRIMARY KEY,
                           username text UNIQUE NOT NULL,
