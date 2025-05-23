@@ -6,6 +6,7 @@ import Footer from "../components/footer/Footer";
 import GithubAuthButton from "../components/GitHubLogin";
 import AuthContext from "../contexts/AuthContext";
 import {Link} from "react-router-dom";
+import { Modal, Button } from 'antd';
 
 const Profile = () => {
     const { user } = useContext(AuthContext);
@@ -13,6 +14,22 @@ const Profile = () => {
     const [profileData, setProfileData] = useState(null);
     const [error, setError] = useState(null);
     const [tasksInProgress, setTasksInProgress] = useState({ tasks: [] });
+    const [completedTasks, setCompletedTasks] = useState({ tasks: [] });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedSolution, setSelectedSolution] = useState(null);
+
+    const showModal = (solution) => {
+        setSelectedSolution(solution);
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -63,13 +80,62 @@ const Profile = () => {
         fetchTasksInProgress();
     }, [user.id, user?.token]);
 
+    useEffect(() => {
+        const fetchCompletedTasks = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8082/v1/developers/${user.id}/solutions`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user?.token}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("completed task data from server:", data); // <-- Вот здесь смотрим что пришло с сервера
+                setCompletedTasks(data.solutions ? { solutions: data.solutions } : { solutions: [] });
+            } catch (err) {
+                console.error("Ошибка получения задач:", err);
+                setCompletedTasks({ solutions: [] });
+            }
+        };
+
+        fetchCompletedTasks();
+
+    }, [user.id, user?.token]);
+
 
     if (error) return <div>Ошибка: {error}</div>;
     if (!profileData) return <div>Загрузка...</div>;
 
+
+    const ratings = completedTasks?.solutions?.map(() => 4)|| [];
+    const averageRating = ratings.length > 0
+        ? 4: null;
+
+
+
+    const StarRating = ({ rating, size = 12 }) => (
+        <div style={{display: 'flex', alignItems: 'center', gap: '5px', paddingLeft: '10px'}}>
+
+                    <span style={{fontSize: '0.7rem', color: '#fadb14', letterSpacing: '1px'}}>
+              {Array.from({length: 5}, (_, i) => (
+                  <span key={i}>{i < Math.floor(rating) ? '★' : '☆'}</span>
+              ))}
+            </span>
+            <span style={{fontSize: '1rem', fontWeight: 'bold'}}>
+              {rating}
+            </span>
+        </div>
+    );
     return (
         <>
-            <Navbar />
+            <Navbar/>
             <div className={styles.profileContainer}>
                 {/* Левая часть профиля */}
                 <div className={styles.profileLeft}>
@@ -99,7 +165,7 @@ const Profile = () => {
                 <div className={styles.profileRight}>
                     <div className={styles.topPanel}>
                         <div className={styles.panelContent}>
-                            <h3 className={styles.panelTitle}>Профиль разработчика</h3>
+                            <h3 className={styles.panelTitle}>Profile</h3>
                             {!isGithubLinked ? (
                                 <GithubAuthButton />
                             ) : (
@@ -127,11 +193,11 @@ const Profile = () => {
                         <div className={styles.fadeIn}>
                             {/* Experience - Full Width */}
                             <div className={styles.fullWidthSection}>
-                                <h3 className={styles.sectionTitle}>Опыт работы</h3>
+                                <h3 className={styles.sectionTitle}>Work Experience</h3>
                                 <div className={styles.contentItem}>
                                     <p className={styles.contentTitle}>Senior Frontend Developer</p>
                                     <p className={styles.contentSubtitle}>Tech Company</p>
-                                    <p className={styles.contentDate}>2020 - настоящее время</p>
+                                    <p className={styles.contentDate}>2020 - till now</p>
                                 </div>
                             </div>
 
@@ -145,11 +211,12 @@ const Profile = () => {
                                                 tasksInProgress.tasks.map((task, index) => (
                                                     <Link to={`/issues/${task.issueId}`} сlassName={styles.issueItem}>
 
-                                                    <li key={task.assignmentId || index}
-                                                        className={index % 2 === 0 ? styles.even : styles.odd}>
+                                                        <li key={task.assignmentId || index}
+                                                            className={index % 2 === 0 ? styles.even : styles.odd}>
                                                             <span className={styles.issueTitle}>{task.issueTitle}</span>
-                                                            <span className={styles.issueId}>id:{task.assignmentId} </span>
-                                                    </li>
+                                                            <span
+                                                                className={styles.issueId}>id:{task.assignmentId} </span>
+                                                        </li>
                                                     </Link>
 
                                                 ))
@@ -161,19 +228,42 @@ const Profile = () => {
                                 </div>
 
                                 <div className={styles.gridCard}>
-                                    <h3 className={styles.sectionTitle}>Языки</h3>
+                                    <h3 className={styles.sectionTitle}>Submitted Tasks</h3>
                                     <div className={styles.contentItem}>
-                                        <p className={styles.contentTitle}>Английский</p>
-                                        <p className={styles.contentSubtitle}>C1 Advanced</p>
-                                    </div>
-                                    <div className={styles.contentItem}>
-                                        <p className={styles.contentTitle}>Русский</p>
-                                        <p className={styles.contentSubtitle}>Родной</p>
+                                        <ol className={styles.issuesList}>
+                                            {completedTasks?.solutions?.length > 0 ? (
+                                                <>
+                                                    {/* Первая строка - средняя оценка */}
+                                                    <li className={styles.averageRow}>
+                                                        <span className={styles.issueTitle}>Avg Rating</span>
+                                                        <StarRating rating={averageRating}/>
+                                                    </li>
+
+                                                    {/* Остальные элементы списка */}
+                                                    {completedTasks.solutions.map((solution, index) => (
+                                                        <li key={solution.id}
+                                                            className={index % 2 === 0 ? styles.even : styles.odd}
+                                                            onClick={() => showModal(solution)} // передаём конкретную задачу
+                                                        >
+                                                            <div className={styles.leftSection}>
+                                                                <span
+                                                                    className={styles.issueTitle}>task #{solution.assignmentId}</span>
+                                                                <StarRating rating={ratings[index]}/>
+                                                            </div>
+                                                            <span className={styles.issueId}>
+                                {solution.status === 'checked' ? 'Checked' : 'Pending'}</span>
+                                                        </li>
+                                                    ))}
+                                                </>
+                                            ) : (
+                                                <p>Нет завершенных задач</p>
+                                            )}
+                                        </ol>
                                     </div>
                                 </div>
 
                                 <div className={styles.gridCard}>
-                                    <h3 className={styles.sectionTitle}>Сертификаты</h3>
+                                    <h3 className={styles.sectionTitle}>Certificates</h3>
                                     <div className={styles.contentItem}>
                                         <p className={styles.contentTitle}>AWS Solutions Architect</p>
                                         <p className={styles.contentDate}>2023</p>
@@ -183,23 +273,23 @@ const Profile = () => {
 
                             <div className={styles.twoColumnGrid}>
                                 <div className={styles.gridCard}>
-                                    <h3 className={styles.sectionTitle}>Образование</h3>
+                                    <h3 className={styles.sectionTitle}>Education</h3>
                                     <div className={styles.contentItem}>
-                                        <p className={styles.contentTitle}>МГУ им. Ломоносова</p>
-                                        <p className={styles.contentSubtitle}>Факультет ВМК</p>
+                                        <p className={styles.contentTitle}>AITU</p>
+                                        <p className={styles.contentSubtitle}>Software Engineering</p>
                                         <p className={styles.contentDate}>2015 - 2019</p>
                                     </div>
                                 </div>
 
                                 <div className={styles.gridCard}>
-                                    <h3 className={styles.sectionTitle}>Языки</h3>
+                                    <h3 className={styles.sectionTitle}>Languages</h3>
                                     <div className={styles.contentItem}>
-                                        <p className={styles.contentTitle}>Английский</p>
+                                        <p className={styles.contentTitle}>English</p>
                                         <p className={styles.contentSubtitle}>C1 Advanced</p>
                                     </div>
                                     <div className={styles.contentItem}>
-                                        <p className={styles.contentTitle}>Русский</p>
-                                        <p className={styles.contentSubtitle}>Родной</p>
+                                        <p className={styles.contentTitle}>Russian</p>
+                                        <p className={styles.contentSubtitle}>fluent</p>
                                     </div>
                                 </div>
                             </div>
@@ -207,6 +297,20 @@ const Profile = () => {
                     )}
                 </div>
             </div>
+            <Modal
+                title={`Task #${selectedSolution?.assignmentId}`}
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onOk={() => setIsModalOpen(false)}
+            >
+                {selectedSolution && (
+                    <div className={styles.modal}>
+                        <p><strong>ID:</strong> {selectedSolution.solutionId}</p>
+                        <p><strong>Solution:</strong> {selectedSolution.solutionText}</p>
+                        <p><strong>Status:</strong> {selectedSolution.status}</p>
+                    </div>
+                )}
+            </Modal>
             <Footer />
         </>
     );

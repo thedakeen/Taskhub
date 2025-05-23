@@ -166,6 +166,7 @@ p {
 
 .contentItem {
     margin-bottom: 0.5rem;
+    padding-left: 0;
 }
 .issuesList{
     padding-left: 0;
@@ -189,6 +190,32 @@ p {
     font-size: 0.7rem;
     color: var(--dark-gray);
 }
+.even, .odd {
+    display: flex;
+    justify-content: space-between; /* или flex-start, если не нужен отступ */
+    align-items: center;
+    padding: 8px 12px;
+
+}
+
+.issueTitle {
+    font-size: 1rem;
+    font-weight: bold;
+}
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* чтобы статус был прижат к правой стороне */
+    font-size: 0.7rem;
+    color: var(--dark-gray);
+}
+
+
 
 .contentTitle {
     margin: auto;
@@ -271,4 +298,41 @@ p {
     border-bottom: 2px solid var(--accent-color);
     color: var(--text-color);
     font-weight: 600;
+}
+
+.averageRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--dark-gray);
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ratingNumber {
+    font-weight: bold;
+    font-size: 0.8rem;
+    min-width: 15px;
+}
+
+.stars {
+    color: #fadb14;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+.modal p{
+    color: black;
 }

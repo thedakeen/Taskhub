@@ -75,13 +75,13 @@ const IssueSolutions = ({ issueId }) => {
     const getStatusBadge = (status) => {
         switch (status.toLowerCase()) {
             case 'completed':
-                return <Badge status="success" text="Завершено" />;
+                return <Badge status="success" text="Completed" />;
             case 'in_progress':
-                return <Badge status="processing" text="В процессе" />;
+                return <Badge status="processing" text="In progress" />;
             case 'pending':
-                return <Badge status="warning" text="Ожидание" />;
+                return <Badge status="warning" text="Waiting" />;
             case 'failed':
-                return <Badge status="error" text="Ошибка" />;
+                return <Badge status="error" text="Error" />;
             default:
                 return <Badge status="default" text={status} />;
         }
@@ -170,7 +170,7 @@ const IssueSolutions = ({ issueId }) => {
 
     return (
         <div style={{ padding: '20px', color: 'white' }}>
-            <Title level={3} style={{ color: 'white', marginBottom: '24px' }}>Список решений</Title>
+            <Title level={3} style={{ color: 'white', marginBottom: '24px' }}>Solution list</Title>
 
             <List
                 grid={{
@@ -186,7 +186,7 @@ const IssueSolutions = ({ issueId }) => {
                 renderItem={(item) => (
                     <List.Item>
                         <Card
-                            title={`Решение #${item.solutionId?.substring(0, 8) || 'N/A'}`}
+                            title={`Solution #${item.solutionId?.substring(0, 8) || 'N/A'}`}
                             hoverable
                             style={{
                                 background: 'white',
@@ -216,11 +216,11 @@ const IssueSolutions = ({ issueId }) => {
                                 <div>
                                     <Space direction="vertical" size="small">
                                         <Text type="secondary" style={{ color: '#8c8c8c' }}>
-                                            <ClockCircleOutlined /> Назначено: {formatDate(item.assignedAt)}
+                                            <ClockCircleOutlined /> Assigned: {formatDate(item.assignedAt)}
                                         </Text>
                                         {item.completedAt && (
                                             <Text type="secondary" style={{ color: '#8c8c8c' }}>
-                                                <CheckCircleOutlined /> Выполнено: {formatDate(item.completedAt)}
+                                                <CheckCircleOutlined /> Submitted: {formatDate(item.completedAt)}
                                             </Text>
                                         )}
                                         {item.rating && (

@@ -65,7 +65,6 @@ const Navbar = () => {
 
             <div className="nav-center">
                 <li><Link to="/" className="nav-link" id="Home">Home</Link></li>
-                <li><Link to="/about" className="nav-link" id="About">About</Link></li>
                 <li><Link to="/companies" className="nav-link" id="Companies">Companies</Link></li>
             </div>
 

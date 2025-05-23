@@ -72,7 +72,8 @@ const SearchBar = ({ value, onChange }) => {
 };
 
 // Компонент таблицы пользователей
-const UsersTable = ({ users, onAdminChange }) => {
+// Компонент таблицы пользователей
+const UsersTable = ({ users, onUserUpdate }) => {
     return (
         <div className={styles.tableContainer}>
             <table className={styles.table}>
@@ -89,30 +90,7 @@ const UsersTable = ({ users, onAdminChange }) => {
                 </thead>
                 <tbody className={styles.tableBody}>
                 {users.map(user => (
-                    <tr key={user.id} className={styles.tableRow}>
-                        <td className={styles.tableCell}>{user.id}</td>
-                        <td className={`${styles.tableCell} text-blue-500 font-medium`}>{user.username}</td>
-                        <td className={styles.tableCell}>{user.email}</td>
-                        <td className={styles.tableCell}>{user.role}</td>
-                        <td className={styles.tableCell}>{new Date(user.createdAt).toLocaleDateString()}</td>
-                        <td className={styles.tableCell}>
-                            <span className={`${styles.statusBadge} ${
-                                user.activated ? styles.statusAdmin : styles.statusUser
-                            }`}>
-                                {user.activated ? 'Активирован' : 'Не активирован'}
-                            </span>
-                        </td>
-                        <td className={styles.tableCell}>
-                            <div className={styles.actionButtons}>
-                                <button className={`${styles.actionButton} ${styles.editButton}`}>
-                                    Редактировать
-                                </button>
-                                <button className={`${styles.actionButton} ${styles.deleteButton}`}>
-                                    Удалить
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    <UserTableRow key={user.id} user={user} onUserUpdate={onUserUpdate} />
                 ))}
                 </tbody>
             </table>
@@ -168,6 +146,153 @@ const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
     );
 };
 
+const UserTableRow = ({ user, onUserUpdate }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleSave = async (userId, data) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/admin/update-user-role/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка при обновлении роли');
+            }
+
+            // Обновляем данные в родительском компоненте
+            onUserUpdate(userId, data);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    };
+
+    return (
+        <>
+            <tr className={styles.tableRow}>
+                <td className={styles.tableCell}>{user.id}</td>
+                <td className={`${styles.tableCell} text-blue-500 font-medium`}>{user.username}</td>
+                <td className={styles.tableCell}>{user.email}</td>
+                <td className={styles.tableCell}>{user.role}</td>
+                <td className={styles.tableCell}>{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td className={styles.tableCell}>
+                    <span className={`${styles.statusBadge} ${
+                        user.activated ? styles.statusAdmin : styles.statusUser
+                    }`}>
+                        {user.activated ? 'Активирован' : 'Не активирован'}
+                    </span>
+                </td>
+                <td className={styles.tableCell}>
+                    <div className={styles.actionButtons}>
+                        <button
+                            className={`${styles.actionButton} ${styles.editButton}`}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Редактировать
+                        </button>
+                        <button className={`${styles.actionButton} ${styles.deleteButton}`}>
+                            Удалить
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
+            {isModalOpen && (
+                <UserEditModal
+                    user={user}
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={handleSave}
+                />
+            )}
+        </>
+    );
+};
+
+const UserEditModal = ({ user, onClose }) => {
+    const [role, setRole] = useState(user.role);
+    const [companyId, setCompanyId] = useState(user.companyId || 0);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { token } = useContext(AuthContext); // или пробрось token через props
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const response = await fetch(`http://localhost:8090/admin/update-user-role/${user.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ companyId, role })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Ошибка: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Роль пользователя обновлена:', result);
+            onClose();
+        } catch (err) {
+            console.error('Ошибка при обновлении роли пользователя:', err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+                <h2>Редактировать роль пользователя</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.formGroup}>
+                        <label>ID компании:</label>
+                        <input
+                            type="number"
+                            value={companyId}
+                            onChange={(e) => setCompanyId(Number(e.target.value))}
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Роль:</label>
+                        <select value={role} onChange={(e) => setRole(e.target.value)}>
+                            <option value="developer">developer</option>
+                            <option value="admin">admin</option>
+                            <option value="manager">company</option>
+                        </select>
+                    </div>
+                    <div className={styles.modalButtons}>
+                        <button
+                            type="button"
+                            className={`${styles.button} ${styles.cancelButton}`}
+                            onClick={onClose}
+                            disabled={isLoading}
+                        >
+                            Отмена
+                        </button>
+                        <button
+                            type="submit"
+                            className={`${styles.button} ${styles.saveButton}`}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Сохранение...' : 'Сохранить'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
 // Главный компонент админ-панели
 const AdminPanel = () => {
     const [users, setUsers] = useState([]);
@@ -180,12 +305,26 @@ const AdminPanel = () => {
     const [activeTab, setActiveTab] = useState('users');
 
     const usersPerPage = 5;
+    const handleUserUpdate = (userId, newData) => {
+        setUsers(prevUsers =>
+            prevUsers.map(user =>
+                user.id === userId ? { ...user, role: newData.role } : user
+            )
+        );
+        setFilteredUsers(prevUsers =>
+            prevUsers.map(user =>
+                user.id === userId ? { ...user, role: newData.role } : user
+            )
+        );
+        showNotification('Роль пользователя успешно обновлена', 'success');
+    };
 
     // Загрузка данных с сервера
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
+                const token = localStorage.getItem('token'); // Или из контекста аутентификации
                 const response = await fetch('http://localhost:8090/admin', {
                     headers: {
                         'Content-Type': 'application/json',
@@ -279,7 +418,7 @@ const AdminPanel = () => {
                                 <>
                                     <UsersTable
                                         users={currentUsers}
-                                        onAdminChange={() => {}}
+                                        onUserUpdate={handleUserUpdate}
                                     />
 
                                     {/* Пагинация */}
