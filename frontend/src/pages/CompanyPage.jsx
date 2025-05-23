@@ -52,7 +52,7 @@ const CompanyInfo = () => {
     if (!companyData) return <div>Загрузка...</div>;
 
     const createdAt = new Date(companyData.createdAt);
-    const formattedDate = createdAt.toLocaleDateString("ru-RU", {
+    const formattedDate = createdAt.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",

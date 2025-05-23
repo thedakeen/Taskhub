@@ -123,7 +123,7 @@ const IssueSolutions = ({ issueId }) => {
     const handleRatingSubmit = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8091/api/rating/${selectedSolution.solutionId}`,
+                    `http://localhost:8091/api/rating/${selectedSolution.solutionId}`,
                 {
                     method: 'POST',
                     headers: {
@@ -137,9 +137,21 @@ const IssueSolutions = ({ issueId }) => {
             );
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Ошибка при оценке: ${response.status}`);
+                const contentType = response.headers.get('Content-Type');
+                let errorMessage = `Ошибка при оценке: ${response.status}`;
+
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } else {
+                    const text = await response.text();
+                    errorMessage = text || errorMessage;
+                }
+
+                console.log(errorMessage)
+                throw new Error(errorMessage);
             }
+
 
             const updatedSolutions = solutions.map(sol =>
                 sol.solutionId === selectedSolution.solutionId

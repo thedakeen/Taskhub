@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect, useContext} from "react";
 import { User, Search, Lock, LogOut } from "lucide-react";
 import styles from "../styles/AdminPAnetl.module.css";
+import AuthContext from "../contexts/AuthContext";
 
 // Компонент шапки с навигационными кнопками
 const Header = ({ activeTab, onTabChange }) => {
@@ -79,11 +80,10 @@ const UsersTable = ({ users, onAdminChange }) => {
                 <tr>
                     <th className={styles.tableHeaderCell}>ID</th>
                     <th className={styles.tableHeaderCell}>Имя пользователя</th>
-                    <th className={styles.tableHeaderCell}>Полное имя</th>
                     <th className={styles.tableHeaderCell}>Email</th>
+                    <th className={styles.tableHeaderCell}>Роль</th>
                     <th className={styles.tableHeaderCell}>Дата регистрации</th>
                     <th className={styles.tableHeaderCell}>Статус</th>
-                    <th className={styles.tableHeaderCell}>Права админа</th>
                     <th className={styles.tableHeaderCell}>Действия</th>
                 </tr>
                 </thead>
@@ -92,25 +92,15 @@ const UsersTable = ({ users, onAdminChange }) => {
                     <tr key={user.id} className={styles.tableRow}>
                         <td className={styles.tableCell}>{user.id}</td>
                         <td className={`${styles.tableCell} text-blue-500 font-medium`}>{user.username}</td>
-                        <td className={styles.tableCell}>{user.name}</td>
                         <td className={styles.tableCell}>{user.email}</td>
-                        <td className={styles.tableCell}>{user.createdAt}</td>
+                        <td className={styles.tableCell}>{user.role}</td>
+                        <td className={styles.tableCell}>{new Date(user.createdAt).toLocaleDateString()}</td>
                         <td className={styles.tableCell}>
-                <span className={`${styles.statusBadge} ${
-                    user.isAdmin ? styles.statusAdmin : styles.statusUser
-                }`}>
-                  {user.isAdmin ? 'Администратор' : 'Пользователь'}
-                </span>
-                        </td>
-                        <td className={styles.tableCell}>
-                            <div className={styles.switchContainer}>
-                                <button
-                                    onClick={() => onAdminChange(user.id)}
-                                    className={`${styles.switch} ${user.isAdmin ? styles.switchOn : styles.switchOff}`}
-                                >
-                                    <span className={`${styles.switchHandle} ${user.isAdmin ? styles.switchHandleOn : ''}`} />
-                                </button>
-                            </div>
+                            <span className={`${styles.statusBadge} ${
+                                user.activated ? styles.statusAdmin : styles.statusUser
+                            }`}>
+                                {user.activated ? 'Активирован' : 'Не активирован'}
+                            </span>
                         </td>
                         <td className={styles.tableCell}>
                             <div className={styles.actionButtons}>
@@ -180,20 +170,10 @@ const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
 
 // Главный компонент админ-панели
 const AdminPanel = () => {
-    // Данные о пользователях
-    const [users, setUsers] = useState([
-        { id: 1, username: "ivan_petrov", name: "Иван Петров", email: "ivan@example.com", isAdmin: false, createdAt: "2024-03-15" },
-        { id: 2, username: "elena_smirnova", name: "Елена Смирнова", email: "elena@example.com", isAdmin: true, createdAt: "2024-02-20" },
-        { id: 3, username: "alex_kozlov", name: "Алексей Козлов", email: "alex@example.com", isAdmin: false, createdAt: "2024-04-05" },
-        { id: 4, username: "natasha_ivanova", name: "Наталья Иванова", email: "natasha@example.com", isAdmin: false, createdAt: "2024-01-10" },
-        { id: 5, username: "sergey_popov", name: "Сергей Попов", email: "sergey@example.com", isAdmin: true, createdAt: "2024-05-01" },
-        { id: 6, username: "olga_kuznetsova", name: "Ольга Кузнецова", email: "olga@example.com", isAdmin: false, createdAt: "2024-01-25" },
-        { id: 7, username: "dmitry_sokolov", name: "Дмитрий Соколов", email: "dmitry@example.com", isAdmin: false, createdAt: "2024-03-30" },
-        { id: 8, username: "maria_volkova", name: "Мария Волкова", email: "maria@example.com", isAdmin: false, createdAt: "2024-04-12" },
-    ]);
-
+    const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useContext(AuthContext);
     const [searchText, setSearchText] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [notification, setNotification] = useState({ show: false, message: "", type: "" });
@@ -201,46 +181,52 @@ const AdminPanel = () => {
 
     const usersPerPage = 5;
 
-    // Имитация загрузки данных
+    // Загрузка данных с сервера
     useEffect(() => {
-        setTimeout(() => {
-            setLoading(false);
-            setFilteredUsers(users);
-        }, 1000);
+        const fetchUsers = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch('http://localhost:8090/admin', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${user?.token}`
+                    }
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    console.error('Error response data:', errorData);
+                    throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Received data:', data);
+
+                setUsers(data);
+                setFilteredUsers(data);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showNotification(`Ошибка доступа: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUsers();
     }, []);
 
     // Фильтрация по поисковому запросу
     useEffect(() => {
         const filtered = users.filter(user =>
-            user.name.toLowerCase().includes(searchText.toLowerCase()) ||
             user.username.toLowerCase().includes(searchText.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchText.toLowerCase())
+            user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+            user.role.toLowerCase().includes(searchText.toLowerCase())
         );
         setFilteredUsers(filtered);
         setCurrentPage(1);
     }, [searchText, users]);
-
-    // Изменение прав администратора
-    const handleAdminChange = (userId) => {
-        setUsers(users.map(user =>
-            user.id === userId ? { ...user, isAdmin: !user.isAdmin } : user
-        ));
-
-        // Показать уведомление
-        const affectedUser = users.find(user => user.id === userId);
-        const newStatus = !affectedUser.isAdmin;
-
-        showNotification(
-            `Права администратора ${newStatus ? 'присвоены' : 'сняты'} для пользователя ${affectedUser.name}`,
-            newStatus ? "success" : "info"
-        );
-    };
-
-    // Пагинация
-    const indexOfLastUser = currentPage * usersPerPage;
-    const indexOfFirstUser = indexOfLastUser - usersPerPage;
-    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     // Показать уведомление
     const showNotification = (message, type = "info") => {
@@ -249,6 +235,12 @@ const AdminPanel = () => {
             setNotification({ show: false, message: "", type: "" });
         }, 3000);
     };
+
+    // Пагинация
+    const indexOfLastUser = currentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     return (
         <div className={styles.adminLayout}>
@@ -287,7 +279,7 @@ const AdminPanel = () => {
                                 <>
                                     <UsersTable
                                         users={currentUsers}
-                                        onAdminChange={handleAdminChange}
+                                        onAdminChange={() => {}}
                                     />
 
                                     {/* Пагинация */}

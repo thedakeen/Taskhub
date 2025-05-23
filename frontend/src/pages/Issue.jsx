@@ -37,6 +37,7 @@ const CompanyIssue = () => {
     const [submitError, setSubmitError] = useState(null);
     const { user } = useContext(AuthContext);
     const [userData, setUserData] = useState(null);
+    const [solution, setSolution] = useState(null);
 
     // Code editor state
     const [selectedLanguage, setSelectedLanguage] = useState('javascript');
@@ -107,30 +108,41 @@ int main() {
     ];
 
     useEffect(() => {
-        const fetchIssue = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(
+
+                // Загружаем задание
+                const issueResponse = await fetch(
                     `http://localhost:8082/v1/issues/${issueId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${user?.token}`
                         }
-                    });
-                if (!response.ok) {
-                    throw new Error(`Ошибка загрузки: ${response.status}`);
+                    }
+                );
+
+                if (!issueResponse.ok) {
+                    throw new Error(`Ошибка загрузки: ${issueResponse.status}`);
                 }
-                const data = await response.json();
-                setIssue(data);
-                setIssueStatus(data.assignmentStatus);
-                setIsSubscribed(data.assignmentStatus === "assigned" || data.assignmentStatus === "in_progress");
-                if (data.solutionText) {
-                    setCode(data.solutionText);
+
+                const issueData = await issueResponse.json();
+                setIssue(issueData);
+                setIssueStatus(issueData.assignmentStatus);
+                setIsSubscribed(issueData.assignmentStatus === "assigned" || issueData.assignmentStatus === "in_progress");
+
+                // Если есть solutionText, загружаем полное решение
+                if (issueData.solutionText) {
+                    const solutionData = await fetchSolution();
+
+                    // Устанавливаем код из решения или из задания
+                    setCode(solutionData?.solutionText || issueData.solutionText || languageStarters.javascript);
                 } else {
                     setCode(languageStarters.javascript);
                 }
+
             } catch (err) {
-                console.error("Ошибка получения issue:", err);
+                console.error("Ошибка получения данных:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -138,11 +150,32 @@ int main() {
         };
 
         if (user?.token) {
-            fetchIssue();
+            fetchData();
         }
     }, [issueId, user]);
+    const fetchSolution = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8082/v1/issues/${issueId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`
+                    }
+                }
+            );
 
-
+            console.log(response)
+            if (response.ok) {
+                const data = await response.json();
+                setSolution(data);
+                return data;
+            }
+            return null;
+        } catch (err) {
+            console.error("Ошибка получения решения:", err);
+            return null;
+        }
+    };
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -168,31 +201,6 @@ int main() {
                 console.error("Ошибка получения профиля:", err);
                 setError(err.message);
             }
-            // try {
-            //     const response = await fetch(`http://localhost:8081/v1/api/me`, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             Authorization: `Bearer ${user?.token}`, // если требуется
-            //         },
-            //         body: JSON.stringify({}) // если нужно отправить данные
-            //     });
-            //
-            //     if (!response.ok) {
-            //         throw new Error(`Ошибка сети: ${response.status}`);
-            //     }
-            //
-            //     const data = await response.json();
-            //     console.log(data);
-            //     setUserData(data);
-            //
-            //     if(data.role === "company") {
-            //         setIsSubscribed(false);
-            //     }
-            // } catch (err) {
-            //     console.error("Ошибка получения профиля:", err);
-            //     setError(err.message);
-            // }
         };
 
         fetchUserData()
@@ -332,37 +340,49 @@ int main() {
             return;
         }
 
+        if (!user?.token) {
+            setSubmitError("Требуется авторизация");
+            message.error("Требуется авторизация");
+            return;
+        }
+
         try {
             setSubmitting(true);
             setSubmitError(null);
 
-            const url = `http://localhost:8082/v1/issues/${issueId}/submit?solutionText=${encodeURIComponent(code)}`;
+            const url = `http://localhost:8082/v1/issues/${issueId}/submit`;
 
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${user?.token}`,
+                    'Authorization': `Bearer ${user.token}`,
+                    'Content-Type': 'application/json', // Убедитесь, что этот заголовок установлен
                 },
+                body: JSON.stringify(code)
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `HTTP error ${response.status}`);
+                try {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error ${response.status}`);
+                } catch (parseError) {
+                    throw new Error(`HTTP error ${response.status}`);
+                }
             }
 
-            setIssue(prev => ({
+            setIssue(prev => prev ? {
                 ...prev,
                 solutionText: code,
                 solutionStatus: "submitted"
-            }));
+            } : null);
 
             setSubmitSuccess(true);
             message.success("Решение успешно отправлено!");
-
         } catch (err) {
             console.error("Ошибка:", err);
-            setSubmitError(err.message || "Ошибка при отправке решения");
-            message.error("Ошибка при отправке решения");
+            const errorMessage = err.message || "Ошибка при отправке решения";
+            setSubmitError(errorMessage);
+            message.error(errorMessage);
         } finally {
             setSubmitting(false);
         }
@@ -844,17 +864,40 @@ int main() {
                                     defaultActiveKey="description"
                                     items={[
                                         {
-                                            key: 'description',
-                                            label: 'Описание',
+                                            key: 'solution',
+                                            label: 'Your Solution',
                                             children: (
-                                                <div >
-                                                    <p>{issue.body}</p>
+                                                <div>
+                                                    {solution ? (
+                                                        <div style={{
+                                                            backgroundColor: '#f0f0f0',
+                                                            padding: '15px',
+                                                            borderRadius: '4px',
+                                                            fontFamily: 'monospace',
+                                                            whiteSpace: 'pre-wrap'
+                                                        }}>
+                                                            {solution.solutionText}
+                                                        </div>
+                                                    ) : (
+                                                        <div style={{ color: '#999', textAlign: 'center' }}>
+                                                            The answer has not been sent yet
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        },
+                                        {
+                                            key: 'description',
+                                            label: 'Description',
+                                            children: (
+                                                <div>
+                                                    <p style={{color:"black"}}>{issue.body}</p>
                                                 </div>
                                             )
                                         },
                                         {
                                             key: 'requirements',
-                                            label: 'Требования',
+                                            label: 'Requirements',
                                             children: (
                                                 <div >
                                                     <ul style={{ paddingLeft: "20px", margin: 0 }}>
@@ -869,7 +912,7 @@ int main() {
                                         },
                                         {
                                             key: 'examples',
-                                            label: 'Примеры',
+                                            label: 'Examples',
                                             children: (
                                                 <div >
                                                     <div style={{
@@ -915,8 +958,8 @@ int main() {
                                 </Button>
                             ) : issue.assignmentStatus === "completed" ? (
                                 <div className={styles.completedMessage}>
-                                    <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '4px', marginBottom: '10px' }}>
-                                        <Text strong style={{ color: '#52c41a' }}>Задание уже выполнено</Text>
+                                    <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '4px',width: '30%',margin: '0 auto'}}>
+                                        <Text strong style={{ color: '#52c41a' }}>The task has already been completed</Text>
                                     </div>
                                 </div>
                             ) : null}
