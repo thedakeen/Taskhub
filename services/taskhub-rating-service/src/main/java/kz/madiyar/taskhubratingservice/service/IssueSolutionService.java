@@ -31,7 +31,7 @@ public class IssueSolutionService {
      */
     public IssueSolution rateSolution(Long companyUserId, Long solutionId, int rating) {
         // 1) load company user
-        CompanyUser cu = companyUserRepo.findById(companyUserId)
+        CompanyUser cu = companyUserRepo.findByUser_Id(companyUserId)
                 .orElseThrow(() -> new AccessDeniedException("Not a valid company user"));
 
         // 2) load solution
