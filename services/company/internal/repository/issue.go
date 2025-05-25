@@ -202,6 +202,7 @@ func (s *Storage) GetAllIssueSolutions(ctx context.Context, id int64) ([]*entiti
             s.assignment_id, 
             s.solution_text, 
             s.status,
+            s.rating,
             a.assigned_at,
             a.completed_at
         FROM 
@@ -235,6 +236,7 @@ func (s *Storage) GetAllIssueSolutions(ctx context.Context, id int64) ([]*entiti
 			&solution.AssignmentID,
 			&solution.SolutionText,
 			&solution.Status,
+			&solution.Rating,
 			&solution.AssignedAt,
 			&solution.CompletedAt,
 		)

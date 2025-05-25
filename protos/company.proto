@@ -173,6 +173,8 @@ message GetIssueSolutionResponse{
   string status = 4;
   google.protobuf.Timestamp assigned_at = 5;
   google.protobuf.Timestamp completed_at = 6;
+
+  int32 rating = 7;
 }
 
 
