@@ -3,11 +3,13 @@
 /* Основные стили для макета */
 .adminLayout {
     min-height: 100vh;
-    background-color: #f9fafb;
+    background-color: var(--background-color);
+    color: black;
 }
 
 /* Основной контейнер содержимого */
 .mainContent {
+
     width: 100%;
 }
 
@@ -16,7 +18,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: white;
+    background-color: var(--secondary-color);
     height: 4rem;
     padding: 0 1.5rem;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -77,12 +79,13 @@
 
 /* Основное содержимое */
 .content {
+
     padding: 1.5rem;
 }
 
 /* Карточка с содержимым */
 .card {
-    background-color: white;
+    background-color: var(--secondary-color);
     border-radius: 0.25rem;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     padding: 1.5rem;
@@ -388,7 +391,7 @@
 }
 
 .modal {
-    background: white;
+    background: whitesmoke;
     padding: 20px;
     border-radius: 8px;
     width: 400px;

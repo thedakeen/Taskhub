@@ -8,7 +8,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 80vh;
+    min-height: 85vh;
     background-color: var(--background-color);
     text-align: center;
     padding: 1rem;
@@ -46,6 +46,11 @@
     /* Убираем margin, так как центрирование обеспечивает родительский элемент */
     height: 100%;
     align-items: center;
+}
+.ratingSection{
+    max-width: 1200px;
+    margin: 0 auto;
+
 }
 
 @media (min-width: 768px) {
@@ -97,6 +102,11 @@
 /* Третья секция */
 .cardsSection {
     background: linear-gradient(to bottom, #0a2351, var(--background-color));
+    padding: 4rem 0;
+    height: 100%;
+}
+.ratingSection {
+    background: var(--background-color);
     padding: 4rem 0;
     height: 100%;
 }

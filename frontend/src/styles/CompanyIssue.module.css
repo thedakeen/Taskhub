@@ -2,12 +2,13 @@
     max-width: 800px;
     margin: 40px auto;
     padding: 20px;
-    background-color: white;
+    background-color: var(--background-color);
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
 
 .issueTitle {
+    color: var(--accent-color);
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
@@ -35,4 +36,335 @@
     font-size: 20px;
     color: red;
     margin-top: 50px;
+}
+/* styles/CompanyIssue.module.css */
+
+.errorContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    padding: 20px;
+}
+
+.errorCard {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    text-align: center;
+}
+
+.errorCard h2 {
+    color: #ff4d4f;
+    margin-bottom: 15px;
+}
+
+.errorCard p {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.retryButton {
+    background: #1890ff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.retryButton:hover {
+    background: #40a9ff;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.loadingSpinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1890ff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.issueHeader {
+    margin-bottom: 20px;
+}
+
+.issueTitle {
+    color: white;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.issueInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
+}
+
+.statusBadge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.statusPending {
+    background-color: #faad14;
+    color: #fff;
+}
+
+.statusAssigned {
+    background-color: #1890ff;
+    color: #fff;
+}
+
+.statusSolved {
+    background-color: #52c41a;
+    color: #fff;
+}
+
+.statusInProgress {
+    background-color: #722ed1;
+    color: #fff;
+}
+
+.statusSubmitted {
+    background-color: #13c2c2;
+    color: #fff;
+}
+
+.statusCompleted {
+    background-color: #52c41a;
+    color: #fff;
+}
+
+.completedMessage {
+    margin-top: 20px;
+    text-align: center;
+}
+/* Additional styles for CompanyIssue.module.css */
+
+.layoutContainer {
+    min-height: calc(100vh - 50px);
+    display: flex;
+    overflow: hidden;
+    background-color: #121212;
+}
+
+.editorContent {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.editorHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #121212;
+}
+
+.languageSelector {
+    display: flex;
+    align-items: center;
+}
+
+.codeIcon {
+    font-size: 18px;
+    margin-right: 8px;
+    color: white;
+}
+
+.languageSelect {
+    width: 150px;
+    height: 25px;
+}
+
+.errorMessage {
+    padding: 0 10px 10px;
+    color: red;
+}
+
+.successMessage {
+    padding: 0 10px 10px;
+    color: green;
+}
+
+.submitButton {
+    background-color: green;
+    border-color: green;
+    color: white;
+}
+
+.editorWrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 50px);
+    overflow: hidden;
+    padding: 10px;
+}
+
+.monacoContainer {
+    flex: 2;
+    border: 1px solid #e8e8e8;
+    position: relative;
+    min-height: 60vh;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.monacoEditor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.consoleContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 20vh;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.consoleHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.consoleLine {
+    margin-bottom: 4px;
+}
+
+.consolePrompt {
+    color: #75bfff;
+}
+
+.consoleError {
+    color: #ff5555;
+}
+
+.consoleEmpty {
+    color: #999;
+}
+
+.resizer {
+    width: 10px;
+    background-color: transparent;
+    cursor: ew-resize;
+    position: relative;
+    z-index: 100;
+}
+
+.resizerHandle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 30px;
+    background-color: #d9d9d9;
+    border-radius: 2px;
+}
+
+.taskSider {
+    padding: 20px;
+    overflow: auto;
+    background-color: #121212;
+}
+
+.userDataLoading {
+    padding: 20px;
+    text-align: center;
+}
+
+.taskContent {
+    background-color: white;
+    padding: 20px;
+}
+
+.taskTabs .ant-tabs-tab {
+    color: white;
+}
+
+.taskTabs .ant-tabs-ink-bar {
+    background-color: white;
+}
+
+.solutionCode {
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+.noSolution {
+    color: #999;
+    text-align: center;
+}
+
+.taskDescription p {
+    color: black;
+}
+
+.taskRequirements ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.taskRequirements li {
+    margin-bottom: 8px;
+}
+
+.taskExamples {
+    color: black;
+}
+
+.exampleBlock {
+    background-color: #c6c6c6;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.subscribeButton {
+    width: 30%;
+    display: block;
+    margin: 0 auto;
 }

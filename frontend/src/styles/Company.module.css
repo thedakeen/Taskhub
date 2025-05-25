@@ -139,6 +139,7 @@
 }
 
 .issuesList {
+
     list-style-position: inside;
     padding-left: 0;
     counter-reset: issue-counter;
@@ -161,7 +162,7 @@
     width: 26px;
     height: 26px;
     background-color: var(--accent-color);
-    color: var(--primary-color);
+    color: var(--text-color);
     border-radius: 50%;
     text-align: center;
     line-height: 26px;
@@ -184,7 +185,7 @@
     justify-content: space-between;
     padding: 10px 12px;
     border-radius: 6px;
-    color: var(--primary-color);
+    color: var(--text-color);
     text-decoration: none;
     transition: all 0.2s ease;
     white-space: nowrap;

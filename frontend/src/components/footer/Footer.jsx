@@ -10,7 +10,7 @@ const Footer = () => {
             alignItems: "center",
             width: "100%",
         }}>
-            <p style={{ color: "var(--primary-color)" }}>
+            <p style={{ color: "var(--text-color)" }}>
                 &copy; 2025 Task Hub. All Rights Reserved.
             </p>
         </footer>

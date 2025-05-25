@@ -6,7 +6,6 @@ import IssueSolutions from "../components/IssueSolutions";
 import AuthContext from "../contexts/AuthContext";
 import styles from "../styles/CompanyIssue.module.css";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import moment from 'moment';
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Layout, Typography, Select, Button, Divider, Tabs, Tooltip, Space, message ,Badge,Card, List } from 'antd';
 import {
@@ -111,8 +110,6 @@ int main() {
         const fetchData = async () => {
             try {
                 setLoading(true);
-
-                // Загружаем задание
                 const issueResponse = await fetch(
                     `http://localhost:8082/v1/issues/${issueId}`,
                     {
@@ -131,11 +128,8 @@ int main() {
                 setIssueStatus(issueData.assignmentStatus);
                 setIsSubscribed(issueData.assignmentStatus === "assigned" || issueData.assignmentStatus === "in_progress");
 
-                // Если есть solutionText, загружаем полное решение
                 if (issueData.solutionText) {
                     const solutionData = await fetchSolution();
-
-                    // Устанавливаем код из решения или из задания
                     setCode(solutionData?.solutionText || issueData.solutionText || languageStarters.javascript);
                 } else {
                     setCode(languageStarters.javascript);
@@ -153,6 +147,7 @@ int main() {
             fetchData();
         }
     }, [issueId, user]);
+
     const fetchSolution = async () => {
         try {
             const response = await fetch(
@@ -568,11 +563,10 @@ int main() {
             case 'solved': return styles.statusSolved;
             case 'in progress': return styles.statusInProgress;
             case 'submitted': return styles.statusSubmitted;
-            case 'completed': return styles.statusCompleted; // Add this new case
+            case 'completed': return styles.statusCompleted;
             default: return styles.statusPending;
         }
     };
-
 
     const consoleStyle = {
         backgroundColor: '#1e1e1e',
@@ -589,85 +583,66 @@ int main() {
     return (
         <>
             <Navbar />
-            <Layout style={{ minHeight: 'calc(100vh - 50px)', display: 'flex', overflow:'hidden', backgroundColor:'#121212' }}>
-
+            <Layout className={styles.layoutContainer}>
                 {isSubscribed && (
                     <>
-                        {/* Code Editor Section */}
                         <Content
-                            style={{
-                                width: `${editorWidth}%`,
-                                position: 'relative',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                // borderRight: isResizing ? '2px solid #1890ff' : '1px solid #f0f0f0',
-                                height: '100%',
-                                overflow: 'hidden'
-
-                            }}
+                            className={styles.editorContent}
+                            style={{ width: `${editorWidth}%` }}
                         >
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '10px',
-                                backgroundColor:'#121212',
-                                // border: '1px solid #f0f0f0'
-                            }}>
-                                <div style={{display: 'flex', alignItems: 'center'}}>
-                                    <CodeOutlined style={{fontSize: 18, marginRight: 8,color:"white"}}/>
+                            <div className={styles.editorHeader}>
+                                <div className={styles.languageSelector}>
+                                    <CodeOutlined className={styles.codeIcon} />
                                     <Select
-                                        style={{width: 150, height: 25}}
+                                        className={styles.languageSelect}
                                         value={selectedLanguage}
                                         onChange={handleLanguageChange}
                                     >
-                                        <Option value="javascript" style={{border: "none"}}>JavaScript</Option>
-                                        <Option value="python" style={{border: "none"}}>Python</Option>
-                                        <Option value="java" style={{border: "none"}}>Java</Option>
-                                        <Option value="cpp" style={{border: "none"}}>C++</Option>
+                                        <Option value="javascript">JavaScript</Option>
+                                        <Option value="python">Python</Option>
+                                        <Option value="java">Java</Option>
+                                        <Option value="cpp">C++</Option>
                                     </Select>
                                 </div>
                                 <Space>
                                     {submitError && (
-                                        <div style={{padding: '0 10px 10px', color: 'red'}}>
+                                        <div className={styles.errorMessage}>
                                             {submitError}
                                         </div>
                                     )}
                                     {submitSuccess && (
-                                        <div style={{padding: '0 10px 10px', color: 'green'}}>
+                                        <div className={styles.successMessage}>
                                             Решение успешно отправлено!
                                         </div>
                                     )}
                                     <Tooltip title="Форматировать код">
                                         <Button
-                                            icon={<FormatPainterOutlined/>}
+                                            icon={<FormatPainterOutlined />}
                                             onClick={formatCode}
                                         />
                                     </Tooltip>
                                     <Tooltip title="Изменить тему">
                                         <Button
-                                            icon={<BulbOutlined/>}
+                                            icon={<BulbOutlined />}
                                             onClick={toggleEditorTheme}
                                         />
                                     </Tooltip>
                                     <Tooltip title="Скачать код">
                                         <Button
-                                            icon={<DownloadOutlined/>}
+                                            icon={<DownloadOutlined />}
                                             onClick={downloadCode}
                                         />
                                     </Tooltip>
-                                    <Tooltip
-                                        title={isFullscreenEditor ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}>
+                                    <Tooltip title={isFullscreenEditor ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}>
                                         <Button
-                                            icon={isFullscreenEditor ? <FullscreenExitOutlined/> :
-                                                <FullscreenOutlined/>}
+                                            icon={isFullscreenEditor ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
                                             onClick={toggleFullscreen}
                                         />
                                     </Tooltip>
                                     <Tooltip title="Запустить код">
                                         <Button
                                             type="primary"
-                                            icon={<PlayCircleOutlined/>}
+                                            icon={<PlayCircleOutlined />}
                                             onClick={runCode}
                                             loading={isRunning}
                                         >
@@ -677,47 +652,21 @@ int main() {
                                     <Tooltip title="Отправить решение">
                                         <Button
                                             type="primary"
-                                            icon={<CloudUploadOutlined
-                                                style={{color: "white"}}/>} // иконка белая на зелёном фоне
-                                            style={{backgroundColor: "green", borderColor: "green"}}
+                                            icon={<CloudUploadOutlined />}
+                                            className={styles.submitButton}
                                             onClick={handleSubmitSolution}
                                             loading={submitting}
-                                            variant="filled">
+                                        >
                                             {submitting ? 'Отправка...' : 'Submit'}
                                         </Button>
                                     </Tooltip>
                                 </Space>
                             </div>
 
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    height: 'calc(100% - 50px)',
-                                    overflow: 'hidden',
-                                    padding: '10px',
-                                }}
-                            >
-                                {/* Code Editor */}
-                                <div ref={containerRef} style={{
-                                    flex: 2, // Take 75% of available space
-                                    border: '1px solid #e8e8e8',
-                                    position: 'relative',
-                                    minHeight: '60vh',
-                                    marginBottom: '10px',
-                                    overflow: 'hidden',
-                                }}>
+                            <div className={styles.editorWrapper}>
+                                <div ref={containerRef} className={styles.monacoContainer}>
                                     <MonacoEditor
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            zIndex: isFullscreenEditor ? 1000 : 1,
-                                        }}
+                                        className={styles.monacoEditor}
                                         language={selectedLanguage}
                                         theme={editorTheme}
                                         value={code}
@@ -731,66 +680,45 @@ int main() {
                                         options={{
                                             automaticLayout: true,
                                             fontSize: 14,
-                                            minimap: {enabled: true},
+                                            minimap: { enabled: true },
                                             scrollBeyondLastLine: false,
                                             wordWrap: 'on',
                                             formatOnPaste: true,
                                             formatOnType: true,
                                             tabSize: 2,
                                             rulers: [80],
-                                            bracketPairColorization: {enabled: true},
+                                            bracketPairColorization: { enabled: true },
                                             autoIndent: 'full',
                                             showFoldingControls: 'always'
                                         }}
                                     />
                                 </div>
 
-                                {/* Console Output */}
-                                <div style={{
-                                    flex: 1, // Take 25% of available space
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    minHeight: '20vh',
-                                    border: '1px solid #e8e8e8',
-                                    borderRadius: '4px',
-                                    overflow: 'hidden',
-                                }}>
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '5px 10px',
-                                        backgroundColor: '#fafafa',
-                                        borderBottom: '1px solid #f0f0f0',
-                                    }}>
+                                <div className={styles.consoleContainer}>
+                                    <div className={styles.consoleHeader}>
                                         <Text type="secondary">Консоль</Text>
                                         <Button
                                             size="small"
-                                            icon={<ClearOutlined/>}
+                                            icon={<ClearOutlined />}
                                             onClick={clearConsole}
                                         >
                                             Очистить
                                         </Button>
                                     </div>
 
-                                    <div style={{
-                                        ...consoleStyle,
-                                        flex: 1,
-                                        padding: '10px',
-                                        overflow: 'auto',
-                                    }}>
+                                    <div style={consoleStyle}>
                                         {consoleOutput.length > 0 ? (
                                             consoleOutput.map((log, index) => (
-                                                <div key={index} style={{marginBottom: '4px'}}>
-                                                    <span style={{color: '#75bfff'}}>&gt;</span> {log}
+                                                <div key={index} className={styles.consoleLine}>
+                                                    <span className={styles.consolePrompt}>&gt;</span> {log}
                                                 </div>
                                             ))
                                         ) : consoleError ? (
-                                            <div style={{color: '#ff5555'}}>
+                                            <div className={styles.consoleError}>
                                                 <strong>Ошибка:</strong> {consoleError}
                                             </div>
                                         ) : (
-                                            <div style={{color: '#999'}}>
+                                            <div className={styles.consoleEmpty}>
                                                 Консоль пуста. Запустите код, чтобы увидеть результаты.
                                             </div>
                                         )}
@@ -799,175 +727,124 @@ int main() {
                             </div>
                         </Content>
 
-                        {/* Draggable resizer */}
                         <div
                             ref={resizerRef}
                             onMouseDown={startResize}
-                            style={{
-                                width: '10px',
-                                backgroundColor: isResizing ? '#1890ff' : 'transparent',
-                                cursor: 'ew-resize',
-                                position: 'relative',
-                                zIndex: 100,
-                            }}
+                            className={styles.resizer}
                         >
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    width: '4px',
-                                    height: '30px',
-                                    backgroundColor: '#d9d9d9',
-                                    borderRadius: '2px',
-                                }}
-                            />
+                            <div className={styles.resizerHandle} />
                         </div>
                     </>
                 )}
 
-                {/* Task Description Section */}
                 <Sider
+                    className={styles.taskSider}
                     width={isSubscribed ? `calc(100% - ${editorWidth}% - 10px)` : '100%'}
-                    theme="light"
-                    style={{
-                        padding: '20px',
-                        overflow: 'auto',
-                        backgroundColor: '#121212',
-                        display: isFullscreenEditor ? 'none' : 'block'
-                    }}
+                    style={{ display: isFullscreenEditor ? 'none' : 'block' }}
                 >
                     <div className={styles.issueHeader}>
                         <h1 className={styles.issueTitle}>{issue.title}</h1>
                         <div className={styles.issueInfo}>
-                            {/*<span className={styles.issueId}>ID: {issue.issueId}</span>*/}
-
                             <span className={`${styles.statusBadge} ${getStatusBadgeClass(issue.assignmentStatus)}`}>
-                                Status: {issue.assignmentStatus || "Ожидает обработки"}
+                                Status: {issue.assignmentStatus || "Waiting for processing"}
                             </span>
                         </div>
                     </div>
-                    <Divider/>
+                    <Divider />
 
-                    {
-                        !userData ? (
-                            <div style={{ padding: '20px', textAlign: 'center' }}>
-                                <div className={styles.loadingSpinner}></div>
-                                <p>Loading user data...</p>
-                            </div>
-                        ) : userData.role === "company" ? (
-                            <IssueSolutions issueId={issueId}/>
-                        ) : (
-                            <div   style={{ backgroundColor: "white", padding: "20px" }}>
-                                <Tabs
-                                    defaultActiveKey="description"
-                                    items={[
-                                        {
-                                            key: 'solution',
-                                            label: 'Your Solution',
-                                            children: (
-                                                <div>
-                                                    {solution ? (
-                                                        <div style={{
-                                                            backgroundColor: '#f0f0f0',
-                                                            padding: '15px',
-                                                            borderRadius: '4px',
-                                                            fontFamily: 'monospace',
-                                                            whiteSpace: 'pre-wrap'
-                                                        }}>
-                                                            {solution.solutionText}
-                                                        </div>
-                                                    ) : (
-                                                        <div style={{ color: '#999', textAlign: 'center' }}>
-                                                            The answer has not been sent yet
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )
-                                        },
-                                        {
-                                            key: 'description',
-                                            label: 'Description',
-                                            children: (
-                                                <div>
-                                                    <p style={{color:"black"}}>{issue.body}</p>
-                                                </div>
-                                            )
-                                        },
-                                        {
-                                            key: 'requirements',
-                                            label: 'Requirements',
-                                            children: (
-                                                <div >
-                                                    <ul style={{ paddingLeft: "20px", margin: 0 }}>
-                                                        <li style={{ marginBottom: "8px" }}>Реализуйте решение, которое соответствует описанию задачи</li>
-                                                        <li style={{ marginBottom: "8px" }}>Обработайте все возможные краевые случаи</li>
-                                                        <li style={{ marginBottom: "8px" }}>Оптимизируйте решение по времени и памяти</li>
-                                                        <li style={{ marginBottom: "8px" }}>Используйте понятные имена переменных и функций</li>
-                                                        <li style={{ marginBottom: "8px" }}>Добавьте комментарии, поясняющие ключевые моменты решения</li>
-                                                    </ul>
-                                                </div>
-                                            )
-                                        },
-                                        {
-                                            key: 'examples',
-                                            label: 'Examples',
-                                            children: (
-                                                <div >
-                                                    <div style={{
-                                                        backgroundColor: '#c6c6c6',
-                                                        padding: '10px',
-                                                        borderRadius: '4px',
-                                                        marginBottom: '10px'
-                                                    }}>
-                                                        <div><strong>Ввод:</strong> 5</div>
-                                                        <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 5</div>
+                    {!userData ? (
+                        <div className={styles.userDataLoading}>
+                            <div className={styles.loadingSpinner}></div>
+                            <p>Loading user data...</p>
+                        </div>
+                    ) : userData.role === "company" ? (
+                        <IssueSolutions issueId={issueId} />
+                    ) : (
+                        <div className={styles.taskContent}>
+                            <Tabs
+                                defaultActiveKey="description"
+                                className={styles.taskTabs}
+                                items={[
+                                    {
+                                        key: 'solution',
+                                        label: 'Your Solution',
+                                        children: (
+                                            <div>
+                                                {solution ? (
+                                                    <div className={styles.solutionCode}>
+                                                        {solution.solutionText}
                                                     </div>
-                                                    <div style={{
-                                                        backgroundColor: '#c6c6c6',
-                                                        padding: '10px',
-                                                        borderRadius: '4px'
-                                                    }}>
-                                                        <div><strong>Ввод:</strong> 10</div>
-                                                        <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 10</div>
+                                                ) : (
+                                                    <div className={styles.noSolution}>
+                                                        The answer has not been sent yet
                                                     </div>
+                                                )}
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'description',
+                                        label: 'Description',
+                                        children: (
+                                            <div className={styles.taskDescription}>
+                                                <p>{issue.body}</p>
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'requirements',
+                                        label: 'Requirements',
+                                        children: (
+                                            <div className={styles.taskRequirements}>
+                                                <ul>
+                                                    <li>Реализуйте решение, которое соответствует описанию задачи</li>
+                                                    <li>Обработайте все возможные краевые случаи</li>
+                                                    <li>Оптимизируйте решение по времени и памяти</li>
+                                                    <li>Используйте понятные имена переменных и функций</li>
+                                                    <li>Добавьте комментарии, поясняющие ключевые моменты решения</li>
+                                                </ul>
+                                            </div>
+                                        )
+                                    },
+                                    {
+                                        key: 'examples',
+                                        label: 'Examples',
+                                        children: (
+                                            <div className={styles.taskExamples}>
+                                                <div className={styles.exampleBlock}>
+                                                    <div><strong>Ввод:</strong> 5</div>
+                                                    <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 5</div>
                                                 </div>
-                                            )
-                                        }
-                                    ]}
-                                    styles={{
-                                        tabBar: {
-                                            color: 'white',
-                                        },
-                                        inkBar: {
-                                            backgroundColor: 'white',
-                                        }
-                                    }}
-                                />
+                                                <div className={styles.exampleBlock}>
+                                                    <div><strong>Ввод:</strong> 10</div>
+                                                    <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 10</div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+                                ]}
+                            />
 
-                                <Divider />
+                            <Divider />
 
                             {!isSubscribed && issue.assignmentStatus !== "completed" ? (
                                 <Button
                                     type="primary"
                                     onClick={handleSubscribe}
-                                    style={{ width: '30%', display: 'block', margin: '0 auto' }}
+                                    className={styles.subscribeButton}
                                 >
                                     Подписаться на задание
                                 </Button>
                             ) : issue.assignmentStatus === "completed" ? (
                                 <div className={styles.completedMessage}>
-                                    <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '4px',width: '30%',margin: '0 auto'}}>
-                                        <Text strong style={{ color: '#52c41a' }}>The task has already been completed</Text>
-                                    </div>
+                                    <Text strong>Задание уже выполнено</Text>
                                 </div>
                             ) : null}
-                            </div>
-                        )
-                    }
+                        </div>
+                    )}
                 </Sider>
             </Layout>
+            <Footer />
         </>
     );
 };

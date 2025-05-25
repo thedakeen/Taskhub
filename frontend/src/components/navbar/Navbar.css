@@ -24,7 +24,9 @@
     margin: 0;
     padding: 0;
 }
-
+.nav-link:hover {
+    color: var(--accent-color); /* Акцентный цвет при наведении */
+}
 .nav-left {
 
     flex: 1;

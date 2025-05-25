@@ -1,0 +1,175 @@
+/* TopUserRating.module.css */
+
+/* Общие стили для карточки */
+.card {
+    margin-bottom: 24px;
+    background-color: var(--secondary-color);
+    border: none;
+}
+/* Стили для заголовка */
+.header {
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.headerTitle{
+    color: var(--text-color);
+}
+
+/* Стили для списка */
+.listItem {
+    padding: 0;
+    margin-bottom: 0;
+}
+
+/* Стили для карточки пользователя */
+.userCard {
+    width: 100%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.userCardFirst {
+    background: linear-gradient(135deg, #fff7e6 0%, #ffeaa7 100%);
+    border: 2px solid #faad14;
+}
+
+.userCardSecond {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border: 2px solid #8c8c8c;
+}
+
+.userCardThird {
+    background: linear-gradient(135deg, #fefbf3 0%, #f4e49c 100%);
+    border: 2px solid #d4b106;
+}
+
+.userCardOther {
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+}
+
+.userCardBody {
+    padding: 16px;
+}
+
+/* Стили для аватара и ранга */
+.avatarContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rankNumber {
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 24px;
+    text-align: center;
+}
+
+.rankNumberTop {
+    color: #faad14;
+}
+
+.rankNumberOther {
+    color: #1890ff;
+}
+
+.rankIcon {
+    font-size: 24px;
+}
+
+.rankIconFirst {
+    color: #faad14;
+}
+
+.rankIconSecond {
+    color: #8c8c8c;
+}
+
+.rankIconThird {
+    color: #d4b106;
+}
+
+.userAvatar {
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #1890ff;
+}
+
+/* Стили для информации о пользователе */
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.userName {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.githubLink {
+    color: #8c8c8c;
+    font-size: 12px;
+}
+
+.userBio {
+    margin: 0;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+/* Стили для рейтинга */
+.ratingContainer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ratingValue {
+    color: #1890ff;
+    font-weight: bold;
+}
+
+.ratingDisplay {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    text-align: center;
+}
+
+.ratingDisplayValue {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.ratingDisplayValueTop {
+    color: #faad14;
+}
+
+.ratingDisplayValueOther {
+    color: #1890ff;
+}
+
+.ratingDisplayLabel {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+}
+
+/* Стили для состояния загрузки и ошибок */
+.loadingContainer {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.errorMessage {
+    text-align: center;
+    padding: 40px 0;
+}

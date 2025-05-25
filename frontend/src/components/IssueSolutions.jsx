@@ -58,6 +58,7 @@ const IssueSolutions = ({ issueId }) => {
                 const data = await response.json();
                 const solutionsArray = data.solutions || (Array.isArray(data) ? data : []);
                 setSolutions(solutionsArray);
+                console.log(data)
             } catch (err) {
                 console.error("Ошибка получения решений задания:", err);
                 setError(err.message);
@@ -296,7 +297,7 @@ const IssueSolutions = ({ issueId }) => {
                                             {getStatusBadge(selectedSolution.status)}
                                         </div>
                                         <div>
-                                            <Text strong style={{ color: '#8c8c8c' }}>Назначено:                                             {formatDate(selectedSolution.assignedAt)}
+                                            <Text strong style={{ color: '#8c8c8c' }}>Assigned:                                             {formatDate(selectedSolution.assignedAt)}
                                             </Text>
                                         </div>
                                         {selectedSolution.completedAt && (
@@ -315,7 +316,7 @@ const IssueSolutions = ({ issueId }) => {
                             </div>
 
                             <div>
-                                <Title level={4} style={{ color: 'black',background:'white' }}>Оценка решения:</Title>
+                                <Title level={4} style={{ color: 'black',background:'white' }}>Grade solution:</Title>
                                 <div style={{
                                     background: '#white',
                                     padding: '16px',

@@ -11,6 +11,7 @@ import CompaniesPage from "../pages/CompaniesPage";
 import CompanyInfo from "../pages/CompanyPage";
 import CompanyIssue from "../pages/Issue";
 import AdminPanel from "../pages/AdminPanel";
+import TestPage from "../pages/TestPage";
 
 export function AppRoutes() {
     const { user, isLoading } = useContext(AuthContext);
@@ -32,6 +33,7 @@ export function AppRoutes() {
             <Route path="/companies/:companyId" element={user ? <CompanyInfo /> : <Navigate to="/signin" replace />} />
             <Route path="/issues/:issueId" element={<CompanyIssue />} />
             <Route path="/adminpanel" element={<AdminPanel />} />
+            <Route path="/test" element={<TestPage />} />
 
             {/* Fallback route */}
             <Route path="*" element={<h1>Page Not Found</h1>} />

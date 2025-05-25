@@ -34,14 +34,14 @@
 }
 
 .profileName {
-    color: var(--primary-color);
+    color: var(--text-color);
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
 .profileEmail {
-    color: var(--primary-color);
+    color: var(--text-color);
     text-decoration: none;
     margin-bottom: 1rem;
 }
@@ -71,7 +71,7 @@ h2 {
 }
 
 p {
-    color: #c0cded;
+    color: var(--secondary-text-color);
 }
 
 /* Top panel */
@@ -181,7 +181,8 @@ p {
 }
 
 .issuesList li:hover {
-    background-color: rgba(0, 0, 0, 0.05); /* Легкая подсветка */
+    background-color: var(--accent-color); /* Легкая подсветка */
+    color: var(--text-color);
     transform: translateX(5px); /* Сдвиг вправо */
 }
 .issueId{

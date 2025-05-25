@@ -195,7 +195,7 @@ const UserTableRow = ({ user, onUserUpdate }) => {
                             className={`${styles.actionButton} ${styles.editButton}`}
                             onClick={() => setIsModalOpen(true)}
                         >
-                            Редактировать
+                            Set Company
                         </button>
                         <button className={`${styles.actionButton} ${styles.deleteButton}`}>
                             Удалить
@@ -232,9 +232,10 @@ const UserEditModal = ({ user, onClose }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ companyId, role })
+                body: JSON.stringify({ companyId, role:"company" })
             });
 
+            console.log(response)
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || `Ошибка: ${response.status}`);
@@ -253,8 +254,7 @@ const UserEditModal = ({ user, onClose }) => {
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modal}>
-                <h2>Редактировать роль пользователя</h2>
-                <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
                     <div className={styles.formGroup}>
                         <label>ID компании:</label>
                         <input
@@ -264,12 +264,7 @@ const UserEditModal = ({ user, onClose }) => {
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label>Роль:</label>
-                        <select value={role} onChange={(e) => setRole(e.target.value)}>
-                            <option value="developer">developer</option>
-                            <option value="admin">admin</option>
-                            <option value="manager">company</option>
-                        </select>
+                        <label>Роль: company</label>
                     </div>
                     <div className={styles.modalButtons}>
                         <button

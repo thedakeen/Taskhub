@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
 import AuthContext from "../../contexts/AuthContext";
 import "./Navbar.css"; // Import styles for Navbar
+import { Moon, Sun } from "lucide-react"; // Можешь использовать любые иконки или заменить на текст
 
 const Navbar = () => {
     const { user, logOut } = useContext(AuthContext);
+    const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+
+    useEffect(() => {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    };
 
     return (
         <nav className="navbar">
@@ -69,6 +79,9 @@ const Navbar = () => {
             </div>
 
             <div className="nav-right">
+                <li className="theme-toggle-btn" onClick={toggleTheme}>
+                    {theme === "light" ? <Moon size={20}/> : <Sun size={20}/>}
+                </li>
                 {user ? (
                     <>
                         <li><Link to={`/profile/${user.id}`} className="nav-link">Profile</Link></li>

@@ -151,7 +151,7 @@ const Profile = () => {
                         <a href={`mailto:${profileData.email}`} className={styles.profileEmail}>
                             {profileData.email}
                         </a>
-                        <p className={styles.profileDescription}>{profileData.bio || "Нет описания"}</p>
+                        <p className={styles.profileDescription}>{profileData.bio || "No Description"}</p>
 
                         {profileData.cvUrl && (
                             <a href={profileData.cvUrl} target="_blank" rel="noopener noreferrer" className={styles.cvLink}>
@@ -221,7 +221,7 @@ const Profile = () => {
 
                                                 ))
                                             ) : (
-                                                <p>Нет активных задач</p>
+                                                <p>No active assignments</p>
                                             )}
                                         </ol>
                                     </div>
