@@ -73,8 +73,76 @@ run:
 
 
 
+STORAGE_PATH = postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL_MODE)
 
+.PHONY: setup db/dump/create db/dump/restore up down restart logs clean
 
+setup:
+	@echo "🚀 Setting up the project..."
+	@if [ ! -f .env ]; then \
+		echo "Creating .env file from services/.env..."; \
+		cp services/.env .env; \
+		echo "DB_USER=postgres" >> .env; \
+		echo "DB_PASSWORD=123456" >> .env; \
+		echo "DB_NAME=taskhub_db" >> .env; \
+		echo "DB_HOST=postgres" >> .env; \
+		echo "DB_PORT=5432" >> .env; \
+		echo "DB_SSL_MODE=disable" >> .env; \
+		echo "AUTH_CLIENT_ADDRESS=auth:50051" >> .env; \
+		echo ".env file created. You may want to edit it before continuing."; \
+		echo "Press Enter to continue or Ctrl+C to abort and edit .env first."; \
+		read dummy; \
+	fi
+	@echo "Creating dumps directory..."
+	@mkdir -p dumps
+	@echo "Building Docker images..."
+	docker compose build
+	@echo "Starting database..."
+	docker compose up -d postgres
+	@echo "Waiting for database to initialize..."
+	@sleep 5
+	@if [ -f ./dumps/taskhub_db.custom ]; then \
+		echo "Found existing database dump, restoring..."; \
+		$(MAKE) db/dump/restore; \
+	else \
+		echo "No existing dump found, creating initial database..."; \
+		echo "Running migrations..."; \
+		DB_CONTAINER_HOST=$$(docker compose port postgres 5432 | cut -d ':' -f 1); \
+		CONTAINER_STORAGE_PATH="postgres://$(DB_USER):$(DB_PASSWORD)@$$DB_CONTAINER_HOST:$$(docker compose port postgres 5432 | cut -d ':' -f 2)/$(DB_NAME)?sslmode=$(DB_SSL_MODE)"; \
+		echo "Using database connection: $$CONTAINER_STORAGE_PATH"; \
+		docker run --rm -v $$(pwd)/services/auth/migrations:/migrations --network host migrate/migrate \
+			-path=/migrations -database=$$CONTAINER_STORAGE_PATH up; \
+		echo "Creating initial dump..."; \
+		$(MAKE) db/dump/create; \
+	fi
+	@echo "Starting all services..."
+	docker compose up -d
+	@echo "	Setup complete! The application is now running."
+	@echo "   Auth HTTP server is available at http://localhost:8081"
+	@echo "   Company HTTP server is available at http://localhost:8082"
+	@echo "   Admin server is available at http://localhost:8090"
+	@echo "   Rating server is available at http://localhost:8091"
+	@echo "   You can view logs with: docker compose logs -f"
 
+db/dump/create:
+	@echo "Creating database dump..."
+	docker compose run --rm db-tools /db_dump.sh
 
+db/dump/restore:
+	@echo "Restoring database from dump..."
+	docker compose run --rm db-tools /db_restore.sh
 
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
+restart:
+	docker compose restart
+
+logs:
+	docker compose logs -f
+
+clean:
+	docker compose down -v

@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: taskhub-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db_dump.sh:/db_dump.sh
+      - ./scripts/db_restore.sh:/db_restore.sh
+      - ./dumps:/dumps
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  db-tools:
+    image: postgres:16-alpine
+    container_name: taskhub-postgres-tools
+    volumes:
+      - ./dumps:/dumps
+      - ./scripts/db_dump.sh:/db_dump.sh
+      - ./scripts/db_restore.sh:/db_restore.sh
+    environment:
+      - DB_HOST=taskhub-postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-taskhub_db}
+    entrypoint: ["sh"]
+    depends_on:
+      - postgres
+    profiles:
+      - tools
+
+
+  # Auth Service (Go)
+  auth:
+    build:
+      context: .
+      dockerfile: ./services/auth/Dockerfile
+    container_name: taskhub-auth
+    env_file:
+      - .env
+    ports:
+      - "8081:8081"
+      - "50051:50051"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Company Service (Go)
+  company:
+    build:
+      context: .
+      dockerfile: ./services/company/Dockerfile
+    container_name: taskhub-company
+    env_file:
+      - .env
+    environment:
+      # Override only the necessary values for Docker networking
+      - AUTH_CLIENT_ADDRESS=auth:50051
+    ports:
+      - "8082:8082"
+      - "50052:50052"
+    depends_on:
+      - auth
+
+  # Admin Service (Java)
+  admin:
+    build:
+      context: .
+      dockerfile: ./services/taskhub-admin-service/Dockerfile
+    container_name: taskhub-admin
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SECURITY_JWT_SECRET=${JWT_SIGNED_STRING}
+    ports:
+      - "8090:8090"
+    depends_on:
+      - postgres
+      - auth
+
+  # Rating Service (Java)
+  rating:
+    build:
+      context: .
+      dockerfile: ./services/taskhub-rating-service/Dockerfile
+    container_name: taskhub-rating
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SECURITY_JWT_SECRET=${JWT_SIGNED_STRING}
+    ports:
+      - "8091:8091"
+    depends_on:
+      - postgres
+      - auth
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    container_name: taskhub-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth
+      - company
+      - admin
+      - rating
+
+volumes:
+  postgres_data:
