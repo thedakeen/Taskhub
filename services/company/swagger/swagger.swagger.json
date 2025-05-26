@@ -500,6 +500,10 @@
         "completedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
