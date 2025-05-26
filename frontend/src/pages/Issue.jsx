@@ -309,8 +309,9 @@ int main() {
             );
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Ошибка: ${errorText}`);
+                const errorData = await response.json();
+                const errorMessage = errorData.message || `Ошибка: ${response.status}`;
+                throw new Error(errorMessage);
             }
 
             setIsSubscribed(true);
@@ -324,7 +325,7 @@ int main() {
         } catch (err) {
             console.error("Ошибка подписки:", err);
             setSubmitError(err.message);
-            message.error("Ошибка при подписке на задание");
+            message.error(err.message || "Ошибка при подписке на задание");
         }
     };
 
@@ -748,6 +749,11 @@ int main() {
                             <span className={`${styles.statusBadge} ${getStatusBadgeClass(issue.assignmentStatus)}`}>
                                 Status: {issue.assignmentStatus || "Waiting for processing"}
                             </span>
+                            {submitError && (
+                                <div className={styles.errorMessage}>
+                                    {submitError}
+                                </div>
+                            )}
                         </div>
                     </div>
                     <Divider />
@@ -767,7 +773,7 @@ int main() {
                                 items={[
                                     {
                                         key: 'solution',
-                                        label: 'Your Solution',
+                                        label: (<span style={{color: 'var(--text-color)'}}>Your Solution</span>),
                                         children: (
                                             <div>
                                                 {solution ? (
@@ -784,7 +790,7 @@ int main() {
                                     },
                                     {
                                         key: 'description',
-                                        label: 'Description',
+                                        label: (<span style={{color: 'var(--text-color)'}}>Description</span>),
                                         children: (
                                             <div className={styles.taskDescription}>
                                                 <p>{issue.body}</p>
@@ -793,7 +799,7 @@ int main() {
                                     },
                                     {
                                         key: 'requirements',
-                                        label: 'Requirements',
+                                        label: (<span style={{color: 'var(--text-color)'}}>Requirements</span>),
                                         children: (
                                             <div className={styles.taskRequirements}>
                                                 <ul>
@@ -808,7 +814,7 @@ int main() {
                                     },
                                     {
                                         key: 'examples',
-                                        label: 'Examples',
+                                        label: (<span style={{color: 'var(--text-color)'}}>Examples</span>),
                                         children: (
                                             <div className={styles.taskExamples}>
                                                 <div className={styles.exampleBlock}>
@@ -833,7 +839,7 @@ int main() {
                                     onClick={handleSubscribe}
                                     className={styles.subscribeButton}
                                 >
-                                    Подписаться на задание
+                                    Subscribe to the task
                                 </Button>
                             ) : issue.assignmentStatus === "completed" ? (
                                 <div className={styles.completedMessage}>

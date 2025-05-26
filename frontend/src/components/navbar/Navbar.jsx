@@ -80,7 +80,7 @@ const Navbar = () => {
 
             <div className="nav-right">
                 <li className="theme-toggle-btn" onClick={toggleTheme}>
-                    {theme === "light" ? <Sun size={20}/>:<Moon size={20}/>}
+                    {theme === "dark" ? <Sun size={20}/>:<Moon size={20}/>}
                 </li>
                 {user ? (
                     <>

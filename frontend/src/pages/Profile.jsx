@@ -97,8 +97,9 @@ const Profile = () => {
                 }
 
                 const data = await response.json();
-                console.log("completed task data from server:", data); // <-- Вот здесь смотрим что пришло с сервера
                 setCompletedTasks(data.solutions ? { solutions: data.solutions } : { solutions: [] });
+                console.log("completed task data from server:", data.solutions); // <-- Вот здесь смотрим что пришло с сервера
+
             } catch (err) {
                 console.error("Ошибка получения задач:", err);
                 setCompletedTasks({ solutions: [] });
@@ -114,9 +115,15 @@ const Profile = () => {
     if (!profileData) return <div>Загрузка...</div>;
 
 
-    const ratings = completedTasks?.solutions?.map(() => 4)|| [];
-    const averageRating = ratings.length > 0
-        ? 4: null;
+
+    const averageRating = completedTasks?.solutions?.length > 0
+        ? completedTasks.solutions
+            .filter(solution => solution.rating !== null && solution.rating !== undefined)
+            .reduce((sum, solution, _, filteredArray) => {
+                return filteredArray.length > 0 ?
+                    (sum + solution.rating) / filteredArray.length : 0;
+            }, 0)
+        : null;
 
 
 
@@ -243,15 +250,19 @@ const Profile = () => {
                                                     {completedTasks.solutions.map((solution, index) => (
                                                         <li key={solution.id}
                                                             className={index % 2 === 0 ? styles.even : styles.odd}
-                                                            onClick={() => showModal(solution)} // передаём конкретную задачу
+                                                            onClick={() => showModal(solution)}
                                                         >
                                                             <div className={styles.leftSection}>
-                                                                <span
-                                                                    className={styles.issueTitle}>task #{solution.assignmentId}</span>
-                                                                <StarRating rating={ratings[index]}/>
+                                                                <span className={styles.issueTitle}>task #{solution.assignmentId}</span>
+                                                                {solution.rating !== null && solution.rating !== undefined ? (
+                                                                    <StarRating rating={solution.rating}/>
+                                                                ) : (
+                                                                    <span style={{fontSize: '0.8rem', color: '#999'}}>No rating</span>
+                                                                )}
                                                             </div>
                                                             <span className={styles.issueId}>
-                                {solution.status === 'checked' ? 'Checked' : 'Pending'}</span>
+            {solution.status === 'checked' ? 'Checked' : 'Pending'}
+        </span>
                                                         </li>
                                                     ))}
                                                 </>
