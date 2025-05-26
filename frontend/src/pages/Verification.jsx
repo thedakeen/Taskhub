@@ -49,38 +49,38 @@ const Verification = () => {
         <div className={style.container}>
             <div className={style.card}> {/* Используем div вместо Card */}
                 <div className={style.cardHeader}> {/* Используем div вместо CardHeader */}
-                    <h2 className={style.title}>Подтверждение электронной почты</h2> {/* CardTitle */}
+                    <h2 className={style.title}>Confirm your email</h2> {/* CardTitle */}
                 </div>
                 <div className={style.cardContent}> {/* Используем div вместо CardContent */}
                     <div className={style.content}>
                         <p className={style.text}>
-                            Мы отправили код подтверждения на вашу электронную почту.<br/>
-                            Пожалуйста, введите его ниже.
+                            We have sent a confirmation code to your email.<br/>
+                            Please enter it below.
                         </p>
                         {status === 'success' && (
                             <div className={style.success}>
                                 <CheckCircle className={style.icon} />
-                                <span>Почта успешно подтверждена!</span>
+                                    <span>Email successfully confirmed!</span>
                             </div>
                         )}
                         {status === 'error' && (
                             <div className={style.error}>
                                 <XCircle className={style.icon} />
-                                <span>{error || 'Неверный код. Попробуйте снова.'}</span>
+                                <span>{error || 'Invalid code. Try again.'}</span>
                             </div>
                         )}
                         <input
                             type="text"
-                            placeholder="Введите код"
+                            placeholder="Confirmation code"
                             maxLength={6}
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             className={style.input}
                         />
-                        <button onClick={handleSubmit} className={style.button}>Подтвердить</button>
+                        <button onClick={handleSubmit} className={style.button}>Confirm</button>
                         <div className={style.resendContainer}>
                             <button onClick={handleResend} className={style.resendButton}>
-                                Отправить код повторно
+                                Resend code
                             </button>
                         </div>
                     </div>

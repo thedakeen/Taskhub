@@ -1,10 +1,15 @@
 .login_container{
+    color: var(--text-color);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 40vh; /* Take up most of the viewport height */
     padding: 20px;
+}
+.login_container h1{
+    color: var(--accent-color);
+
 }
 .login_body{
 max-width: 100%;
@@ -32,7 +37,7 @@ max-width: 100%;
 }
 
 .login_body button:hover {
-    background-color: var(--secondary-color);
+    background-color: var(--accent-color);
 }
 .login_container h2 {
     margin-bottom: 20px;
@@ -45,19 +50,16 @@ max-width: 100%;
     border-radius: 4px;
     padding: 15px 20px;
 }
-.login_footer{
+.login_footer {
+    color: var(--text-color);
     display: flex;
     justify-content: space-between;
     font-size: 12px;
 }
-
-.test{
-    color: #0C0032;
-    color: #190061;
-    color:#240090;
-    color:#3500D3;
-    color: #282828;
+.signup, .sign_in, .forgot_password{
+    color: var(--text-color);
 }
+
 h1{
     color: var(--primary-color);
 }
@@ -66,9 +68,8 @@ a{
     color: white;
 }
 a:hover{
-    color: var(--primary-color);
+    color: var(--accent-color);
 }
-
 
 .error_message {
     color: #ff3333;
