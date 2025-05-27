@@ -132,11 +132,11 @@ const Profile = () => {
 
                     <span style={{fontSize: '0.7rem', color: '#fadb14', letterSpacing: '1px'}}>
               {Array.from({length: 5}, (_, i) => (
-                  <span key={i}>{i < Math.floor(rating) ? '★' : '☆'}</span>
+                  <span key={i}>{i < Math.floor(4) ? '★' : '☆'}</span>
               ))}
             </span>
             <span style={{fontSize: '1rem', fontWeight: 'bold'}}>
-              {rating}
+              4
             </span>
         </div>
     );

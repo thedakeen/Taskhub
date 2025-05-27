@@ -33,7 +33,7 @@ const { TextArea } = Input;
 
 const IssueSolutions = ({ issueId }) => {
     const [solutions, setSolutions] = useState([]);
-    const { user } = useContext(AuthContext);
+    const {user} = useContext(AuthContext);
     const [error, setError] = useState(null);
     const [selectedSolution, setSelectedSolution] = useState(null);
     const [rating, setRating] = useState(0);
@@ -72,19 +72,18 @@ const IssueSolutions = ({ issueId }) => {
     }, [issueId, user]);
 
 
-
     const getStatusBadge = (status) => {
         switch (status.toLowerCase()) {
             case 'completed':
-                return <Badge status="success" text="Completed" />;
+                return <Badge status="success" text="Completed"/>;
             case 'in_progress':
-                return <Badge status="processing" text="In progress" />;
+                return <Badge status="processing" text="In progress"/>;
             case 'pending':
-                return <Badge status="warning" text="Waiting" />;
+                return <Badge status="warning" text="Waiting"/>;
             case 'failed':
-                return <Badge status="error" text="Error" />;
+                return <Badge status="error" text="Error"/>;
             default:
-                return <Badge status="default" text={status} />;
+                return <Badge status="default" text={status}/>;
         }
     };
 
@@ -107,7 +106,7 @@ const IssueSolutions = ({ issueId }) => {
             );
         }
 
-        return <Text ellipsis={{ tooltip: text }}>{text}</Text>;
+        return <Text ellipsis={{tooltip: text}}>{text}</Text>;
     };
 
     const formatDate = (dateString) => {
@@ -124,7 +123,7 @@ const IssueSolutions = ({ issueId }) => {
     const handleRatingSubmit = async () => {
         try {
             const response = await fetch(
-                    `http://localhost:8091/api/rating/${selectedSolution.solutionId}`,
+                `http://localhost:8091/api/rating/${selectedSolution.solutionId}`,
                 {
                     method: 'POST',
                     headers: {
@@ -156,7 +155,7 @@ const IssueSolutions = ({ issueId }) => {
 
             const updatedSolutions = solutions.map(sol =>
                 sol.solutionId === selectedSolution.solutionId
-                    ? { ...sol, rating, feedback }
+                    ? {...sol, rating, feedback}
                     : sol
             );
 
@@ -170,8 +169,8 @@ const IssueSolutions = ({ issueId }) => {
     };
 
     return (
-        <div style={{ padding: '20px', color: 'white' }}>
-            <Title level={3} style={{ color: 'white', marginBottom: '24px' }}>Solution list</Title>
+        <div style={{padding: '20px', color: 'white'}}>
+            <Title level={3} style={{color: 'white', marginBottom: '24px'}}>Developers solution list</Title>
 
             <List
                 grid={{
@@ -199,36 +198,36 @@ const IssueSolutions = ({ issueId }) => {
                                 <Tooltip title="Просмотреть полностью">
                                     <FullscreenOutlined
                                         onClick={() => handleSolutionClick(item)}
-                                        style={{ color: '#1890ff' }}
+                                        style={{color: '#1890ff'}}
                                     />
                                 </Tooltip>,
                                 <Tooltip title="Оценить">
                                     <StarOutlined
                                         onClick={() => handleSolutionClick(item)}
-                                        style={{ color: item.rating ? '#faad14' : '#666' }}
+                                        style={{color: item.rating ? '#faad14' : '#666'}}
                                     />
                                 </Tooltip>
                             ]}
                         >
-                            <div style={{ cursor: 'pointer' }} onClick={() => handleSolutionClick(item)}>
-                                <div style={{ marginBottom: '12px',color:"black" }}>
+                            <div style={{cursor: 'pointer'}} onClick={() => handleSolutionClick(item)}>
+                                <div style={{marginBottom: '12px', color: "black"}}>
                                     {formatCodeText(item.solutionText)}
                                 </div>
                                 <div>
                                     <Space direction="vertical" size="small">
-                                        <Text type="secondary" style={{ color: '#8c8c8c' }}>
-                                            <ClockCircleOutlined /> Assigned: {formatDate(item.assignedAt)}
+                                        <Text type="secondary" style={{color: '#8c8c8c'}}>
+                                            <ClockCircleOutlined/> Assigned: {formatDate(item.assignedAt)}
                                         </Text>
                                         {item.completedAt && (
-                                            <Text type="secondary" style={{ color: '#8c8c8c' }}>
-                                                <CheckCircleOutlined /> Submitted: {formatDate(item.completedAt)}
+                                            <Text type="secondary" style={{color: '#8c8c8c'}}>
+                                                <CheckCircleOutlined/> Submitted: {formatDate(item.completedAt)}
                                             </Text>
                                         )}
                                         {item.rating && (
                                             <Rate
                                                 disabled
                                                 defaultValue={item.rating}
-                                                style={{ fontSize: '14px' }}
+                                                style={{fontSize: '14px'}}
                                             />
                                         )}
                                     </Space>
@@ -237,16 +236,23 @@ const IssueSolutions = ({ issueId }) => {
                         </Card>
                     </List.Item>
                 )}
-                locale={{ emptyText: 'Нет доступных решений' }}
-            />
+                locale={{
+                    emptyText: (
+                        <div style={{
+                            color: 'var(--text-color)',
+                        }}>
+                            No solutions available
+                        </div>
+                    )
+                }}            />
 
             <Modal
                 title={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{display: 'flex', alignItems: 'center'}}>
                         <Avatar
-                            icon={<UserOutlined />}
+                            icon={<UserOutlined/>}
                             src={selectedSolution?.user?.avatar}
-                            style={{ marginRight: '10px' }}
+                            style={{marginRight: '10px'}}
                         />
                         <span>
                 Решение #{selectedSolution?.solutionId?.substring(0, 8) || 'N/A'}
@@ -258,19 +264,20 @@ const IssueSolutions = ({ issueId }) => {
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
                 width="80%"
-                style={{ top: 20,
+                style={{
+                    top: 20,
                     padding: '24px',
                     background: '#1f1f1f',
                     color: 'white',
                     maxHeight: '80vh',
                     overflowY: 'auto'
                 }}
-                closeIcon={<CloseOutlined style={{ color: 'white' }} />}
+                closeIcon={<CloseOutlined style={{color: 'white'}}/>}
             >
                 {selectedSolution && (
                     <div>
-                        <div style={{ marginBottom: '24px' }}>
-                            <Title level={4} style={{ color: 'white' }}>Код решения:</Title>
+                        <div style={{marginBottom: '24px'}}>
+                            <Title level={4} style={{color: 'white'}}>Код решения:</Title>
                             <pre style={{
                                 background: '#2a2a2a',
                                 padding: '16px',
@@ -284,83 +291,86 @@ const IssueSolutions = ({ issueId }) => {
                 </pre>
                         </div>
 
-                            <div style={{ marginBottom: '24px' }}>
-                                <Title level={4} style={{ color: 'white' }}>Детали:</Title>
-                                <div style={{
-                                    background: 'white',
-                                    padding: '16px',
-                                    borderRadius: '4px'
-                                }}>
-                                    <Space direction="vertical" size="middle">
+                        <div style={{marginBottom: '24px'}}>
+                            <Title level={4} style={{color: 'white'}}>Детали:</Title>
+                            <div style={{
+                                background: 'white',
+                                padding: '16px',
+                                borderRadius: '4px'
+                            }}>
+                                <Space direction="vertical" size="middle">
+                                    <div>
+                                        <Text strong style={{color: '#8c8c8c'}}>Статус:</Text>{' '}
+                                        {getStatusBadge(selectedSolution.status)}
+                                    </div>
+                                    <div>
+                                        <Text strong
+                                              style={{color: '#8c8c8c'}}>Assigned: {formatDate(selectedSolution.assignedAt)}
+                                        </Text>
+                                    </div>
+                                    {selectedSolution.completedAt && (
                                         <div>
-                                            <Text strong style={{ color: '#8c8c8c' }}>Статус:</Text>{' '}
-                                            {getStatusBadge(selectedSolution.status)}
+                                            <Text strong
+                                                  style={{color: '#8c8c8c'}}>Завершено: {formatDate(selectedSolution.completedAt)}</Text>
                                         </div>
+                                    )}
+                                    {selectedSolution.assignmentId && (
                                         <div>
-                                            <Text strong style={{ color: '#8c8c8c' }}>Assigned:                                             {formatDate(selectedSolution.assignedAt)}
+                                            <Text strong style={{color: '#8c8c8c'}}>ID
+                                                задания: {selectedSolution.assignmentId}
                                             </Text>
                                         </div>
-                                        {selectedSolution.completedAt && (
-                                            <div>
-                                                <Text strong style={{ color: '#8c8c8c' }}>Завершено: {formatDate(selectedSolution.completedAt)}</Text>
-                                            </div>
-                                        )}
-                                        {selectedSolution.assignmentId && (
-                                            <div>
-                                                <Text strong style={{ color: '#8c8c8c' }}>ID задания:                                                 {selectedSolution.assignmentId}
-                                                </Text>
-                                            </div>
-                                        )}
-                                    </Space>
-                                </div>
-                            </div>
-
-                            <div>
-                                <Title level={4} style={{ color: 'black',background:'white' }}>Grade solution:</Title>
-                                <div style={{
-                                    background: '#white',
-                                    padding: '16px',
-                                    borderRadius: '4px'
-                                }}>
-                                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                                        <div>
-                                            <Text strong style={{ color: '#8c8c8c' }}>Оценка:</Text>
-                                            <Rate
-                                                value={rating}
-                                                onChange={setRating}
-                                                style={{ marginLeft: '10px' }}
-                                            />
-                                        </div>
-                                        <div>
-                                            <Text strong style={{ color: '#8c8c8c' }}>Комментарий:</Text>
-                                            <TextArea
-                                                value={feedback}
-                                                onChange={(e) => setFeedback(e.target.value)}
-                                                rows={4}
-                                                style={{
-                                                    marginTop: '10px',
-                                                    background: 'white',
-                                                    color: 'black',
-                                                    borderColor: '#333'
-                                                }}
-                                                placeholder="Оставьте ваш отзыв о решении..."
-                                            />
-                                        </div>
-                                        <Button
-                                            type="primary"
-                                            onClick={handleRatingSubmit}
-                                            icon={<StarOutlined />}
-                                        >
-                                            Сохранить оценку
-                                        </Button>
-                                    </Space>
-                                </div>
+                                    )}
+                                </Space>
                             </div>
                         </div>
-                    )}
-                    </Modal>
+
+                        <div>
+                            <Title level={4} style={{color: 'black', background: 'white'}}>Grade solution:</Title>
+                            <div style={{
+                                background: '#white',
+                                padding: '16px',
+                                borderRadius: '4px'
+                            }}>
+                                <Space direction="vertical" size="middle" style={{width: '100%'}}>
+                                    <div>
+                                        <Text strong style={{color: '#8c8c8c'}}>Оценка:</Text>
+                                        <Rate
+                                            value={rating}
+                                            onChange={setRating}
+                                            style={{marginLeft: '10px'}}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Text strong style={{color: '#8c8c8c'}}>Комментарий:</Text>
+                                        <TextArea
+                                            value={feedback}
+                                            onChange={(e) => setFeedback(e.target.value)}
+                                            rows={4}
+                                            style={{
+                                                marginTop: '10px',
+                                                background: 'white',
+                                                color: 'black',
+                                                borderColor: '#333'
+                                            }}
+                                            placeholder="Оставьте ваш отзыв о решении..."
+                                        />
+                                    </div>
+                                    <Button
+                                        type="primary"
+                                        onClick={handleRatingSubmit}
+                                        icon={<StarOutlined/>}
+                                    >
+                                        Сохранить оценку
+                                    </Button>
+                                </Space>
+                            </div>
+                        </div>
                     </div>
-                    );
-                }
+                )}
+            </Modal>
+        </div>
+    );
+}
 
 export default IssueSolutions;

@@ -22,9 +22,6 @@
 .ant-tabs-tab {
     color: white !important;
 }
-.statusBadge{
-    /*padding-left: 10px;*/
-}
 
 
 .issueBody {
@@ -33,7 +30,7 @@
     line-height: 1.6;
 }
 .issueHeader{
-
+    text-align: center;
 }
 
 .loading,
@@ -109,9 +106,6 @@
     100% { transform: rotate(360deg); }
 }
 
-.issueHeader {
-    margin-bottom: 20px;
-}
 
 .issueTitle {
     color: white;
@@ -120,7 +114,6 @@
 }
 
 .issueInfo {
-    display: flex;
     align-items: center;
     gap: 15px;
     color: rgba(255, 255, 255, 0.65);
@@ -132,7 +125,6 @@
     border-radius: 4px;
     font-size: 12px;
     font-weight: 500;
-    display: inline-block;
 }
 
 .statusPending {
@@ -202,7 +194,7 @@
 .codeIcon {
     font-size: 18px;
     margin-right: 8px;
-    color: white;
+    color: var(--text-color);
 }
 
 .languageSelect {
@@ -236,11 +228,24 @@
 
 .monacoContainer {
     flex: 2;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--text-color);
     position: relative;
     min-height: 60vh;
     margin-bottom: 10px;
     overflow: hidden;
+}
+.console {
+    background-color: #1e1e1e;
+    color: #fff;
+    font-family: monospace;
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 14px;
+}
+.text{
+    color: var(--text-color);
 }
 
 .monacoEditor {
@@ -258,8 +263,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 20vh;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--text-color);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -269,8 +273,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 5px 10px;
-    background-color: #fafafa;
-    border-bottom: 1px solid #f0f0f0;
+    background-color: var(--accent-color);
+    border-bottom: 1px solid var(--text-color);
 }
 
 .consoleLine {
@@ -297,16 +301,6 @@
     z-index: 100;
 }
 
-.resizerHandle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 4px;
-    height: 30px;
-    background-color: #d9d9d9;
-    border-radius: 2px;
-}
 
 .taskSider {
     padding: 20px;
@@ -325,9 +319,18 @@
 .taskContent {
     background-color: var(--secondary-color);
     padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: auto;
+    margin-bottom: 10px;
 }
-
+.taskTabs{
+    max-width: 600px;
+    margin: auto;
+}
 .taskTabs .ant-tabs-tab {
+    max-width: 600px;
+    margin: auto;
     color: white;
 }
 
@@ -336,7 +339,7 @@
 }
 
 .solutionCode {
-    background-color: #f0f0f0;
+    /*background-color: #f0f0f0;*/
     color: var(--text-color);
     padding: 15px;
     border-radius: 4px;

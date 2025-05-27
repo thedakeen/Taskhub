@@ -16,7 +16,7 @@
 /* Темная тема */
 [data-theme="dark"] {
   --primary-color: #ffffff;         /* Основной фон */
-  --secondary-color: #f9fafb;       /* Вторичный фон */
+  --secondary-color: #e4e4e4;       /* Вторичный фон */
   --accent-color: #3b82f6;          /* Яркий синий акцент */
   --text-color: #111827;
   --secondary-text-color: #c0cded;            /* Очень светлый, но не белый */

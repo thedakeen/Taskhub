@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
 import IssueSolutions from "../components/IssueSolutions";
+import SolutionSection from "../components/SolutionSection";
 import AuthContext from "../contexts/AuthContext";
 import styles from "../styles/CompanyIssue.module.css";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
@@ -18,6 +19,10 @@ import {
     DownloadOutlined,
     BulbOutlined, CloudUploadOutlined
 } from '@ant-design/icons';
+import EditorSection from "../components/EditorSection";
+import ControlsSection from "../components/ControlsSection";
+import StatusSection from "../components/StatusSection";
+import TaskDescriptionSection from "../components/TaskDescriptionSection";
 
 
 const { Content, Sider } = Layout;
@@ -25,7 +30,7 @@ const {Text } = Typography;
 const { Option } = Select;
 
 const CompanyIssue = () => {
-    const { issueId } = useParams();
+    const {issueId} = useParams();
     const [issue, setIssue] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -34,7 +39,7 @@ const CompanyIssue = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [submitError, setSubmitError] = useState(null);
-    const { user } = useContext(AuthContext);
+    const {user} = useContext(AuthContext);
     const [userData, setUserData] = useState(null);
     const [solution, setSolution] = useState(null);
 
@@ -53,7 +58,6 @@ const CompanyIssue = () => {
     const editorRef = useRef(null);
 
     // Resizer refs and state
-    const resizerRef = useRef(null);
     const [isResizing, setIsResizing] = useState(false);
     const [startX, setStartX] = useState(0);
     const [startWidth, setStartWidth] = useState(0);
@@ -101,9 +105,9 @@ int main() {
 
     // Добавлены темы редактора
     const editorThemes = [
-        { value: 'vs', label: 'Light' },
-        { value: 'vs-dark', label: 'Dark' },
-        { value: 'hc-black', label: 'High Contrast' }
+        {value: 'vs', label: 'Light'},
+        {value: 'vs-dark', label: 'Dark'},
+        {value: 'hc-black', label: 'High Contrast'}
     ];
 
     useEffect(() => {
@@ -188,7 +192,7 @@ int main() {
                 }
                 const data = await response.json();
                 console.log(data)
-                if(data.role === "company") {
+                if (data.role === "company") {
                     setIsSubscribed(false);
                 }
                 setUserData(data);
@@ -249,8 +253,8 @@ int main() {
     useEffect(() => {
         const resizeEditor = () => {
             if (editorRef.current && containerRef.current) {
-                const { width, height } = containerRef.current.getBoundingClientRect();
-                editorRef.current.layout({ width, height });
+                const {width, height} = containerRef.current.getBoundingClientRect();
+                editorRef.current.layout({width, height});
             }
         };
 
@@ -261,15 +265,6 @@ int main() {
         return () => window.removeEventListener('resize', resizeEditor);
     }, []);
 
-
-
-    const startResize = (e) => {
-        setIsResizing(true);
-        setStartX(e.clientX);
-        setStartWidth(editorWidth);
-        document.body.style.cursor = 'ew-resize';
-        document.body.style.userSelect = 'none';
-    };
 
     const handleLanguageChange = (value) => {
         setSelectedLanguage(value);
@@ -510,7 +505,7 @@ int main() {
         const extension = fileExtensions[selectedLanguage] || 'txt';
         const filename = `solution.${extension}`;
 
-        const blob = new Blob([code], { type: 'text/plain' });
+        const blob = new Blob([code], {type: 'text/plain'});
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
@@ -525,7 +520,7 @@ int main() {
     if (error) {
         return (
             <>
-                <Navbar />
+                <Navbar/>
                 <div className={styles.errorContainer}>
                     <div className={styles.errorCard}>
                         <h2>Произошла ошибка</h2>
@@ -538,7 +533,7 @@ int main() {
                         </button>
                     </div>
                 </div>
-                <Footer />
+                <Footer/>
             </>
         );
     }
@@ -546,12 +541,12 @@ int main() {
     if (loading) {
         return (
             <>
-                <Navbar />
+                <Navbar/>
                 <div className={styles.loadingContainer}>
                     <div className={styles.loadingSpinner}></div>
                     <p>Загрузка данных...</p>
                 </div>
-                <Footer />
+                <Footer/>
             </>
         );
     }
@@ -559,13 +554,19 @@ int main() {
     const getStatusBadgeClass = (status) => {
         if (!status) return styles.statusPending;
 
-        switch(status.toLowerCase()) {
-            case 'assigned': return styles.statusAssigned;
-            case 'solved': return styles.statusSolved;
-            case 'in progress': return styles.statusInProgress;
-            case 'submitted': return styles.statusSubmitted;
-            case 'completed': return styles.statusCompleted;
-            default: return styles.statusPending;
+        switch (status.toLowerCase()) {
+            case 'assigned':
+                return styles.statusAssigned;
+            case 'solved':
+                return styles.statusSolved;
+            case 'in progress':
+                return styles.statusInProgress;
+            case 'submitted':
+                return styles.statusSubmitted;
+            case 'completed':
+                return styles.statusCompleted;
+            default:
+                return styles.statusPending;
         }
     };
 
@@ -583,180 +584,59 @@ int main() {
 
     return (
         <>
-            <Navbar />
+            <Navbar/>
             <Layout className={styles.layoutContainer}>
                 {isSubscribed && (
                     <>
                         <Content
                             className={styles.editorContent}
-                            style={{ width: `${editorWidth}%` }}
+                            style={{width: `${editorWidth}%`}}
                         >
-                            <div className={styles.editorHeader}>
-                                <div className={styles.languageSelector}>
-                                    <CodeOutlined className={styles.codeIcon} />
-                                    <Select
-                                        className={styles.languageSelect}
-                                        value={selectedLanguage}
-                                        onChange={handleLanguageChange}
-                                    >
-                                        <Option value="javascript">JavaScript</Option>
-                                        <Option value="python">Python</Option>
-                                        <Option value="java">Java</Option>
-                                        <Option value="cpp">C++</Option>
-                                    </Select>
-                                </div>
-                                <Space>
-                                    {submitError && (
-                                        <div className={styles.errorMessage}>
-                                            {submitError}
-                                        </div>
-                                    )}
-                                    {submitSuccess && (
-                                        <div className={styles.successMessage}>
-                                            Решение успешно отправлено!
-                                        </div>
-                                    )}
-                                    <Tooltip title="Форматировать код">
-                                        <Button
-                                            icon={<FormatPainterOutlined />}
-                                            onClick={formatCode}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip title="Изменить тему">
-                                        <Button
-                                            icon={<BulbOutlined />}
-                                            onClick={toggleEditorTheme}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip title="Скачать код">
-                                        <Button
-                                            icon={<DownloadOutlined />}
-                                            onClick={downloadCode}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip title={isFullscreenEditor ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}>
-                                        <Button
-                                            icon={isFullscreenEditor ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                                            onClick={toggleFullscreen}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip title="Запустить код">
-                                        <Button
-                                            type="primary"
-                                            icon={<PlayCircleOutlined />}
-                                            onClick={runCode}
-                                            loading={isRunning}
-                                        >
-                                            Run
-                                        </Button>
-                                    </Tooltip>
-                                    <Tooltip title="Отправить решение">
-                                        <Button
-                                            type="primary"
-                                            icon={<CloudUploadOutlined />}
-                                            className={styles.submitButton}
-                                            onClick={handleSubmitSolution}
-                                            loading={submitting}
-                                        >
-                                            {submitting ? 'Отправка...' : 'Submit'}
-                                        </Button>
-                                    </Tooltip>
-                                </Space>
-                            </div>
+                            <ControlsSection
+                                selectedLanguage={selectedLanguage}
+                                handleLanguageChange={handleLanguageChange}
+                                formatCode={formatCode}
+                                toggleEditorTheme={toggleEditorTheme}
+                                downloadCode={downloadCode}
+                                isFullscreenEditor={isFullscreenEditor}
+                                toggleFullscreen={toggleFullscreen}
+                                runCode={runCode}
+                                isRunning={isRunning}
+                                handleSubmitSolution={handleSubmitSolution}
+                                submitting={submitting}
+                                submitError={submitError}
+                                submitSuccess={submitSuccess}
+                            />
 
                             <div className={styles.editorWrapper}>
-                                <div ref={containerRef} className={styles.monacoContainer}>
-                                    <MonacoEditor
-                                        className={styles.monacoEditor}
-                                        language={selectedLanguage}
-                                        theme={editorTheme}
-                                        value={code}
-                                        onChange={handleCodeChange}
-                                        editorDidMount={(editor) => {
-                                            editorRef.current = editor;
-                                            if (monaco?.languages?.typescript?.javascriptDefaults) {
-                                                monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-                                            }
-                                        }}
-                                        options={{
-                                            automaticLayout: true,
-                                            fontSize: 14,
-                                            minimap: { enabled: true },
-                                            scrollBeyondLastLine: false,
-                                            wordWrap: 'on',
-                                            formatOnPaste: true,
-                                            formatOnType: true,
-                                            tabSize: 2,
-                                            rulers: [80],
-                                            bracketPairColorization: { enabled: true },
-                                            autoIndent: 'full',
-                                            showFoldingControls: 'always'
-                                        }}
-                                    />
-                                </div>
-
-                                <div className={styles.consoleContainer}>
-                                    <div className={styles.consoleHeader}>
-                                        <Text type="secondary">Консоль</Text>
-                                        <Button
-                                            size="small"
-                                            icon={<ClearOutlined />}
-                                            onClick={clearConsole}
-                                        >
-                                            Очистить
-                                        </Button>
-                                    </div>
-
-                                    <div style={consoleStyle}>
-                                        {consoleOutput.length > 0 ? (
-                                            consoleOutput.map((log, index) => (
-                                                <div key={index} className={styles.consoleLine}>
-                                                    <span className={styles.consolePrompt}>&gt;</span> {log}
-                                                </div>
-                                            ))
-                                        ) : consoleError ? (
-                                            <div className={styles.consoleError}>
-                                                <strong>Ошибка:</strong> {consoleError}
-                                            </div>
-                                        ) : (
-                                            <div className={styles.consoleEmpty}>
-                                                Консоль пуста. Запустите код, чтобы увидеть результаты.
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                                <EditorSection
+                                    selectedLanguage={selectedLanguage}
+                                    code={code}
+                                    editorTheme={editorTheme}
+                                    handleCodeChange={handleCodeChange}
+                                    consoleOutput={consoleOutput}
+                                    consoleError={consoleError}
+                                    clearConsole={clearConsole}
+                                    isRunning={isRunning}
+                                    editorRef={editorRef}
+                                    containerRef={containerRef}
+                                />
                             </div>
                         </Content>
-
-                        <div
-                            ref={resizerRef}
-                            onMouseDown={startResize}
-                            className={styles.resizer}
-                        >
-                            <div className={styles.resizerHandle} />
-                        </div>
                     </>
                 )}
 
                 <Sider
                     className={styles.taskSider}
                     width={isSubscribed ? `calc(100% - ${editorWidth}% - 10px)` : '100%'}
-                    style={{ display: isFullscreenEditor ? 'none' : 'block' }}
+                    style={{display: isFullscreenEditor ? 'none' : 'block'}}
                 >
-                    <div className={styles.issueHeader}>
-                        <h1 className={styles.issueTitle}>{issue.title}</h1>
-                        <div className={styles.issueInfo}>
-                            <span className={`${styles.statusBadge} ${getStatusBadgeClass(issue.assignmentStatus)}`}>
-                                Status: {issue.assignmentStatus || "Waiting for processing"}
-                            </span>
-                            {submitError && (
-                                <div className={styles.errorMessage}>
-                                    {submitError}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <Divider />
+                    {userData.role!== "company" ?
+                        (<StatusSection issue={issue} submitError={submitError}/>)
+                        :
+                        (<></>)
+                    }
+                    <Divider/>
 
                     {!userData ? (
                         <div className={styles.userDataLoading}>
@@ -764,93 +644,31 @@ int main() {
                             <p>Loading user data...</p>
                         </div>
                     ) : userData.role === "company" ? (
-                        <IssueSolutions issueId={issueId} />
+                        <>
+                        {/*<IssueSolutions issueId={issueId}/>*/}
+                            <SolutionSection
+                                issueId={issueId}
+                                userData={userData}
+                                solution={solution}
+                                isSubscribed={isSubscribed}
+                                issue={issue}
+                                handleSubscribe={handleSubscribe}/>
+                        </>
                     ) : (
-                        <div className={styles.taskContent}>
-                            <Tabs
-                                defaultActiveKey="description"
-                                className={styles.taskTabs}
-                                items={[
-                                    {
-                                        key: 'solution',
-                                        label: (<span style={{color: 'var(--text-color)'}}>Your Solution</span>),
-                                        children: (
-                                            <div>
-                                                {solution ? (
-                                                    <div className={styles.solutionCode}>
-                                                        {solution.solutionText}
-                                                    </div>
-                                                ) : (
-                                                    <div className={styles.noSolution}>
-                                                        The answer has not been sent yet
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )
-                                    },
-                                    {
-                                        key: 'description',
-                                        label: (<span style={{color: 'var(--text-color)'}}>Description</span>),
-                                        children: (
-                                            <div className={styles.taskDescription}>
-                                                <p>{issue.body}</p>
-                                            </div>
-                                        )
-                                    },
-                                    {
-                                        key: 'requirements',
-                                        label: (<span style={{color: 'var(--text-color)'}}>Requirements</span>),
-                                        children: (
-                                            <div className={styles.taskRequirements}>
-                                                <ul>
-                                                    <li>Реализуйте решение, которое соответствует описанию задачи</li>
-                                                    <li>Обработайте все возможные краевые случаи</li>
-                                                    <li>Оптимизируйте решение по времени и памяти</li>
-                                                    <li>Используйте понятные имена переменных и функций</li>
-                                                    <li>Добавьте комментарии, поясняющие ключевые моменты решения</li>
-                                                </ul>
-                                            </div>
-                                        )
-                                    },
-                                    {
-                                        key: 'examples',
-                                        label: (<span style={{color: 'var(--text-color)'}}>Examples</span>),
-                                        children: (
-                                            <div className={styles.taskExamples}>
-                                                <div className={styles.exampleBlock}>
-                                                    <div><strong>Ввод:</strong> 5</div>
-                                                    <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 5</div>
-                                                </div>
-                                                <div className={styles.exampleBlock}>
-                                                    <div><strong>Ввод:</strong> 10</div>
-                                                    <div><strong>Ожидаемый вывод:</strong> Решение для входных данных 10</div>
-                                                </div>
-                                            </div>
-                                        )
-                                    }
-                                ]}
-                            />
-
-                            <Divider />
-
-                            {!isSubscribed && issue.assignmentStatus !== "completed" ? (
-                                <Button
-                                    type="primary"
-                                    onClick={handleSubscribe}
-                                    className={styles.subscribeButton}
-                                >
-                                    Subscribe to the task
-                                </Button>
-                            ) : issue.assignmentStatus === "completed" ? (
-                                <div className={styles.completedMessage}>
-                                    <Text strong>Задание уже выполнено</Text>
-                                </div>
-                            ) : null}
-                        </div>
+                        <>
+                            <TaskDescriptionSection issue={issue}/>
+                            <SolutionSection
+                                issueId={issueId}
+                                userData={userData}
+                                solution={solution}
+                                isSubscribed={isSubscribed}
+                                issue={issue}
+                                handleSubscribe={handleSubscribe}/>
+                        </>
                     )}
                 </Sider>
             </Layout>
-            <Footer />
+            <Footer/>
         </>
     );
 };
