@@ -113,7 +113,7 @@ const TopUsersRating = ({ user }) => {
                     };
                 })
             );
-
+            setLoading(false);
             setTopUsers(usersWithProfiles);
         } catch (err) {
             console.error("Ошибка получения топа пользователей:", err);
@@ -124,9 +124,7 @@ const TopUsersRating = ({ user }) => {
     };
 
     useEffect(() => {
-        if (user?.token) {
             fetchTopUsers();
-        }
     }, [user]);
 
     const getRankIcon = (index) => {
@@ -160,23 +158,6 @@ const TopUsersRating = ({ user }) => {
         }
     };
 
-    if (!user?.token) {
-        return (
-            <Card
-                title={
-                    <div className={styles.header}>
-                        <TrophyOutlined style={{ color: '#faad14' }} />
-                        <Title level={3} style={{ margin: 0, color: 'var(--text-color)' }}>Top Developers</Title>
-                    </div>
-                }
-                className={styles.card}
-            >
-                <div className={styles.errorMessage}>
-                    <Text type="secondary">You must be logged in to view the rating.</Text>
-                </div>
-            </Card>
-        );
-    }
 
     if (error) {
         return (
@@ -240,7 +221,7 @@ const TopUsersRating = ({ user }) => {
                                     size="small"
                                     className={getCardStyle(index)}
                                     hoverable
-                                    bodyStyle={{ padding: '16px' }}
+                                    // bodyStyle={{ padding: '16px' }}
                                 >
                                     <List.Item.Meta
                                         avatar={

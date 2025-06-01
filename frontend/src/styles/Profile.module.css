@@ -93,7 +93,9 @@ p {
     font-size: 1.25rem;
     font-weight: 600;
 }
-
+.githubLink{
+    color: var(--text-color);
+}
 /* GitHub button */
 .githubButton {
     display: flex;
@@ -168,10 +170,11 @@ p {
     margin-bottom: 0.5rem;
     padding-left: 0;
 }
-.issuesList{
+.issuesList {
     padding-left: 0;
 }
 .issuesList li {
+    color: var(--text-color);
     padding: 0.5rem 1rem;
     padding-left: 0;
     margin: 0.5rem 0;

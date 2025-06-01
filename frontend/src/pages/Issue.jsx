@@ -23,6 +23,8 @@ import EditorSection from "../components/EditorSection";
 import ControlsSection from "../components/ControlsSection";
 import StatusSection from "../components/StatusSection";
 import TaskDescriptionSection from "../components/TaskDescriptionSection";
+import ErrorHandler from "../components/ErrorHandler";
+import AnimatedLoader from "../components/AnimatedLoader";
 
 
 const { Content, Sider } = Layout;
@@ -124,7 +126,8 @@ int main() {
                 );
 
                 if (!issueResponse.ok) {
-                    throw new Error(`Ошибка загрузки: ${issueResponse.status}`);
+                    setError(issueResponse.status); // Просто код ошибки
+                    return;
                 }
 
                 const issueData = await issueResponse.json();
@@ -141,7 +144,8 @@ int main() {
 
             } catch (err) {
                 console.error("Ошибка получения данных:", err);
-                setError(err.message);
+
+               setError(err);
             } finally {
                 setLoading(false);
             }
@@ -162,15 +166,17 @@ int main() {
                     }
                 }
             );
-
-            console.log(response)
-            if (response.ok) {
-                const data = await response.json();
-                setSolution(data);
-                return data;
+            if (!response.ok) {
+                setError(response.status)
+                return;
             }
-            return null;
+
+            const data = await response.json();
+            setSolution(data);
+
+            return data;
         } catch (err) {
+            setError(err)
             console.error("Ошибка получения решения:", err);
             return null;
         }
@@ -188,15 +194,16 @@ int main() {
                         }
                     });
                 if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
+                    setError(response.status)
+                    return;
                 }
                 const data = await response.json();
-                console.log(data)
                 if (data.role === "company") {
                     setIsSubscribed(false);
                 }
                 setUserData(data);
             } catch (err) {
+                setError(err)
                 console.error("Ошибка получения профиля:", err);
                 setError(err.message);
             }
@@ -304,9 +311,8 @@ int main() {
             );
 
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorMessage = errorData.message || `Ошибка: ${response.status}`;
-                throw new Error(errorMessage);
+                setError(response.status)
+                return;
             }
 
             setIsSubscribed(true);
@@ -317,6 +323,9 @@ int main() {
             message.success("Вы успешно подписались на задание");
             setCode(languageStarters[selectedLanguage]);
 
+            setTimeout(() => {
+                window.location.reload();
+            }, 200);
         } catch (err) {
             console.error("Ошибка подписки:", err);
             setSubmitError(err.message);
@@ -520,20 +529,11 @@ int main() {
     if (error) {
         return (
             <>
-                <Navbar/>
-                <div className={styles.errorContainer}>
-                    <div className={styles.errorCard}>
-                        <h2>Произошла ошибка</h2>
-                        <p>{error}</p>
-                        <button
-                            className={styles.retryButton}
-                            onClick={() => window.location.reload()}
-                        >
-                            Попробовать снова
-                        </button>
-                    </div>
-                </div>
-                <Footer/>
+                <ErrorHandler
+                    error={error}
+                    onClose={() => setError(null)}
+                    isModal={true}
+                />
             </>
         );
     }
@@ -543,44 +543,17 @@ int main() {
             <>
                 <Navbar/>
                 <div className={styles.loadingContainer}>
-                    <div className={styles.loadingSpinner}></div>
-                    <p>Загрузка данных...</p>
+                    <AnimatedLoader
+                        isLoading={user}
+                        onComplete={() => console.log('Загрузка завершена!')}
+                    />
                 </div>
                 <Footer/>
             </>
         );
     }
 
-    const getStatusBadgeClass = (status) => {
-        if (!status) return styles.statusPending;
 
-        switch (status.toLowerCase()) {
-            case 'assigned':
-                return styles.statusAssigned;
-            case 'solved':
-                return styles.statusSolved;
-            case 'in progress':
-                return styles.statusInProgress;
-            case 'submitted':
-                return styles.statusSubmitted;
-            case 'completed':
-                return styles.statusCompleted;
-            default:
-                return styles.statusPending;
-        }
-    };
-
-    const consoleStyle = {
-        backgroundColor: '#1e1e1e',
-        color: '#fff',
-        fontFamily: 'monospace',
-        padding: '10px',
-        borderRadius: '4px',
-        height: '100%',
-        overflowY: 'auto',
-        whiteSpace: 'pre-wrap',
-        fontSize: '14px'
-    };
 
     return (
         <>
@@ -640,30 +613,34 @@ int main() {
 
                     {!userData ? (
                         <div className={styles.userDataLoading}>
-                            <div className={styles.loadingSpinner}></div>
+                            <AnimatedLoader
+                                isLoading={true}
+                                onComplete={() => console.log('Загрузка завершена!')}
+                            />
                             <p>Loading user data...</p>
                         </div>
-                    ) : userData.role === "company" ? (
-                        <>
-                        {/*<IssueSolutions issueId={issueId}/>*/}
-                            <SolutionSection
-                                issueId={issueId}
-                                userData={userData}
-                                solution={solution}
-                                isSubscribed={isSubscribed}
-                                issue={issue}
-                                handleSubscribe={handleSubscribe}/>
-                        </>
                     ) : (
                         <>
-                            <TaskDescriptionSection issue={issue}/>
-                            <SolutionSection
-                                issueId={issueId}
-                                userData={userData}
-                                solution={solution}
-                                isSubscribed={isSubscribed}
-                                issue={issue}
-                                handleSubscribe={handleSubscribe}/>
+                            {userData?.role === "company" ? ( // Добавлена безопасная проверка через ?.
+                                <SolutionSection
+                                    issueId={issueId}
+                                    userData={userData}
+                                    solution={solution}
+                                    isSubscribed={isSubscribed}
+                                    issue={issue}
+                                    handleSubscribe={handleSubscribe}/>
+                            ) : (
+                                <>
+                                    <TaskDescriptionSection issue={issue}/>
+                                    <SolutionSection
+                                        issueId={issueId}
+                                        userData={userData}
+                                        solution={solution}
+                                        isSubscribed={isSubscribed}
+                                        issue={issue}
+                                        handleSubscribe={handleSubscribe}/>
+                                </>
+                            )}
                         </>
                     )}
                 </Sider>

@@ -1,9 +1,11 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import AuthContext from "../contexts/AuthContext";
 
 const GitHubCallback = () => {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const isRequestSent = useRef(false); // Флаг для предотвращения двойного запроса
 
     useEffect(() => {
@@ -34,7 +36,7 @@ const GitHubCallback = () => {
                 .then((response) => {
                     console.log("✅ Успешный ответ:", response.data);
                     alert(response.data.message);
-                    navigate("/profile");
+                    navigate(`/profile/${user.id}`);
                 })
                 .catch((error) => {
                     if (error.response) {

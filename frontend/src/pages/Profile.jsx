@@ -7,6 +7,7 @@ import GithubAuthButton from "../components/GitHubLogin";
 import AuthContext from "../contexts/AuthContext";
 import {Link} from "react-router-dom";
 import { Modal, Button } from 'antd';
+import AnimatedLoader from "../components/AnimatedLoader";
 
 const Profile = () => {
     const { user } = useContext(AuthContext);
@@ -111,7 +112,6 @@ const Profile = () => {
     }, [user.id, user?.token]);
 
 
-    if (error) return <div>Ошибка: {error}</div>;
     if (!profileData) return <div>Загрузка...</div>;
 
 
@@ -143,16 +143,32 @@ const Profile = () => {
     return (
         <>
             <Navbar/>
+            {!user?(
+                <AnimatedLoader
+                    isLoading={user}
+                    onComplete={() => console.log('Загрузка завершена!')}
+                />
+            ): (
+            <>
+
             <div className={styles.profileContainer}>
-                {/* Левая часть профиля */}
                 <div className={styles.profileLeft}>
                     <div className={styles.profileInfo}>
                         <div className={styles.avatarContainer}>
+                            {profileData.avatarUrl?(
                             <img
-                                src={profileData.avatarUrl || "/default-avatar.png"}
+                                src={profileData.avatarUrl}
                                 alt="Profile"
                                 className={styles.avatarImage}
-                            />
+                            />):(
+                                <svg width="200px" height="200px" viewBox="0 0 16 16"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="m 8 1 c -1.65625 0 -3 1.34375 -3 3 s 1.34375 3 3 3 s 3 -1.34375 3 -3 s -1.34375 -3 -3 -3 z m -1.5 7 c -2.492188 0 -4.5 2.007812 -4.5 4.5 v 0.5 c 0 1.109375 0.890625 2 2 2 h 8 c 1.109375 0 2 -0.890625 2 -2 v -0.5 c 0 -2.492188 -2.007812 -4.5 -4.5 -4.5 z m 0 0"
+                                        fill="#2e3436"/>
+                                </svg>
+                            )
+                            }
                         </div>
                         <h1 className={styles.profileName}>{profileData.username}</h1>
                         <a href={`mailto:${profileData.email}`} className={styles.profileEmail}>
@@ -173,24 +189,11 @@ const Profile = () => {
                     <div className={styles.topPanel}>
                         <div className={styles.panelContent}>
                             <h3 className={styles.panelTitle}>Profile</h3>
+
                             {!isGithubLinked ? (
-                                <GithubAuthButton />
+                                <GithubAuthButton isGithubLinked={isGithubLinked}/>
                             ) : (
-                                <div className={styles.githubLinked}>
-                                    <svg className={styles.checkIcon} fill="none" stroke="currentColor"
-                                         viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                              d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    <a
-                                        href={`https://github.com/${profileData.githubUsername}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={styles.githubLink}
-                                    >
-                                        @{profileData.githubUsername}
-                                    </a>
-                                </div>
+                                <GithubAuthButton isGithubLinked={isGithubLinked} name={profileData.githubUsername}/>
                             )}
                         </div>
                     </div>
@@ -211,15 +214,20 @@ const Profile = () => {
                             {/* Three Equal Columns */}
                             <div className={styles.threeColumnGrid}>
                                 <div className={styles.gridCard}>
-                                    <h3 className={styles.sectionTitle}>Tasks</h3>
+                                    <h3 className={styles.sectionTitle}>Tasks in progress</h3>
+                                    {!tasksInProgress.tasks?(
+                                        <AnimatedLoader
+                                            isLoading={tasksInProgress.tasks}
+                                            onComplete={() => console.log('Загрузка завершена!')}
+                                        />
+                                    ) : (
                                     <div className={styles.contentItem}>
                                         <ol className={styles.issuesList}>
                                             {tasksInProgress.tasks?.length > 0 ? (
                                                 tasksInProgress.tasks.map((task, index) => (
-                                                    <Link to={`/issues/${task.issueId}`} сlassName={styles.issueItem}>
+                                                    <Link key={task.assignmentId || index} to={`/issues/${task.issueId}`} className={styles.issueItem}>
 
-                                                        <li key={task.assignmentId || index}
-                                                            className={index % 2 === 0 ? styles.even : styles.odd}>
+                                                        <li className={index % 2 === 0 ? styles.even : styles.odd}>
                                                             <span className={styles.issueTitle}>{task.issueTitle}</span>
                                                             <span
                                                                 className={styles.issueId}>id:{task.assignmentId} </span>
@@ -232,28 +240,37 @@ const Profile = () => {
                                             )}
                                         </ol>
                                     </div>
+                                    )}
                                 </div>
 
                                 <div className={styles.gridCard}>
                                     <h3 className={styles.sectionTitle}>Submitted Tasks</h3>
-                                    <div className={styles.contentItem}>
-                                        <ol className={styles.issuesList}>
-                                            {completedTasks?.solutions?.length > 0 ? (
-                                                <>
+                                    {!completedTasks?(
+                                        <AnimatedLoader
+                                            isLoading={completedTasks}
+                                            onComplete={() => console.log('Загрузка завершена!')}
+                                        />
+                                    ) : (
+                                        <div className={styles.contentItem}>
+                                            <ol className={styles.issuesList}>
+                                                {completedTasks?.solutions?.length > 0 ? (
+                                                    <>
                                                     {/* Первая строка - средняя оценка */}
-                                                    <li className={styles.averageRow}>
-                                                        <span className={styles.issueTitle}>Avg Rating</span>
-                                                        <StarRating rating={averageRating}/>
-                                                    </li>
+                                                        <li className={styles.averageRow}>
+                                                            <span className={styles.issueTitle}>Avg Rating</span>
+                                                            <StarRating rating={averageRating}/>
+                                                        </li>
 
                                                     {/* Остальные элементы списка */}
                                                     {completedTasks.solutions.map((solution, index) => (
-                                                        <li key={solution.id}
+                                                        <li
+                                                            key={solution.assignmentId || solution.id || index}
                                                             className={index % 2 === 0 ? styles.even : styles.odd}
                                                             onClick={() => showModal(solution)}
                                                         >
                                                             <div className={styles.leftSection}>
-                                                                <span className={styles.issueTitle}>task #{solution.assignmentId}</span>
+                                                                <span
+                                                                    className={styles.issueTitle}>task #{solution.assignmentId}</span>
                                                                 {solution.rating !== null && solution.rating !== undefined ? (
                                                                     <StarRating rating={solution.rating}/>
                                                                 ) : (
@@ -261,16 +278,17 @@ const Profile = () => {
                                                                 )}
                                                             </div>
                                                             <span className={styles.issueId}>
-            {solution.status === 'checked' ? 'Checked' : 'Pending'}
-        </span>
+                            {solution.status === 'checked' ? 'Checked' : 'Pending'}
+                        </span>
                                                         </li>
                                                     ))}
-                                                </>
-                                            ) : (
-                                                <p>Нет завершенных задач</p>
-                                            )}
-                                        </ol>
-                                    </div>
+                                                    </>
+                                                ) : (
+                                                    <p>Нет завершенных задач</p>
+                                                )}
+                                            </ol>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className={styles.gridCard}>
@@ -308,6 +326,7 @@ const Profile = () => {
                     )}
                 </div>
             </div>
+                </>)}
             <Modal
                 title={`Task #${selectedSolution?.assignmentId}`}
                 open={isModalOpen}

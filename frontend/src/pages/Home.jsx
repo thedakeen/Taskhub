@@ -43,7 +43,7 @@ const Home = () => {
                 {/* Первая секция: Название и подпись */}
                 <section className={styles.heroSection}>
                     <h1 className={styles.heroTitle}>Task Hub</h1>
-                    <p className={styles.heroSubtitle}>Let's work together!</p>
+                    <p className={styles.heroSubtitle}>Real Experience for Real Growth</p>
                 </section>
 
                 <section className={styles.ratingSection}>
