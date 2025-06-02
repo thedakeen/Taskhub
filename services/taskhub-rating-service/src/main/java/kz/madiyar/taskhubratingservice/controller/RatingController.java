@@ -1,5 +1,6 @@
 package kz.madiyar.taskhubratingservice.controller;
 
+import lombok.extern.slf4j.Slf4j;
 
 import jakarta.persistence.EntityNotFoundException;
 import kz.madiyar.taskhubratingservice.model.entity.IssueSolution;
@@ -14,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/rating")
