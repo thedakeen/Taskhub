@@ -1,5 +1,6 @@
 package kz.madiyar.taskhubratingservice.controller;
 
+import lombok.extern.slf4j.Slf4j;
 
 import kz.madiyar.taskhubratingservice.model.entity.IssueSolution;
 import kz.madiyar.taskhubratingservice.repository.DeveloperRating;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/top-rating")
 @RequiredArgsConstructor
