@@ -1,5 +1,8 @@
 package kz.madiyar.taskhubadminservice.service;
 
+
+import lombok.extern.slf4j.Slf4j;
+
 import kz.madiyar.taskhubadminservice.exceptions.BadRequestException;
 import kz.madiyar.taskhubadminservice.exceptions.NotFoundException;
 import kz.madiyar.taskhubadminservice.model.entity.Company;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminService {
