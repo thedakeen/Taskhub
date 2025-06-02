@@ -325,11 +325,19 @@ func (s *serverAPI) IssueSolution(ctx context.Context, req *companyv1.GetIssueSo
 		}
 	}
 
+	var rating int32
+	if solution.Rating.Valid {
+		rating = solution.Rating.Int32
+	} else {
+		rating = 0
+	}
+
 	return &companyv1.GetIssueSolutionResponse{
 		SolutionId:   solution.ID,
 		AssignmentId: solution.AssignmentID,
 		SolutionText: solution.SolutionText,
 		Status:       solution.Status,
+		Rating:       rating,
 		AssignedAt:   timestamppb.New(solution.AssignedAt),
 		CompletedAt:  timestamppb.New(solution.CompletedAt),
 	}, nil

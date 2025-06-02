@@ -268,6 +268,7 @@ func (s *Storage) GetSolution(ctx context.Context, issueID int64, solutionID int
             s.assignment_id, 
             s.solution_text, 
             s.status,
+            s.rating,
             a.assigned_at,
             a.completed_at
         FROM 
@@ -284,6 +285,7 @@ func (s *Storage) GetSolution(ctx context.Context, issueID int64, solutionID int
 		&solution.AssignmentID,
 		&solution.SolutionText,
 		&solution.Status,
+		&solution.Rating,
 		&solution.AssignedAt,
 		&solution.CompletedAt,
 	)
