@@ -10,7 +10,9 @@ import kz.madiyar.taskhubratingservice.model.entity.IssueSolution;
 import kz.madiyar.taskhubratingservice.repository.CompanyUserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class IssueSolutionService {
