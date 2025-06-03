@@ -353,6 +353,7 @@ func (s *Storage) GetDeveloperIssueSolutions(ctx context.Context, developerID in
             s.assignment_id, 
             s.solution_text, 
             s.status,
+            s.rating,
             a.assigned_at,
             a.completed_at
         FROM 
@@ -373,7 +374,6 @@ func (s *Storage) GetDeveloperIssueSolutions(ctx context.Context, developerID in
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			// handle error
 		}
 	}(rows)
 
@@ -387,6 +387,7 @@ func (s *Storage) GetDeveloperIssueSolutions(ctx context.Context, developerID in
 			&solution.AssignmentID,
 			&solution.SolutionText,
 			&solution.Status,
+			&solution.Rating,
 			&solution.AssignedAt,
 			&solution.CompletedAt,
 		)
