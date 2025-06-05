@@ -1,8 +1,7 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useRef} from 'react';
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
 import styles from '../styles/Home.module.css'; // Импорт CSS-модуля
-import { Link } from "react-router-dom";
 import CompanyCard from "../components/CompanyCard/CompanyCard";
 import useCompanies from "../hooks/useCompanies";
 import TopUsersRating from "../components/topUserRating/TopUserRating";

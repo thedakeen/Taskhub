@@ -1,43 +1,9 @@
-import {useState, useEffect, useContext} from "react";
-import { User, Search, Lock, LogOut } from "lucide-react";
+import {useContext, useEffect, useState} from "react";
+import {Building2, Search, User} from "lucide-react";
 import styles from "../styles/AdminPAnetl.module.css";
 import AuthContext from "../contexts/AuthContext";
+import useCompanies from "../hooks/useCompanies";
 
-// Компонент шапки с навигационными кнопками
-const Header = ({ activeTab, onTabChange }) => {
-    return (
-        <header className={styles.header}>
-            <div className={styles.navButtons}>
-                <button
-                    className={`${styles.navButton} ${activeTab === 'users' ? styles.navButtonActive : ''}`}
-                    onClick={() => onTabChange('users')}
-                >
-                    <div className="flex items-center">
-                        <User size={16} className="mr-2" />
-                        Пользователи
-                    </div>
-                </button>
-                <button
-                    className={`${styles.navButton} ${activeTab === 'permissions' ? styles.navButtonActive : ''}`}
-                    onClick={() => onTabChange('permissions')}
-                >
-                    <div className="flex items-center">
-                        <Lock size={16} className="mr-2" />
-                        Права доступа
-                    </div>
-                </button>
-            </div>
-
-            <div className={styles.userMenu}>
-                <span>Администратор</span>
-                <button className={styles.logoutButton}>
-                    <LogOut size={16} className={styles.logoutIcon} />
-                    Выйти
-                </button>
-            </div>
-        </header>
-    );
-};
 
 // Компонент уведомления
 const Notification = ({ show, message, type }) => {
@@ -288,58 +254,235 @@ const UserEditModal = ({ user, onClose }) => {
         </div>
     );
 };
+
+
+const CompaniesTable = ({ companies, onCompanyUpdate }) => {
+    return (
+        <div className={styles.tableContainer}>
+            <table className={styles.table}>
+                <thead className={styles.tableHeader}>
+                <tr>
+                    <th className={styles.tableHeaderCell}>ID</th>
+                    <th className={styles.tableHeaderCell}>Название</th>
+                    <th className={styles.tableHeaderCell}>Описание</th>
+                    <th className={styles.tableHeaderCell}>Вебсайт</th>
+                    <th className={styles.tableHeaderCell}>Дата создания</th>
+                    <th className={styles.tableHeaderCell}>Действия</th>
+                </tr>
+                </thead>
+                <tbody className={styles.tableBody}>
+                {companies.map(company => (
+                    <CompanyTableRow key={company.companyId} company={company} onCompanyUpdate={onCompanyUpdate} />
+                ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+const CompanyTableRow = ({ company, onCompanyUpdate }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleSave = async (companyId, data) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/admin/update-company/${companyId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка при обновлении компании');
+            }
+
+            onCompanyUpdate(companyId, data);
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    };
+
+    return (
+        <>
+            <tr className={styles.tableRow}>
+                <td className={styles.tableCell}>{company.companyId}</td>
+                <td className={`${styles.tableCell} text-blue-500 font-medium`}>{company.companyName}</td>
+                <td className={styles.tableCell}>{company.description}</td>
+                <td className={styles.tableCell}>{company.website}</td>
+                <td className={styles.tableCell}>{new Date(company.createdAt).toLocaleDateString()}</td>
+                <td className={styles.tableCell}>
+                    <div className={styles.actionButtons}>
+                        <button
+                            className={`${styles.actionButton} ${styles.editButton}`}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Редактировать
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
+            {isModalOpen && (
+                <CompanyEditModal
+                    company={company}
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={handleSave}
+                />
+            )}
+        </>
+    );
+};
+
+const CompanyEditModal = ({ company, onClose, onSave }) => {
+    const [formData, setFormData] = useState({
+        companyName: company.companyName,
+        description: company.description,
+        website: company.website,
+        logo: company.logo
+    });
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            await onSave(company.companyId, formData);
+        } catch (err) {
+            console.error('Ошибка при обновлении компании:', err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.formGroup}>
+                        <label>Название компании:</label>
+                        <input
+                            type="text"
+                            name="companyName"
+                            value={formData.companyName}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Описание:</label>
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Вебсайт:</label>
+                        <input
+                            type="text"
+                            name="website"
+                            value={formData.website}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Логотип (URL):</label>
+                        <input
+                            type="text"
+                            name="logo"
+                            value={formData.logo}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className={styles.modalButtons}>
+                        <button
+                            type="button"
+                            className={`${styles.button} ${styles.cancelButton}`}
+                            onClick={onClose}
+                            disabled={isLoading}
+                        >
+                            Отмена
+                        </button>
+                        <button
+                            type="submit"
+                            className={`${styles.button} ${styles.saveButton}`}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Сохранение...' : 'Сохранить'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 // Главный компонент админ-панели
 const AdminPanel = () => {
     const [users, setUsers] = useState([]);
+    const { companies } = useCompanies();
+    const [fullCompanies, setFullCompanies] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { user } = useContext(AuthContext);
+    const {user} = useContext(AuthContext);
     const [searchText, setSearchText] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [notification, setNotification] = useState({ show: false, message: "", type: "" });
+    const [notification, setNotification] = useState({show: false, message: "", type: ""});
     const [activeTab, setActiveTab] = useState('users');
 
-    const usersPerPage = 5;
+    const itemsPerPage = 5;
+
+    // Обработчики обновления данных
     const handleUserUpdate = (userId, newData) => {
         setUsers(prevUsers =>
             prevUsers.map(user =>
-                user.id === userId ? { ...user, role: newData.role } : user
+                user.id === userId ? {...user, role: newData.role} : user
             )
         );
         setFilteredUsers(prevUsers =>
             prevUsers.map(user =>
-                user.id === userId ? { ...user, role: newData.role } : user
+                user.id === userId ? {...user, role: newData.role} : user
             )
         );
         showNotification('Роль пользователя успешно обновлена', 'success');
     };
 
+
+
     // Загрузка данных с сервера
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const token = localStorage.getItem('token'); // Или из контекста аутентификации
-                const response = await fetch('http://localhost:8090/admin', {
+                const token = localStorage.getItem('token');
+
+                // Загрузка пользователей
+                const usersResponse = await fetch('http://localhost:8090/admin', {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${user?.token}`
                     }
                 });
 
-                console.log('Response status:', response.status);
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => null);
-                    console.error('Error response data:', errorData);
-                    throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+                if (!usersResponse.ok) {
+                    throw new Error(`HTTP error! status: ${usersResponse.status}`);
                 }
+                const usersData = await usersResponse.json();
+                setUsers(usersData);
+                setFilteredUsers(usersData);
 
-                const data = await response.json();
-                console.log('Received data:', data);
-
-                setUsers(data);
-                setFilteredUsers(data);
             } catch (error) {
                 console.error('Fetch error:', error);
                 showNotification(`Ошибка доступа: ${error.message}`, 'error');
@@ -348,100 +491,186 @@ const AdminPanel = () => {
             }
         };
 
-        fetchUsers();
+        fetchData();
     }, []);
 
     // Фильтрация по поисковому запросу
     useEffect(() => {
-        const filtered = users.filter(user =>
-            user.username.toLowerCase().includes(searchText.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-            user.role.toLowerCase().includes(searchText.toLowerCase())
-        );
-        setFilteredUsers(filtered);
-        setCurrentPage(1);
-    }, [searchText, users]);
+        if (activeTab === 'users') {
+            const filtered = users.filter(user =>
+                user.username.toLowerCase().includes(searchText.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+                user.role.toLowerCase().includes(searchText.toLowerCase())
+            );
+            setFilteredUsers(filtered);
+        } else if (activeTab === 'companies') {
 
+        }
+        setCurrentPage(1);
+    }, [searchText, users, companies, activeTab]);
+
+    useEffect(() => {
+        const loadAllData = async () => {
+            if (companies.length > 0) {
+                console.log('Начинаю загружать подробности...');
+
+                const fullData = await Promise.all(
+                    companies.map(async (company) => {
+                        const details = await fetchFullCompanyData(company.companyId);
+                        return { ...company, ...details }; // Объединяем краткие и полные данные
+                    })
+                );
+
+                setFullCompanies(fullData.filter(Boolean)); // Отфильтруем null
+                console.log('Все данные загружены!', fullData);
+            }
+        };
+
+        loadAllData();
+    }, [companies, searchText]);  // Добавляем searchText в зависимости
     // Показать уведомление
     const showNotification = (message, type = "info") => {
-        setNotification({ show: true, message, type });
+        setNotification({show: true, message, type});
         setTimeout(() => {
-            setNotification({ show: false, message: "", type: "" });
+            setNotification({show: false, message: "", type: ""});
         }, 3000);
     };
 
+    const fetchFullCompanyData = async (companyId) => {
+        try {
+            const response = await fetch(`http://localhost:8082/v1/companies/${companyId}`);
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            return await response.json(); // Это как открыть коробку и увидеть все детали
+        } catch (error) {
+            console.error(`Не получилось загрузить компанию ${companyId}:`, error);
+            return null;
+        }
+    };
+
     // Пагинация
-    const indexOfLastUser = currentPage * usersPerPage;
-    const indexOfFirstUser = indexOfLastUser - usersPerPage;
-    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+    const currentCompanies = fullCompanies.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(
+        activeTab === 'users'
+            ? filteredUsers.length / itemsPerPage
+            : fullCompanies.length / itemsPerPage
+    );
 
     return (
-        <div className={styles.adminLayout}>
-            {/* Основной контент без боковой панели */}
-            <div className={styles.mainContent}>
-                {/* Шапка с навигационными вкладками */}
-                <Header activeTab={activeTab} onTabChange={setActiveTab} />
+        <>
+            {user?.role !== "admin" ? (
+                <div className={styles.adminLayout}>
+                    <div className={styles.mainContent}>
+                        <main className={styles.content}>
+                            <Notification {...notification} />
 
-                {/* Контент */}
-                <main className={styles.content}>
-                    {/* Уведомление */}
-                    <Notification {...notification} />
-
-                    {/* Содержимое вкладок */}
-                    {activeTab === 'users' && (
-                        <div className={styles.card}>
-                            <div className={styles.cardHeader}>
-                                <h2 className={styles.cardTitle}>Управление пользователями</h2>
-                                <button className={styles.addButton}>
-                                    Добавить пользователя
+                            {/* Табы для переключения между пользователями и компаниями */}
+                            <div className={styles.tabs}>
+                                <button
+                                    className={`${styles.tab} ${activeTab === 'users' ? styles.activeTab : ''}`}
+                                    onClick={() => setActiveTab('users')}
+                                >
+                                    <User size={16} className={styles.tabIcon} />
+                                    Пользователи
+                                </button>
+                                <button
+                                    className={`${styles.tab} ${activeTab === 'companies' ? styles.activeTab : ''}`}
+                                    onClick={() => setActiveTab('companies')}
+                                >
+                                    <Building2 size={16} className={styles.tabIcon} />
+                                    Компании
                                 </button>
                             </div>
 
-                            {/* Поиск */}
-                            <SearchBar
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                            />
+                            {activeTab === 'users' && (
+                                <div className={styles.card}>
+                                    <div className={styles.cardHeader}>
+                                        <h2 className={styles.cardTitle}>Управление пользователями</h2>
+                                        <button className={styles.addButton}>
+                                            Добавить пользователя
+                                        </button>
+                                    </div>
 
-                            {/* Таблица пользователей */}
-                            {loading ? (
-                                <div className={styles.loader}>
-                                    <div className={styles.spinner}></div>
-                                </div>
-                            ) : (
-                                <>
-                                    <UsersTable
-                                        users={currentUsers}
-                                        onUserUpdate={handleUserUpdate}
+                                    <SearchBar
+                                        value={searchText}
+                                        onChange={(e) => setSearchText(e.target.value)}
+                                        placeholder="Поиск пользователей..."
                                     />
 
-                                    {/* Пагинация */}
-                                    {totalPages > 1 && (
-                                        <Pagination
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            totalItems={filteredUsers.length}
-                                            itemsPerPage={usersPerPage}
-                                            onPageChange={setCurrentPage}
-                                        />
-                                    )}
-                                </>
-                            )}
-                        </div>
-                    )}
+                                    {loading ? (
+                                        <div className={styles.loader}>
+                                            <div className={styles.spinner}></div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <UsersTable
+                                                users={currentUsers}
+                                                onUserUpdate={handleUserUpdate}
+                                            />
 
-                    {activeTab === 'permissions' && (
-                        <div className={styles.card}>
-                            <h2 className={styles.cardTitle}>Управление правами доступа</h2>
-                            <p className="mt-4">
-                                Здесь будет содержимое для управления ролями и правами доступа.
-                            </p>
-                        </div>
-                    )}
-                </main>
-            </div>
-        </div>
+                                            {totalPages > 1 && (
+                                                <Pagination
+                                                    currentPage={currentPage}
+                                                    totalPages={totalPages}
+                                                    totalItems={filteredUsers.length}
+                                                    itemsPerPage={itemsPerPage}
+                                                    onPageChange={setCurrentPage}
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {activeTab === 'companies' && (
+                                <div className={styles.card}>
+                                    <div className={styles.cardHeader}>
+                                        <h2 className={styles.cardTitle}>Управление компаниями</h2>
+                                        <button className={styles.addButton}>
+                                            Добавить компанию
+                                        </button>
+                                    </div>
+
+                                    <SearchBar
+                                        value={searchText}
+                                        onChange={(e) => setSearchText(e.target.value)}
+                                        placeholder="Поиск компаний..."
+                                    />
+
+                                    {loading ? (
+                                        <div className={styles.loader}>
+                                            <div className={styles.spinner}></div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <CompaniesTable
+                                                companies={currentCompanies}  // Используем currentCompanies
+                                            />
+
+                                            {totalPages > 1 && (
+                                                <Pagination
+                                                    currentPage={currentPage}
+                                                    totalPages={totalPages}
+                                                    totalItems={fullCompanies.length}
+                                                    itemsPerPage={itemsPerPage}
+                                                    onPageChange={setCurrentPage}
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                </div>
+            ) : (
+                <div>
+                    Только администратор может просматривать эту страницу
+                </div>
+            )}
+        </>
     );
 };
 

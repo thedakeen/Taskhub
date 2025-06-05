@@ -1,24 +1,11 @@
-import MonacoEditor from 'react-monaco-editor';
 import { useParams } from "react-router-dom";
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
-import IssueSolutions from "../components/IssueSolutions";
 import SolutionSection from "../components/SolutionSection";
 import AuthContext from "../contexts/AuthContext";
 import styles from "../styles/CompanyIssue.module.css";
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Layout, Typography, Select, Button, Divider, Tabs, Tooltip, Space, message ,Badge,Card, List } from 'antd';
-import {
-    CodeOutlined,
-    FullscreenOutlined,
-    FullscreenExitOutlined,
-    PlayCircleOutlined,
-    FormatPainterOutlined,
-    ClearOutlined,
-    DownloadOutlined,
-    BulbOutlined, CloudUploadOutlined
-} from '@ant-design/icons';
+import { Layout, Typography, Select, Divider, message } from 'antd';
 import EditorSection from "../components/EditorSection";
 import ControlsSection from "../components/ControlsSection";
 import StatusSection from "../components/StatusSection";

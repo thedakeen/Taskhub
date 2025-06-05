@@ -163,6 +163,9 @@
     }
 }
 
+.tab{
+    height: 80px;
+}
 /* Таблица */
 .tableContainer {
     overflow-x: auto;

@@ -42,7 +42,7 @@ export function AppRoutes() {
                 <Route path="/signup/verification" element={<Verification />} />
                 <Route path="/github/callback" element={<GitHubCallback />} />
                 <Route path="/issues/:issueId" element={<CompanyIssue />} />
-                <Route path="/adminpanel" element={<AdminPanel />} />
+                <Route path="/admin" element={<AdminPanel />} />
                 <Route path="/companies" element={<CompaniesPage />} />
                 <Route path="/companies/:companyId" element={<CompanyInfo />} />
                 {/*<Route path="/profile" element={<Home />} />*/}

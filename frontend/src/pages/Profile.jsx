@@ -129,17 +129,18 @@ const Profile = () => {
 
     const StarRating = ({ rating, size = 12 }) => (
         <div style={{display: 'flex', alignItems: 'center', gap: '5px', paddingLeft: '10px'}}>
-
-                    <span style={{fontSize: '0.7rem', color: '#fadb14', letterSpacing: '1px'}}>
+            <span style={{fontSize: '0.7rem', color: '#fadb14', letterSpacing: '1px'}}>
               {Array.from({length: 5}, (_, i) => (
-                  <span key={i}>{i < Math.floor(4) ? '★' : '☆'}</span>
+                  <span key={i}>{i < Math.floor(rating) ? '★' : '☆'}</span>
               ))}
             </span>
             <span style={{fontSize: '1rem', fontWeight: 'bold'}}>
-              4
+                    {rating.toFixed(1)}
+
             </span>
         </div>
     );
+
     return (
         <>
             <Navbar/>
