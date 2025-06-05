@@ -362,11 +362,19 @@ func (s *serverAPI) DeveloperSolutions(ctx context.Context, req *companyv1.GetDe
 
 	var solutionResponses []*companyv1.GetIssueSolutionResponse
 	for _, solution := range solutions {
+		var rating int32
+		if solution.Rating.Valid {
+			rating = solution.Rating.Int32
+		} else {
+			rating = 0
+		}
+
 		solutionResponses = append(solutionResponses, &companyv1.GetIssueSolutionResponse{
 			SolutionId:   solution.ID,
 			AssignmentId: solution.AssignmentID,
 			SolutionText: solution.SolutionText,
 			Status:       solution.Status,
+			Rating:       rating,
 			AssignedAt:   timestamppb.New(solution.AssignedAt),
 			CompletedAt:  timestamppb.New(solution.CompletedAt),
 		})
