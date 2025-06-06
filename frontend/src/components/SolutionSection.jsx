@@ -1,8 +1,9 @@
-// SolutionSection.jsx
-import React from 'react';
-import {Button, Tabs, Typography} from 'antd';
+import React, { useContext } from 'react';
 import IssueSolutions from "../components/IssueSolutions";
 import styles from "../styles/CompanyIssue.module.css";
+import { Button, Typography } from 'antd';
+import { I18nContext } from "../contexts/i18nContext";
+
 const { Text } = Typography;
 
 const SolutionSection = ({
@@ -13,33 +14,34 @@ const SolutionSection = ({
                              issue,
                              handleSubscribe
                          }) => {
+    const { t } = useContext(I18nContext);
+
     if (!userData) {
         return (
             <div className={styles.userDataLoading}>
                 <div className="loading-spinner"></div>
-                <p>Loading user data...</p>
+                <p>{t('loading_user_data')}</p>
             </div>
         );
     }
 
     if (userData.role === "company") {
-        return <IssueSolutions issueId={issueId}/>;
+        return <IssueSolutions issueId={issueId} />;
     }
 
     return (
-        <>
-            <div className={styles.taskContent}>
+        <div className={styles.taskContent}>
             {!isSubscribed && issue.assignmentStatus !== "completed" ? (
                 <Button
                     type="primary"
                     onClick={handleSubscribe}
                     className={styles.subscribeButton}
                 >
-                    Subscribe to the task
+                    {t('subscribe_to_the_task')}
                 </Button>
             ) : issue.assignmentStatus === "completed" ? (
                 <>
-                    <h2>Your Solution</h2>
+                    <h2>{t('your_solution')}</h2>
                     <div>
                         {solution ? (
                             <div className={styles.solutionCode}>
@@ -47,14 +49,13 @@ const SolutionSection = ({
                             </div>
                         ) : (
                             <div className={styles.noSolution}>
-                                The answer has not been sent yet
+                                {t('answer_not_sent')}
                             </div>
                         )}
                     </div>
                 </>
             ) : null}
-            </div>
-        </>
+        </div>
     );
 };
 

@@ -1,12 +1,23 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import { I18nContext } from "../../contexts/i18nContext"; // путь может отличаться
 import AuthContext from "../../contexts/AuthContext";
-import "./Navbar.css"; // Import styles for Navbar
-import { Moon, Sun } from "lucide-react"; // Можешь использовать любые иконки или заменить на текст
+import "./Navbar.css";
+import { Moon, Sun, Globe, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
     const { user, logOut } = useContext(AuthContext);
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+    const { locale, setLocale, t } = useContext(I18nContext); // получаем локаль и функцию смены
+    const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+
+    const languages = [
+        { code: 'en', name: 'English', flag: '🇺🇸' },
+        { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+        { code: 'kz', name: 'Қазақша', flag: '🇰🇿' }
+    ];
+
+    const currentLanguage = languages.find(lang => lang.code === locale) || languages[0];
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
@@ -17,12 +28,29 @@ const Navbar = () => {
         setTheme((prev) => (prev === "light" ? "dark" : "light"));
     };
 
+    const handleLanguageChange = (langCode) => {
+        setLocale(langCode);
+        setIsLangDropdownOpen(false);
+    };
+
+    // Закрываем dropdown при клике вне его
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.language-selector')) {
+                setIsLangDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     return (
         <nav className="navbar">
             <div className="nav-left">
                 <Link to="/" className="nav-link" id="Home">
                     <div className="logo-container">
-                        <svg width="35" height="35  " viewBox="0 0 342 381" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="35" height="35" viewBox="0 0 342 381" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M162.478 338.935C162.478 343.353 166.059 346.935 170.478 346.935C174.896 346.935 178.478 343.353 178.478 338.935L162.478 338.935ZM178.478 38.9352C178.478 34.5169 174.896 30.9352 170.478 30.9352C166.059 30.9352 162.478 34.5169 162.478 38.9352L178.478 38.9352ZM178.478 338.935L178.478 38.9352L162.478 38.9352L162.478 338.935L178.478 338.935Z"
                                 fill="#AF52DE"/>
@@ -74,25 +102,57 @@ const Navbar = () => {
             </div>
 
             <div className="nav-center">
-                <li><Link to="/" className="nav-link" id="Home">Home</Link></li>
-                <li><Link to="/companies" className="nav-link" id="Companies">Companies</Link></li>
+                <li><Link to="/" className="nav-link" id="Home">{t("home")}</Link></li>
+                <li><Link to="/companies" className="nav-link" id="Companies">{t("companies")}</Link></li>
             </div>
 
             <div className="nav-right">
                 <li className="theme-toggle-btn" onClick={toggleTheme}>
-                    {theme === "dark" ? <Sun size={20}/>:<Moon size={20}/>}
+                    {theme === "dark" ? <Sun size={20} style={{color:"white"}}/> : <Moon size={20} style={{color:"white"}}/>}
                 </li>
+
+                <li className="language-selector">
+                    <button
+                        className="language-button"
+                        onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+                        aria-expanded={isLangDropdownOpen}
+                        aria-haspopup="true"
+                    >
+                        <Globe size={16} className="globe-icon" />
+                        <span className="current-lang-flag">{currentLanguage.flag}</span>
+                        <span className="current-lang-code">{currentLanguage.code.toUpperCase()}</span>
+                        <ChevronDown
+                            size={14}
+                            className={`chevron-icon ${isLangDropdownOpen ? 'rotated' : ''}`}
+                        />
+                    </button>
+
+                    {isLangDropdownOpen && (
+                        <div className="language-dropdown">
+                            {languages.map((lang) => (
+                                <button
+                                    key={lang.code}
+                                    className={`language-option ${locale === lang.code ? 'active' : ''}`}
+                                    onClick={() => handleLanguageChange(lang.code)}
+                                >
+                                    <span className="lang-flag">{lang.flag}</span>
+                                    <span className="lang-name">{lang.name}</span>
+                                    {/*<span className="lang-code">{lang.code.toUpperCase()}</span>*/}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </li>
+
                 {user ? (
                     <>
-                        <li><Link to={`/profile/${user.id}`} className="nav-link">Profile</Link></li>
+                        <li><Link to={`/profile/${user.id}`} className="nav-link">{t("profile")}</Link></li>
                         <li>
-                            <Link to="#" className="nav-link" onClick={logOut}>
-                                Logout
-                            </Link>
+                            <Link to="#" className="nav-link" onClick={logOut}>{t("logout")}</Link>
                         </li>
                     </>
                 ) : (
-                    <li><Link to="/signin" className="nav-link login-btn">Sign In</Link></li>
+                    <li><Link to="/signin" className="nav-link login-btn">{t("sign_in")}</Link></li>
                 )}
             </div>
         </nav>

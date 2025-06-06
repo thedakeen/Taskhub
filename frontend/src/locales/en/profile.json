@@ -1,0 +1,23 @@
+{
+  "loadingComplete": "Loading completed",
+  "profileImageAlt": "Profile picture",
+  "noDescription": "No description available",
+  "openCV": "Open CV",
+  "profileTitle": "Profile",
+  "workExperience": "Work Experience",
+  "tasksInProgress": "Tasks In Progress",
+  "submittedTasks": "Submitted Tasks",
+  "noActiveAssignments": "No active assignments",
+  "noCompletedTasks": "No completed tasks",
+  "avgRating": "Average Rating",
+  "noRating": "No rating",
+  "task": "Task",
+  "checked": "Checked",
+  "pending": "Pending Review",
+  "certificates": "Certificates",
+  "education": "Education",
+  "languages": "Languages",
+  "idLabel": "Solution ID",
+  "solutionLabel": "Solution",
+  "statusLabel": "Status"
+}

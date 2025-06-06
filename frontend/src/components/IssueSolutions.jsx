@@ -27,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import moment from "moment/moment";
 import AuthContext from "../contexts/AuthContext";
+import {I18nContext} from "../contexts/i18nContext";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
@@ -39,6 +40,7 @@ const IssueSolutions = ({ issueId }) => {
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const { t } = useContext(I18nContext);
 
     useEffect(() => {
         const fetchSolutions = async () => {
@@ -88,7 +90,7 @@ const IssueSolutions = ({ issueId }) => {
     };
 
     const formatCodeText = (text) => {
-        if (!text) return 'Нет текста решения';
+        if (!text) return t('no_solution_text');
 
         if (text.includes('function') || text.includes('console.log') ||
             text.includes('return') || text.includes('//')) {
@@ -169,8 +171,8 @@ const IssueSolutions = ({ issueId }) => {
     };
 
     return (
-        <div style={{padding: '20px', color: 'white'}}>
-            <Title level={3} style={{color: 'white', marginBottom: '24px'}}>Developers solution list</Title>
+        <div style={{ padding: '20px', color: 'white' }}>
+            <Title level={3} style={{ color: 'white', marginBottom: '24px' }}>{t('developers_solution_list')}</Title>
 
             <List
                 grid={{
@@ -186,7 +188,7 @@ const IssueSolutions = ({ issueId }) => {
                 renderItem={(item) => (
                     <List.Item>
                         <Card
-                            title={`Solution #${item.solutionId?.substring(0, 8) || 'N/A'}`}
+                            title={`${t('solution_number')}${item.solutionId?.substring(0, 8) || 'N/A'}`}
                             hoverable
                             style={{
                                 background: 'white',
@@ -195,40 +197,36 @@ const IssueSolutions = ({ issueId }) => {
                             }}
                             extra={getStatusBadge(item.status)}
                             actions={[
-                                <Tooltip title="Просмотреть полностью">
+                                <Tooltip title={t('view_full')}>
                                     <FullscreenOutlined
                                         onClick={() => handleSolutionClick(item)}
-                                        style={{color: '#1890ff'}}
+                                        style={{ color: '#1890ff' }}
                                     />
                                 </Tooltip>,
-                                <Tooltip title="Оценить">
+                                <Tooltip title={t('rate')}>
                                     <StarOutlined
                                         onClick={() => handleSolutionClick(item)}
-                                        style={{color: item.rating ? '#faad14' : '#666'}}
+                                        style={{ color: item.rating ? '#faad14' : '#666' }}
                                     />
                                 </Tooltip>
                             ]}
                         >
-                            <div style={{cursor: 'pointer'}} onClick={() => handleSolutionClick(item)}>
-                                <div style={{marginBottom: '12px', color: "black"}}>
+                            <div style={{ cursor: 'pointer' }} onClick={() => handleSolutionClick(item)}>
+                                <div style={{ marginBottom: '12px', color: "black" }}>
                                     {formatCodeText(item.solutionText)}
                                 </div>
                                 <div>
                                     <Space direction="vertical" size="small">
-                                        <Text type="secondary" style={{color: '#8c8c8c'}}>
-                                            <ClockCircleOutlined/> Assigned: {formatDate(item.assignedAt)}
+                                        <Text type="secondary" style={{ color: '#8c8c8c' }}>
+                                            <ClockCircleOutlined /> {t('assigned')} {formatDate(item.assignedAt)}
                                         </Text>
                                         {item.completedAt && (
-                                            <Text type="secondary" style={{color: '#8c8c8c'}}>
-                                                <CheckCircleOutlined/> Submitted: {formatDate(item.completedAt)}
+                                            <Text type="secondary" style={{ color: '#8c8c8c' }}>
+                                                <CheckCircleOutlined /> {t('submitted')} {formatDate(item.completedAt)}
                                             </Text>
                                         )}
                                         {item.rating && (
-                                            <Rate
-                                                disabled
-                                                defaultValue={item.rating}
-                                                style={{fontSize: '14px'}}
-                                            />
+                                            <Rate disabled defaultValue={item.rating} style={{ fontSize: '14px' }} />
                                         )}
                                     </Space>
                                 </div>
@@ -238,26 +236,24 @@ const IssueSolutions = ({ issueId }) => {
                 )}
                 locale={{
                     emptyText: (
-                        <div style={{
-                            color: 'var(--text-color)',
-                        }}>
-                            No solutions available
+                        <div style={{ color: 'var(--text-color)' }}>
+                            {t('no_solutions_available')}
                         </div>
                     )
-                }}            />
+                }}
+            />
 
             <Modal
                 title={
-                    <div style={{display: 'flex', alignItems: 'center'}}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
-                            icon={<UserOutlined/>}
+                            icon={<UserOutlined />}
                             src={selectedSolution?.user?.avatar}
-                            style={{marginRight: '10px'}}
+                            style={{ marginRight: '10px' }}
                         />
                         <span>
-                Решение #{selectedSolution?.solutionId?.substring(0, 8) || 'N/A'}
-                            {/*{selectedSolution?.user?.name || 'Анонимный пользователь'}*/}
-            </span>
+                            {t('solution_number')}{selectedSolution?.solutionId?.substring(0, 8) || 'N/A'}
+                        </span>
                     </div>
                 }
                 visible={isModalVisible}
@@ -272,12 +268,12 @@ const IssueSolutions = ({ issueId }) => {
                     maxHeight: '80vh',
                     overflowY: 'auto'
                 }}
-                closeIcon={<CloseOutlined style={{color: 'white'}}/>}
+                closeIcon={<CloseOutlined style={{ color: 'white' }} />}
             >
                 {selectedSolution && (
                     <div>
-                        <div style={{marginBottom: '24px'}}>
-                            <Title level={4} style={{color: 'white'}}>Код решения:</Title>
+                        <div style={{ marginBottom: '24px' }}>
+                            <Title level={4} style={{ color: 'white' }}>{t('solution_code')}</Title>
                             <pre style={{
                                 background: '#2a2a2a',
                                 padding: '16px',
@@ -287,12 +283,12 @@ const IssueSolutions = ({ issueId }) => {
                                 fontSize: '14px',
                                 lineHeight: '1.5'
                             }}>
-                    {selectedSolution.solutionText}
-                </pre>
+                                {selectedSolution.solutionText}
+                            </pre>
                         </div>
 
-                        <div style={{marginBottom: '24px'}}>
-                            <Title level={4} style={{color: 'white'}}>Детали:</Title>
+                        <div style={{ marginBottom: '24px' }}>
+                            <Title level={4} style={{ color: 'white' }}>{t('details')}</Title>
                             <div style={{
                                 background: 'white',
                                 padding: '16px',
@@ -300,25 +296,20 @@ const IssueSolutions = ({ issueId }) => {
                             }}>
                                 <Space direction="vertical" size="middle">
                                     <div>
-                                        <Text strong style={{color: '#8c8c8c'}}>Статус:</Text>{' '}
+                                        <Text strong style={{ color: '#8c8c8c' }}>{t('status')}</Text>{' '}
                                         {getStatusBadge(selectedSolution.status)}
                                     </div>
                                     <div>
-                                        <Text strong
-                                              style={{color: '#8c8c8c'}}>Assigned: {formatDate(selectedSolution.assignedAt)}
-                                        </Text>
+                                        <Text strong style={{ color: '#8c8c8c' }}>{t('assigned')} {formatDate(selectedSolution.assignedAt)}</Text>
                                     </div>
                                     {selectedSolution.completedAt && (
                                         <div>
-                                            <Text strong
-                                                  style={{color: '#8c8c8c'}}>Завершено: {formatDate(selectedSolution.completedAt)}</Text>
+                                            <Text strong style={{ color: '#8c8c8c' }}>{t('submitted')} {formatDate(selectedSolution.completedAt)}</Text>
                                         </div>
                                     )}
                                     {selectedSolution.assignmentId && (
                                         <div>
-                                            <Text strong style={{color: '#8c8c8c'}}>ID
-                                                задания: {selectedSolution.assignmentId}
-                                            </Text>
+                                            <Text strong style={{ color: '#8c8c8c' }}>{t('assignment_id')} {selectedSolution.assignmentId}</Text>
                                         </div>
                                     )}
                                 </Space>
@@ -326,23 +317,19 @@ const IssueSolutions = ({ issueId }) => {
                         </div>
 
                         <div>
-                            <Title level={4} style={{color: 'black', background: 'white'}}>Grade solution:</Title>
+                            <Title level={4} style={{ color: 'black', background: 'white' }}>{t('grade_solution')}</Title>
                             <div style={{
                                 background: '#white',
                                 padding: '16px',
                                 borderRadius: '4px'
                             }}>
-                                <Space direction="vertical" size="middle" style={{width: '100%'}}>
+                                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                                     <div>
-                                        <Text strong style={{color: '#8c8c8c'}}>Оценка:</Text>
-                                        <Rate
-                                            value={rating}
-                                            onChange={setRating}
-                                            style={{marginLeft: '10px'}}
-                                        />
+                                        <Text strong style={{ color: '#8c8c8c' }}>{t('rating')}</Text>
+                                        <Rate value={rating} onChange={setRating} style={{ marginLeft: '10px' }} />
                                     </div>
                                     <div>
-                                        <Text strong style={{color: '#8c8c8c'}}>Комментарий:</Text>
+                                        <Text strong style={{ color: '#8c8c8c' }}>{t('comment')}</Text>
                                         <TextArea
                                             value={feedback}
                                             onChange={(e) => setFeedback(e.target.value)}
@@ -353,15 +340,15 @@ const IssueSolutions = ({ issueId }) => {
                                                 color: 'black',
                                                 borderColor: '#333'
                                             }}
-                                            placeholder="Оставьте ваш отзыв о решении..."
+                                            placeholder={t('leave_feedback')}
                                         />
                                     </div>
                                     <Button
                                         type="primary"
                                         onClick={handleRatingSubmit}
-                                        icon={<StarOutlined/>}
+                                        icon={<StarOutlined />}
                                     >
-                                        Сохранить оценку
+                                        {t('save_rating')}
                                     </Button>
                                 </Space>
                             </div>

@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
                 console.log("User loaded:", { id: userId, email });
             }
         }
-        setIsLoading(false); // ✅ Завершаем загрузку
+        setIsLoading(false); 
     }, []);
 
     const logIn = async (email, password) => {
@@ -50,9 +50,9 @@ export const AuthProvider = ({ children }) => {
             let errorMessage = "Ошибка при входе в систему";
 
             console.log(error.response.data.message +" status amodus");
-            // Детальная обработка ошибок
+            
             if (error.response) {
-                // Ответ от сервера был получен, но статус не 2xx
+                
                 if(error.response.status === 400){
                     errorMessage = "Error occurred, try again";
                 }
@@ -66,16 +66,16 @@ export const AuthProvider = ({ children }) => {
                     errorMessage = error.response.data.message;
                 }
             } else if (error.request) {
-                // Запрос был отправлен, но ответ не получен
+                
                 errorMessage = "Сервер не отвечает. Проверьте подключение к интернету";
             } else {
-                // Что-то пошло не так при настройке запроса
+                
                 errorMessage = error.message || "Неизвестная ошибка";
             }
 
             console.error("SignIn failed. Error details:", error.response?.data || error.message);
 
-            // Возвращаем объект с деталями ошибки
+            
             return { success: false, message: errorMessage };
         }
     };

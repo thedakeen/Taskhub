@@ -24,7 +24,7 @@ export default function useCompanies() {
             }, 5000);
         });
 
-        // Гонка между запросом и таймаутом
+        
         Promise.race([fetchPromise, timeoutPromise])
             .then(response => {
                 console.log("Response: ", response);
@@ -39,7 +39,7 @@ export default function useCompanies() {
                 console.log("data: ", data);
 
                 if (data && Array.isArray(data.companies)) {
-                    setCompanies(data.companies);
+                    setCompanies(data.companies.sort((a, b) => parseInt(a.companyId) - parseInt(b.companyId)));
                 } else {
                     console.error("Полученные данные не содержат массив companies:", data);
                     setError("Полученные данные не содержат массив companies.");

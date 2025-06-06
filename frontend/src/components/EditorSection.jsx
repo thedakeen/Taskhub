@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from 'react';
+import React, {useRef, useEffect, useContext} from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Button, Typography, Space } from 'antd';
 import styles from "../styles/CompanyIssue.module.css";
 import { ClearOutlined } from '@ant-design/icons';
+import {I18nContext} from "../contexts/i18nContext";
 const { Text } = Typography;
 
 const EditorSection = ({
@@ -17,27 +18,28 @@ const EditorSection = ({
                            isRunning,
                            editorRef,
                            containerRef,
-                           fileLoaded = false // Новый пропс для отслеживания загрузки файла
+                           fileLoaded = false 
                        }) => {
 
-    // Обновление элемента через секунду после загрузки файла
+    const { t } = useContext(I18nContext);
+
     useEffect(() => {
         if (fileLoaded) {
             const timer = setTimeout(() => {
                 console.log('File loaded, refreshing Monaco Editor...');
-                // Обновляем размер редактора
+                
                 if (editorRef?.current) {
                     editorRef.current.layout();
                 }
-                // Можно также принудительно обновить весь компонент
-                // window.location.reload(); // Раскомментировать если нужно полное обновление страницы
+                
+                
             }, 1000);
 
             return () => clearTimeout(timer);
         }
     }, [fileLoaded, editorRef]);
 
-    // Проверка высоты Monaco Editor
+    
     useEffect(() => {
         if (!containerRef?.current) return;
 
@@ -46,7 +48,7 @@ const EditorSection = ({
                 const height = entry.contentRect.height;
                 console.log('Monaco Editor height:', height);
 
-                // Если высота меньше 100px, обновляем страницу
+                
                 if (height < 100) {
                     console.warn('Monaco Editor height is below 100px, refreshing page...');
                     window.location.reload();
@@ -56,7 +58,7 @@ const EditorSection = ({
 
         resizeObserver.observe(containerRef.current);
 
-        // Очистка observer при размонтировании компонента
+        
         return () => {
             resizeObserver.disconnect();
         };
@@ -102,7 +104,7 @@ const EditorSection = ({
                         icon={<ClearOutlined />}
                         onClick={clearConsole}
                     >
-                        Очистить
+                        {t('clear')}
                     </Button>
                 </div>
 
@@ -115,12 +117,10 @@ const EditorSection = ({
                         ))
                     ) : consoleError ? (
                         <div className={styles.consoleError}>
-                            <strong>Error:</strong> {consoleError}
+                            <strong>{t('error')}</strong> {consoleError}
                         </div>
                     ) : (
-                        <div className={styles.consoleEmpty}>
-                            The console is empty. Run the code to see the results.
-                        </div>
+                        <div className={styles.consoleEmpty}> {t('empty_console')}</div>
                     )}
                 </div>
             </div>

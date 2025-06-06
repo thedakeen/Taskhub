@@ -1,0 +1,36 @@
+{
+  "error": {
+    "400": {
+      "title": "Bad Request",
+      "message": "Please check your input data and try again"
+    },
+    "401": {
+      "title": "Unauthorized",
+      "message": "You need to log in or re-authenticate to access this resource"
+    },
+    "403": {
+      "title": "Forbidden",
+      "message": "You don't have permission to perform this action"
+    },
+    "404": {
+      "title": "Not Found",
+      "message": "The requested page or resource doesn't exist"
+    },
+    "500": {
+      "title": "Internal Server Error",
+      "message": "Something went wrong on the server, please try again later"
+    },
+    "network": {
+      "title": "Network Error",
+      "message": "Please check your internet connection and try again"
+    },
+    "timeout": {
+      "title": "Request Timeout",
+      "message": "The server is not responding, please try again later"
+    },
+    "default": {
+      "title": "Unknown Error",
+      "message": "An error occurred: {{code}}"
+    }
+  }
+}

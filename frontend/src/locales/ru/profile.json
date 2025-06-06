@@ -1,0 +1,23 @@
+{
+  "loadingComplete": "Загрузка завершена",
+  "profileImageAlt": "Фото профиля",
+  "noDescription": "Описание отсутствует",
+  "openCV": "Открыть резюме",
+  "profileTitle": "Профиль",
+  "workExperience": "Опыт работы",
+  "tasksInProgress": "Задачи в процессе",
+  "submittedTasks": "Отправленные задачи",
+  "noActiveAssignments": "Нет активных заданий",
+  "noCompletedTasks": "Нет выполненных задач",
+  "avgRating": "Средний рейтинг",
+  "noRating": "Рейтинг отсутствует",
+  "task": "Задача",
+  "checked": "Проверено",
+  "pending": "Ожидает проверки",
+  "certificates": "Сертификаты",
+  "education": "Образование",
+  "languages": "Языки",
+  "idLabel": "ID решения",
+  "solutionLabel": "Решение",
+  "statusLabel": "Статус"
+}

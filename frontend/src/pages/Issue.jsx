@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Navbar from "../components/navbar/Navbar";
-import Footer from "../components/footer/Footer";
+import Footer from "../components/Footer";
 import SolutionSection from "../components/SolutionSection";
 import AuthContext from "../contexts/AuthContext";
 import styles from "../styles/CompanyIssue.module.css";
@@ -32,7 +32,7 @@ const CompanyIssue = () => {
     const [userData, setUserData] = useState(null);
     const [solution, setSolution] = useState(null);
 
-    // Code editor state
+    
     const [selectedLanguage, setSelectedLanguage] = useState('javascript');
     const [code, setCode] = useState('');
     const [isFullscreenEditor, setIsFullscreenEditor] = useState(false);
@@ -40,13 +40,13 @@ const CompanyIssue = () => {
     const [consoleOutput, setConsoleOutput] = useState([]);
     const [consoleError, setConsoleError] = useState(null);
     const [isRunning, setIsRunning] = useState(false);
-    const [editorTheme, setEditorTheme] = useState('vs-dark'); // Добавлено состояние для темы
+    const [editorTheme, setEditorTheme] = useState('vs-dark'); 
     const containerRef = useRef(null);
 
-    // Editor instance ref
+    
     const editorRef = useRef(null);
 
-    // Resizer refs and state
+    
     const [isResizing, setIsResizing] = useState(false);
     const [startX, setStartX] = useState(0);
     const [startWidth, setStartWidth] = useState(0);
@@ -92,7 +92,7 @@ int main() {
 }`,
     };
 
-    // Добавлены темы редактора
+    
     const editorThemes = [
         {value: 'vs', label: 'Light'},
         {value: 'vs-dark', label: 'Dark'},
@@ -113,7 +113,7 @@ int main() {
                 );
 
                 if (!issueResponse.ok) {
-                    setError(issueResponse.status); // Просто код ошибки
+                    setError(issueResponse.status); 
                     return;
                 }
 
@@ -185,7 +185,7 @@ int main() {
                     return;
                 }
                 const data = await response.json();
-                if (data.role === "company") {
+                if (data?.role === "company") {
                     setIsSubscribed(false);
                 }
                 setUserData(data);
@@ -197,14 +197,14 @@ int main() {
         };
 
         fetchUserData()
-    }, [user]); // Перезапуск запроса при изменении ID
+    }, [user]); 
 
-    // Handle resizer mouse events
+    
     useEffect(() => {
         const handleMouseMove = (e) => {
             if (!isResizing) return;
 
-            // Clear any pending updates
+            
             if (resizeTimeoutRef.current) {
                 clearTimeout(resizeTimeoutRef.current);
             }
@@ -213,10 +213,10 @@ int main() {
                 const containerWidth = document.body.clientWidth;
                 const newWidth = startWidth + ((e.clientX - startX) / containerWidth * 100);
 
-                // Limit to reasonable bounds (20-80%)
+                
                 const boundedWidth = Math.min(Math.max(newWidth, 20), 80);
                 setEditorWidth(boundedWidth);
-            }, 16); // ~60fps
+            }, 16); 
         };
 
         const handleMouseUp = () => {
@@ -253,7 +253,7 @@ int main() {
         };
 
         window.addEventListener('resize', resizeEditor);
-        // Первоначальная настройка размера
+        
         setTimeout(resizeEditor, 300);
 
         return () => window.removeEventListener('resize', resizeEditor);
@@ -275,7 +275,7 @@ int main() {
         setIsFullscreenEditor(!isFullscreenEditor);
     };
 
-    // Добавлена функция для изменения темы
+    
     const toggleEditorTheme = () => {
         setEditorTheme(prevTheme => {
             if (prevTheme === 'vs-dark') return 'vs';
@@ -343,7 +343,7 @@ int main() {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,
-                    'Content-Type': 'application/json', // Убедитесь, что этот заголовок установлен
+                    'Content-Type': 'application/json', 
                 },
                 body: JSON.stringify(code)
             });
@@ -377,7 +377,7 @@ int main() {
 
     const formatCode = () => {
         if (editorRef.current) {
-            // Добавлена проверка на доступность форматирования
+            
             const formatAction = editorRef.current.getAction('editor.action.formatDocument');
             if (formatAction) {
                 formatAction.run().then(() => {
@@ -591,7 +591,7 @@ int main() {
                     width={isSubscribed ? `calc(100% - ${editorWidth}% - 10px)` : '100%'}
                     style={{display: isFullscreenEditor ? 'none' : 'block'}}
                 >
-                    {userData.role!== "company" ?
+                    {userData?.role !== "company" ?
                         (<StatusSection issue={issue} submitError={submitError}/>)
                         :
                         (<></>)
@@ -608,7 +608,7 @@ int main() {
                         </div>
                     ) : (
                         <>
-                            {userData?.role === "company" ? ( // Добавлена безопасная проверка через ?.
+                            {userData?.role === "company" ? ( 
                                 <SolutionSection
                                     issueId={issueId}
                                     userData={userData}

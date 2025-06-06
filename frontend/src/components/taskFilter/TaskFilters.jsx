@@ -8,8 +8,8 @@ function TaskFilters({ filters, onFilterChange, onResetFilters }) {
     };
 
     const handleApplyFilters = () => {
-        // Можно добавить дополнительную логику перед применением фильтров
-        // В данном случае фильтры уже применяются при изменении инпутов
+        
+        
     };
 
     return (

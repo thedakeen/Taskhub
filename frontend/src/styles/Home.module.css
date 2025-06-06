@@ -28,29 +28,31 @@
 
 /* Вторая секция */
 .aboutSection {
-    background: linear-gradient(to top, #0a2351, var(--background-color));
-    min-height: 100vh;
-    /* Добавляем flex для вертикального центрирования */
+    min-height: 50vh;
     display: flex;
-    align-items: center;
 }
 
 .aboutContainer {
-    background-color: var(--secondary-color);
+    /*background-color: var(--secondary-color);*/
     border-radius: 1rem;
-    max-width: 1200px;
+    max-width: 70%;
     margin: 0 auto;
     display: flex;
+    justify-content: space-between;
     color: var(--accent-color);
     flex-direction: column;
     /* Убираем margin, так как центрирование обеспечивает родительский элемент */
-    height: 100%;
-    align-items: center;
+    height: 30%;
+    max-height: 30%;
+}
+.rotatedIcon{
+    transform: rotate(80deg); /* можно 90deg, -30deg и т.д. */
+    transform-origin: center; /* чтобы поворачивалось вокруг центра */
+    color: var(--text-color);
 }
 .ratingSection{
     max-width: 1200px;
     margin: 0 auto;
-
 }
 
 @media (min-width: 768px) {
@@ -72,13 +74,26 @@
 }
 
 .aboutTitle {
-    font-size: 2.25rem;
+    font-size: 1.7rem;
     font-weight: bold;
-    margin-bottom: 1.5rem;
+    padding-right: 8rem;
+    padding-left: 1rem;
+
 }
+.titleRight{
+    display: flex;
+    flex-direction: row;
+}
+
+.titleLeft{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
 
 .aboutDescription {
     font-size: 1.125rem;
+    padding: 2rem;
 }
 
 .aboutImage {
@@ -101,9 +116,17 @@
 
 /* Третья секция */
 .cardsSection {
-    background: linear-gradient(to bottom, #0a2351, var(--background-color));
     padding: 4rem 0;
     height: 100%;
+}
+.evenSection {
+    background: linear-gradient(to top, #1e3a8a, var(--background-color));
+    text-align: start;
+}
+
+.oddSection {
+    background: linear-gradient(to bottom, #1e3a8a, var(--background-color)); /* или другой цвет */
+    text-align: end;
 }
 .ratingSection {
     background: var(--background-color);

@@ -1,0 +1,25 @@
+{
+  "loadingComplete": "Жүктеу аяқталды",
+  "profileImageAlt": "Профиль суреті",
+  "noDescription": "Сипаттама жоқ",
+  "openCV": "Түйіндемені ашу",
+  "profileTitle": "Профиль",
+  "workExperience": "Жұмыс тәжірибесі",
+  "tasksInProgress": "Аяқталмаған тапсырмалар",
+  "submittedTasks": "Жіберілген тапсырмалар",
+  "noActiveAssignments": "Белсенді тапсырмалар жоқ",
+  "noCompletedTasks": "Аяқталған тапсырмалар жоқ",
+  "avgRating": "Орташа баға",
+  "noRating": "Баға жоқ",
+  "task": "Тапсырма",
+  "checked": "Тексерілді",
+  "pending": "Тексерілуі күтілуде",
+  "certificates": "Сертификаттар",
+  "education": "Білім",
+  "languages": "Тілдер",
+  "idLabel": "Шешім ID",
+  "solutionLabel": "Шешім",
+  "statusLabel": "Құрылым"
+}
+
+

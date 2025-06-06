@@ -69,3 +69,192 @@ li {
 .login-btn:hover {
     background-color: rgba(74, 144, 226, 0.4);
 }
+/* Добавьте эти стили в ваш Navbar.css */
+
+.language-selector {
+    position: relative;
+    display: inline-block;
+}
+
+.language-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--secondary-color);
+    border: 1px solid var(--dark-gray);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+    min-width: 80px;
+    height: 36px;
+}
+
+.language-button:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    color: white;
+}
+
+.language-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.2);
+}
+
+.globe-icon {
+    color: var(--secondary-text-color);
+    flex-shrink: 0;
+}
+
+.language-button:hover .globe-icon {
+    color: white;
+}
+
+.current-lang-flag {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.current-lang-code {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.chevron-icon {
+    color: var(--secondary-text-color);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.language-button:hover .chevron-icon {
+    color: white;
+}
+
+.chevron-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.language-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: var(--primary-color);
+    border: 1px solid var(--dark-gray);
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    min-width: 160px;
+    overflow: hidden;
+    animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+.language-option:hover {
+    background: var(--secondary-color);
+}
+
+.language-option.active {
+    background: var(--accent-color);
+    color: white;
+    font-weight: 600;
+}
+
+.language-option.active::after {
+    content: '✓';
+    margin-left: auto;
+    color: white;
+    font-weight: bold;
+}
+
+.lang-flag {
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.lang-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.lang-code {
+    font-size: 12px;
+    color: var(--secondary-text-color);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+.language-option.active .lang-code {
+    color: white;
+    opacity: 1;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .language-button {
+        padding: 6px 10px;
+        min-width: 70px;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .current-lang-flag {
+        font-size: 14px;
+    }
+
+    .language-dropdown {
+        min-width: 140px;
+    }
+
+    .language-option {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .lang-flag {
+        font-size: 16px;
+    }
+}
+
+/* Анимация для плавного появления */
+.language-selector .language-dropdown {
+    transform-origin: top right;
+}
+
+/* Дополнительные стили для интеграции с существующим navbar */
+.nav-right .language-selector {
+    margin-left: 8px;
+}

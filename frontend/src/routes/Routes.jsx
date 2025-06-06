@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-// Страницы
+
 import Home from "../pages/Home";
 import SignIn from "../pages/SingIn";
 import SignUp from "../pages/SignUp";
@@ -13,11 +13,11 @@ import CompanyInfo from "../pages/CompanyPage";
 import CompanyIssue from "../pages/Issue";
 import AdminPanel from "../pages/AdminPanel";
 
-// Контексты и компоненты
+
 import AuthContext from "../contexts/AuthContext";
 import ErrorHandler from "../components/ErrorHandler";
 import AnimatedLoader from "../components/AnimatedLoader";
-import ProtectedRoute from "./ProtectedRoute"; // <-- Добавлено
+import ProtectedRoute from "./ProtectedRoute"; 
 
 export function AppRoutes() {
     const { user, isLoading } = useContext(AuthContext);

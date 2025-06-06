@@ -29,7 +29,8 @@
 body {
   background-color: var(--background-color);
   color: var(--text-color);
-  font-family: Arial, sans-serif;
+  font-family: monospace;
+
 }
 
 /* Кнопки */

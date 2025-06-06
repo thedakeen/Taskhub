@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { Card, List, Avatar, Button, Spin, Alert, Typography, Space, Badge } from 'antd';
 import { TrophyOutlined, StarOutlined, StarFilled, CrownOutlined, GithubOutlined, ReloadOutlined } from '@ant-design/icons';
 import styles from './TopUserRating.module.css';
+import {I18nContext} from "../../contexts/i18nContext";
 
 const { Title, Text, Paragraph } = Typography;
 
-// Компонент для отображения рейтинга звездами
+
 const CustomRate = ({ value, size = 14 }) => {
     const stars = [];
     const rating = parseFloat(value) || 0;
@@ -73,6 +74,8 @@ const TopUsersRating = ({ user }) => {
     const [topUsers, setTopUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isHovered, setIsHovered] = useState(false);
+    const { t } = useContext(I18nContext);
 
     const fetchProfile = async (developerId) => {
         try {
@@ -165,7 +168,7 @@ const TopUsersRating = ({ user }) => {
                 title={
                     <div className={styles.header}>
                         <TrophyOutlined style={{ color: '#faad14' }} />
-                        <Title level={3} style={{ margin: 0, color: 'var(--text-color)' }}>Top Developers</Title>
+                        <Title level={3} style={{ margin: 0, color: 'var(--text-color)' }}>{t('top_developers')}</Title>
                     </div>
                 }
                 className={styles.card}
@@ -190,7 +193,7 @@ const TopUsersRating = ({ user }) => {
             title={
                 <div className={styles.header}>
                     <TrophyOutlined style={{ color: '#faad14' }} />
-                    <Title level={3} style={{ margin: 0, color: 'var(--text-color)' }}>Top Developers</Title>
+                    <Title level={3} style={{ margin: 0, color: 'var(--text-color)' }}>{t('top_developers')}</Title>
                 </div>
             }
             extra={
@@ -199,9 +202,18 @@ const TopUsersRating = ({ user }) => {
                     icon={<ReloadOutlined />}
                     onClick={fetchTopUsers}
                     loading={loading}
-                    style={{ margin: 0, color: 'var(--text-color)' }}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{
+                        margin: 0,
+                        color: isHovered ? 'var(--accent-color)' : 'var(--text-color)',
+                        backgroundColor: isHovered ? 'var(--secondary-color)' : 'transparent',
+                        transition: 'all 0.2s ease',
+                        transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
+                        boxShadow: isHovered ? '0 2px 8px rgba(59, 130, 246, 0.2)' : 'none'
+                    }}
                 >
-                    Update
+                    {t('update')}
                 </Button>
             }
             className={styles.card}
@@ -209,7 +221,7 @@ const TopUsersRating = ({ user }) => {
             <Spin spinning={loading}>
                 {topUsers.length === 0 && !loading ? (
                     <div className={styles.loadingContainer}>
-                        <Text type="secondary">No data to display</Text>
+                        <Text type="secondary">{t('no_data_to_display')}</Text>
                     </div>
                 ) : (
                     <List
@@ -221,7 +233,6 @@ const TopUsersRating = ({ user }) => {
                                     size="small"
                                     className={getCardStyle(index)}
                                     hoverable
-                                    // bodyStyle={{ padding: '16px' }}
                                 >
                                     <List.Item.Meta
                                         avatar={
@@ -250,7 +261,7 @@ const TopUsersRating = ({ user }) => {
                                                     <Text className={styles.userName}>
                                                         {developer.profile?.username ||
                                                             developer.profile?.email ||
-                                                            `Пользователь #${developer.developerId}`}
+                                                            `${t('user')} #${developer.developerId}`}
                                                     </Text>
                                                     {developer.profile?.githubUsername && (
                                                         <Space size={4}>
@@ -283,7 +294,7 @@ const TopUsersRating = ({ user }) => {
                                         </Text>
                                         <br />
                                         <Text className={styles.ratingDisplayLabel}>
-                                            Rating
+                                            {t('rating')}
                                         </Text>
                                     </div>
                                 </Card>

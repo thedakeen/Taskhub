@@ -2,135 +2,67 @@ import React, {useContext} from 'react';
 import { AlertTriangle, Lock, Ban, Server, Wifi, Clock, Shield, X } from 'lucide-react';
 import AuthContext from '../contexts/AuthContext';
 import {useNavigate} from "react-router-dom";
+import {I18nContext} from "../contexts/i18nContext";
 
 const ErrorHandler = ({ error, onClose, isModal = false }) => {
     const { logOut } = useContext(AuthContext);
     const navigate = useNavigate();
+    const { t } = useContext(I18nContext);
 
     const getErrorInfo = (code) => {
         const errorMap = {
             400: {
-                title: 'Bad Request',
-                message: 'Please check your input data and try again',
+                title: t("error.400.title"),
+                message: t("error.400.message"),
                 icon: AlertTriangle,
                 type: 'warning'
-
             },
             401: {
-                title: 'Unauthorized',
-                message: 'You need to log in or re-authenticate to access this resource',
+                title: t("error.401.title"),
+                message: t("error.401.message"),
                 icon: Lock,
                 type: 'info',
             },
             403: {
-                title: 'Forbidden',
-                message: 'You don\'t have permission to perform this action',
+                title: t("error.403.title"),
+                message: t("error.403.message"),
                 icon: Shield,
                 type: 'error'
             },
             404: {
-                title: 'Not Found',
-                message: 'The requested page or resource doesn\'t exist',
+                title: t("error.404.title"),
+                message: t("error.404.message"),
                 icon: Ban,
                 type: 'default'
             },
-            405: {
-                title: 'Method Not Allowed',
-                message: 'The HTTP method used is not supported for this resource',
-                icon: Ban,
-                type: 'warning'
-            },
-            408: {
-                title: 'Request Timeout',
-                message: 'The server didn\'t receive the request within the time limit',
-                icon: Clock,
-                type: 'warning'
-            },
-            409: {
-                title: 'Conflict',
-                message: 'There was a conflict while processing your request',
-                icon: AlertTriangle,
-                type: 'warning'
-            },
-            410: {
-                title: 'Gone',
-                message: 'The requested resource has been permanently deleted',
-                icon: Ban,
-                type: 'default'
-            },
-            413: {
-                title: 'Payload Too Large',
-                message: 'The request data exceeds the maximum allowed size',
-                icon: AlertTriangle,
-                type: 'warning'
-            },
-            422: {
-                title: 'Unprocessable Entity',
-                message: 'The data failed validation on the server',
-                icon: AlertTriangle,
-                type: 'error'
-            },
-            429: {
-                title: 'Too Many Requests',
-                message: 'Rate limit exceeded, please try again later',
-                icon: Clock,
-                type: 'warning'
-            },
-
-            // 5xx Server Errors
             500: {
-                title: 'Internal Server Error',
-                message: 'Something went wrong on the server, please try again later',
+                title: t("error.500.title"),
+                message: t("error.500.message"),
                 icon: Server,
                 type: 'error'
             },
-            501: {
-                title: 'Not Implemented',
-                message: 'The server doesn\'t support this functionality',
-                icon: Server,
-                type: 'default'
-            },
-            502: {
-                title: 'Bad Gateway',
-                message: 'The server received an invalid response from another server',
-                icon: Server,
-                type: 'error'
-            },
-            503: {
-                title: 'Service Unavailable',
-                message: 'The server is temporarily unavailable, please try again later',
-                icon: Server,
-                type: 'warning'
-            },
-            504: {
-                title: 'Gateway Timeout',
-                message: 'The server didn\'t receive a response in time',
-                icon: Clock,
-                type: 'warning'
-            },
-
-            // Network Errors
-            'NETWORK_ERROR': {
-                title: 'Network Error',
-                message: 'Please check your internet connection and try again',
+            NETWORK_ERROR: {
+                title: t("error.network.title"),
+                message: t("error.network.message"),
                 icon: Wifi,
                 type: 'error'
             },
-            'TIMEOUT': {
-                title: 'Request Timeout',
-                message: 'The server is not responding, please try again later',
+            TIMEOUT: {
+                title: t("error.timeout.title"),
+                message: t("error.timeout.message"),
                 icon: Clock,
                 type: 'warning'
             }
         };
 
         return errorMap[code] || {
-            title: 'Unknown Error',
-            message: `An error occurred: ${code}`,
+            title: t("error.default.title"),
+            message: t("error.default.message", { code }),
             icon: AlertTriangle,
             type: 'default'
         };
     };
+
 
     React.useEffect(() => {
         if (!error) return;
@@ -212,7 +144,7 @@ const ErrorHandler = ({ error, onClose, isModal = false }) => {
     const errorInfo = getErrorInfo(errorCode);
     const IconComponent = errorInfo.icon;
 
-    // Стили для модального окна
+    
     const overlayStyle = {
         position: 'fixed',
         top: 0,
@@ -236,7 +168,7 @@ const ErrorHandler = ({ error, onClose, isModal = false }) => {
         ...getContainerStyle(errorInfo.type)
     };
 
-    // Обычные стили для inline использования
+    
     const inlineContainerStyle = {
         padding: '16px',
         borderRadius: '8px',
@@ -293,7 +225,7 @@ const ErrorHandler = ({ error, onClose, isModal = false }) => {
         ...getCodeStyle(errorInfo.type)
     };
 
-    // Контент ошибки
+    
     const errorContent = (
         <div style={isModal ? modalContainerStyle : inlineContainerStyle}>
             {onClose && (
@@ -323,7 +255,7 @@ const ErrorHandler = ({ error, onClose, isModal = false }) => {
         </div>
     );
 
-    // Если модальное окно - оборачиваем в overlay
+    
     if (isModal) {
         return (
             <div
@@ -339,7 +271,7 @@ const ErrorHandler = ({ error, onClose, isModal = false }) => {
         );
     }
 
-    // Обычное inline отображение
+    
     return errorContent;
 };
 

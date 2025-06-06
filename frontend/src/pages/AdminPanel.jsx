@@ -5,7 +5,6 @@ import AuthContext from "../contexts/AuthContext";
 import useCompanies from "../hooks/useCompanies";
 
 
-// Компонент уведомления
 const Notification = ({ show, message, type }) => {
     if (!show) return null;
 
@@ -21,7 +20,7 @@ const Notification = ({ show, message, type }) => {
     );
 };
 
-// Компонент поиска
+
 const SearchBar = ({ value, onChange }) => {
     return (
         <div className={styles.searchContainer}>
@@ -37,8 +36,8 @@ const SearchBar = ({ value, onChange }) => {
     );
 };
 
-// Компонент таблицы пользователей
-// Компонент таблицы пользователей
+
+
 const UsersTable = ({ users, onUserUpdate }) => {
     return (
         <div className={styles.tableContainer}>
@@ -56,7 +55,7 @@ const UsersTable = ({ users, onUserUpdate }) => {
                 </thead>
                 <tbody className={styles.tableBody}>
                 {users.map(user => (
-                    <UserTableRow key={user.id} user={user} onUserUpdate={onUserUpdate} />
+                    <UserTableRow key={user.id} currUser={user} onUserUpdate={onUserUpdate} />
                 ))}
                 </tbody>
             </table>
@@ -64,7 +63,7 @@ const UsersTable = ({ users, onUserUpdate }) => {
     );
 };
 
-// Компонент пагинации
+
 const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageChange }) => {
     const indexOfFirstItem = (currentPage - 1) * itemsPerPage + 1;
     const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalItems);
@@ -112,28 +111,30 @@ const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
     );
 };
 
-const UserTableRow = ({ user, onUserUpdate }) => {
+const UserTableRow = ({ currUser, onUserUpdate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const {user} = useContext(AuthContext);
 
     const handleSave = async (userId, data) => {
         try {
-            const token = localStorage.getItem('token');
             const response = await fetch(`/admin/update-user-role/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${user.token}`
                 },
                 body: JSON.stringify(data),
             });
 
             if (!response.ok) {
-                throw new Error('Ошибка при обновлении роли');
+                throw new Error('Ошибка при обновлении роли' + response);
             }
 
-            // Обновляем данные в родительском компоненте
+            
             onUserUpdate(userId, data);
             setIsModalOpen(false);
+            window.location.reload();
+
         } catch (error) {
             console.error('Error:', error);
             throw error;
@@ -143,16 +144,16 @@ const UserTableRow = ({ user, onUserUpdate }) => {
     return (
         <>
             <tr className={styles.tableRow}>
-                <td className={styles.tableCell}>{user.id}</td>
-                <td className={`${styles.tableCell} text-blue-500 font-medium`}>{user.username}</td>
-                <td className={styles.tableCell}>{user.email}</td>
-                <td className={styles.tableCell}>{user.role}</td>
-                <td className={styles.tableCell}>{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td className={styles.tableCell}>{currUser.id}</td>
+                <td className={`${styles.tableCell} text-blue-500 font-medium`}>{currUser.username}</td>
+                <td className={styles.tableCell}>{currUser.email}</td>
+                <td className={styles.tableCell}>{currUser.role}</td>
+                <td className={styles.tableCell}>{new Date(currUser.createdAt).toLocaleDateString()}</td>
                 <td className={styles.tableCell}>
                     <span className={`${styles.statusBadge} ${
-                        user.activated ? styles.statusAdmin : styles.statusUser
+                        currUser.activated ? styles.statusAdmin : styles.statusUser
                     }`}>
-                        {user.activated ? 'Активирован' : 'Не активирован'}
+                        {currUser.activated ? 'Активирован' : 'Не активирован'}
                     </span>
                 </td>
                 <td className={styles.tableCell}>
@@ -172,7 +173,7 @@ const UserTableRow = ({ user, onUserUpdate }) => {
 
             {isModalOpen && (
                 <UserEditModal
-                    user={user}
+                    currUser={currUser}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleSave}
                 />
@@ -181,35 +182,37 @@ const UserTableRow = ({ user, onUserUpdate }) => {
     );
 };
 
-const UserEditModal = ({ user, onClose }) => {
-    const [role, setRole] = useState(user.role);
-    const [companyId, setCompanyId] = useState(user.companyId || 0);
+const UserEditModal = ({ currUser, onClose }) => {
+    // const [role, setRole] = useState(currUser.role);
+    const {user} = useContext(AuthContext);
+    const [companyId, setCompanyId] = useState(currUser?.companyId || 0);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { token } = useContext(AuthContext); // или пробрось token через props
+    const { token } = useContext(AuthContext); 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+
         try {
-            const response = await fetch(`http://localhost:8090/admin/update-user-role/${user.id}`, {
+            const response = await fetch(`http://localhost:8090/admin/update-user-role/${currUser.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${user.token}`
                 },
                 body: JSON.stringify({ companyId, role:"company" })
             });
 
-            console.log(response)
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || `Ошибка: ${response.status}`);
             }
 
-            const result = await response.json();
-            console.log('Роль пользователя обновлена:', result);
             onClose();
+            window.location.reload();
+
         } catch (err) {
             console.error('Ошибка при обновлении роли пользователя:', err.message);
         } finally {
@@ -256,7 +259,7 @@ const UserEditModal = ({ user, onClose }) => {
 };
 
 
-const CompaniesTable = ({ companies, onCompanyUpdate }) => {
+const CompaniesTable = ({ companies }) => {
     return (
         <div className={styles.tableContainer}>
             <table className={styles.table}>
@@ -272,7 +275,7 @@ const CompaniesTable = ({ companies, onCompanyUpdate }) => {
                 </thead>
                 <tbody className={styles.tableBody}>
                 {companies.map(company => (
-                    <CompanyTableRow key={company.companyId} company={company} onCompanyUpdate={onCompanyUpdate} />
+                    <CompanyTableRow key={company.companyId} company={company}  />
                 ))}
                 </tbody>
             </table>
@@ -280,17 +283,17 @@ const CompaniesTable = ({ companies, onCompanyUpdate }) => {
     );
 };
 
-const CompanyTableRow = ({ company, onCompanyUpdate }) => {
+const CompanyTableRow = ({ company }) => {
+    const {user} = useContext(AuthContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleSave = async (companyId, data) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/admin/update-company/${companyId}`, {
+            const response = await fetch(`http://localhost:8090/admin/update-company/${companyId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer `
                 },
                 body: JSON.stringify(data),
             });
@@ -299,8 +302,9 @@ const CompanyTableRow = ({ company, onCompanyUpdate }) => {
                 throw new Error('Ошибка при обновлении компании');
             }
 
-            onCompanyUpdate(companyId, data);
             setIsModalOpen(false);
+            window.location.reload();
+
         } catch (error) {
             console.error('Error:', error);
             throw error;
@@ -429,7 +433,7 @@ const CompanyEditModal = ({ company, onClose, onSave }) => {
     );
 };
 
-// Главный компонент админ-панели
+
 const AdminPanel = () => {
     const [users, setUsers] = useState([]);
     const { companies } = useCompanies();
@@ -440,11 +444,15 @@ const AdminPanel = () => {
     const [searchText, setSearchText] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [notification, setNotification] = useState({show: false, message: "", type: ""});
-    const [activeTab, setActiveTab] = useState('users');
+    const [activeTab, setActiveTab] = useState(
+        localStorage.getItem('adminPanelActiveTab') || 'users'
+    );
 
     const itemsPerPage = 5;
 
-    // Обработчики обновления данных
+    useEffect(() => {
+        localStorage.setItem('adminPanelActiveTab', activeTab);
+    }, [activeTab]);
     const handleUserUpdate = (userId, newData) => {
         setUsers(prevUsers =>
             prevUsers.map(user =>
@@ -459,16 +467,11 @@ const AdminPanel = () => {
         showNotification('Роль пользователя успешно обновлена', 'success');
     };
 
-
-
-    // Загрузка данных с сервера
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const token = localStorage.getItem('token');
-
-                // Загрузка пользователей
                 const usersResponse = await fetch('http://localhost:8090/admin', {
                     headers: {
                         'Content-Type': 'application/json',
@@ -494,7 +497,7 @@ const AdminPanel = () => {
         fetchData();
     }, []);
 
-    // Фильтрация по поисковому запросу
+    
     useEffect(() => {
         if (activeTab === 'users') {
             const filtered = users.filter(user =>
@@ -512,23 +515,21 @@ const AdminPanel = () => {
     useEffect(() => {
         const loadAllData = async () => {
             if (companies.length > 0) {
-                console.log('Начинаю загружать подробности...');
 
                 const fullData = await Promise.all(
                     companies.map(async (company) => {
                         const details = await fetchFullCompanyData(company.companyId);
-                        return { ...company, ...details }; // Объединяем краткие и полные данные
+                        return { ...company, ...details }; 
                     })
                 );
 
-                setFullCompanies(fullData.filter(Boolean)); // Отфильтруем null
-                console.log('Все данные загружены!', fullData);
+                setFullCompanies(fullData.filter(Boolean)); 
             }
         };
 
         loadAllData();
-    }, [companies, searchText]);  // Добавляем searchText в зависимости
-    // Показать уведомление
+    }, [companies, searchText]);  
+    
     const showNotification = (message, type = "info") => {
         setNotification({show: true, message, type});
         setTimeout(() => {
@@ -538,16 +539,21 @@ const AdminPanel = () => {
 
     const fetchFullCompanyData = async (companyId) => {
         try {
-            const response = await fetch(`http://localhost:8082/v1/companies/${companyId}`);
+            const response = await fetch(`http://localhost:8082/v1/companies/${companyId}`,{
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user?.token}`
+                }
+            });
             if (!response.ok) throw new Error('Ошибка загрузки');
-            return await response.json(); // Это как открыть коробку и увидеть все детали
+            return await response.json(); 
         } catch (error) {
             console.error(`Не получилось загрузить компанию ${companyId}:`, error);
             return null;
         }
     };
 
-    // Пагинация
+    
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
@@ -646,7 +652,7 @@ const AdminPanel = () => {
                                     ) : (
                                         <>
                                             <CompaniesTable
-                                                companies={currentCompanies}  // Используем currentCompanies
+                                                companies={currentCompanies}  
                                             />
 
                                             {totalPages > 1 && (

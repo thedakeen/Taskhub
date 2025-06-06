@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from "../components/navbar/Navbar";
-import Footer from "../components/footer/Footer";
+import Footer from "../components/Footer";
 import AuthContext from "../contexts/AuthContext";
 import style from "../styles/LoginSignup.module.css";
+import { I18nContext } from '../contexts/i18nContext';  // <-- импорт контекста локализации
 
 const SignUp = () => {
     const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ const SignUp = () => {
     const [error, setError] = useState('');
     const { signUp, verificationCodeSent } = useContext(AuthContext);
     const navigate = useNavigate();
+    const { t } = useContext(I18nContext);  // функция для перевода из контекста
 
     useEffect(() => {
         if (verificationCodeSent) {
@@ -23,17 +25,15 @@ const SignUp = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (password !== repeatPassword) {
-            setError("Passwords do not match.");
+            setError(t('passwords_do_not_match'));
             return;
         }
         if (password.length < 6) {
-            setError("Password must be at least 6 characters long.");
+            setError(t('password_too_short'));
             return;
         }
         setError('');
         const result = await signUp(email, password, username);
-
-        console.log(result+ " result");
         if (result.success) {
             navigate('/login');
         } else {
@@ -41,24 +41,20 @@ const SignUp = () => {
         }
     };
 
-
-
     return (
         <div>
             <Navbar />
             <div className={style.login_container}>
-                <h1>Fill out the form</h1>
+                <h1>{t('fill_form')}</h1>
                 <div className={style.login_body}>
-
                     <form onSubmit={handleSubmit}>
                         {error && <div className={style.error_message}>{error}</div>}
-
                         <input
                             type="text"
                             value={email}
                             name="email"
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Email"
+                            placeholder={t('email')}
                             required
                         />
                         <input
@@ -66,7 +62,7 @@ const SignUp = () => {
                             value={username}
                             name="username"
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Username"
+                            placeholder={t('username')}
                             required
                         />
                         <input
@@ -74,7 +70,7 @@ const SignUp = () => {
                             value={password}
                             name="password"
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
+                            placeholder={t('password')}
                             required
                         />
                         <input
@@ -82,13 +78,17 @@ const SignUp = () => {
                             value={repeatPassword}
                             name="repeatPassword"
                             onChange={(e) => setRepeatPassword(e.target.value)}
-                            placeholder="Repeat Password"
+                            placeholder={t('repeat_password')}
                             required
                         />
-                        <button type="submit">Sign Up</button>
+                        <button type="submit">{t('sign_up')}</button>
                         <div className={style.login_footer}>
-                            <Link to="/signIn" className={style.sign_in}>Sign In</Link>
-                            <Link to="/forgot-password" className={style.forgot_password}>Forgot your password?</Link>
+                            <Link to="/signIn" className={style.sign_in}>
+                                {t('sign_in')}
+                            </Link>
+                            <Link to="/forgot-password" className={style.forgot_password}>
+                                {t('forgot_password')}
+                            </Link>
                         </div>
                     </form>
                 </div>

@@ -15,7 +15,7 @@ const exchangeCodeForToken = async (code) => {
     }
 };
 
-// Получаем код из URL
+
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
 

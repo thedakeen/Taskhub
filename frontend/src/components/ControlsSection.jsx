@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Button, Tooltip, Space, Select} from 'antd';
 import {
     CodeOutlined,
@@ -11,6 +11,7 @@ import {
     CloudUploadOutlined
 } from '@ant-design/icons';
 import styles from "../styles/CompanyIssue.module.css";
+import {I18nContext} from "../contexts/i18nContext";
 const { Option } = Select;
 
 
@@ -29,6 +30,8 @@ const ControlsSection = ({
                              submitError,
                              submitSuccess
                          }) => {
+    const { t } = useContext(I18nContext);
+
     return (
         <div className={styles.editorHeader}>
             <div className={styles.languageSelector}>
@@ -55,31 +58,31 @@ const ControlsSection = ({
                         Solution submitted successfully.
                     </div>
                 )}
-                <Tooltip title="Formate code">
+                <Tooltip title={t('format_code')}>
                     <Button
                         icon={<FormatPainterOutlined/>}
                         onClick={formatCode}
                     />
                 </Tooltip>
-                <Tooltip title="Change theme">
+                <Tooltip title={t('change_theme')}>
                     <Button
                         icon={<BulbOutlined/>}
                         onClick={toggleEditorTheme}
                     />
                 </Tooltip>
-                <Tooltip title="Download code">
+                <Tooltip title={t('download_code')}>
                     <Button
                         icon={<DownloadOutlined/>}
                         onClick={downloadCode}
                     />
                 </Tooltip>
-                <Tooltip title={isFullscreenEditor ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}>
+                <Tooltip title={isFullscreenEditor ? t('exit_full_screen') : t('full_screen')}>
                     <Button
                         icon={isFullscreenEditor ? <FullscreenExitOutlined/> : <FullscreenOutlined/>}
                         onClick={toggleFullscreen}
                     />
                 </Tooltip>
-                <Tooltip title="Run code">
+                <Tooltip title={t('run_code')}>
                     <Button
                         type="primary"
                         icon={<PlayCircleOutlined/>}
@@ -89,7 +92,7 @@ const ControlsSection = ({
                         Run
                     </Button>
                 </Tooltip>
-                <Tooltip title="Subbmit solution">
+                <Tooltip title={t('submit_solution')}>
                     <Button
                         type="primary"
                         icon={<CloudUploadOutlined/>}
@@ -97,7 +100,7 @@ const ControlsSection = ({
                         onClick={handleSubmitSolution}
                         loading={submitting}
                     >
-                        {submitting ? 'Отправка...' : 'Submit'}
+                        {submitting ? t('sending') : t('submit')}
                     </Button>
                 </Tooltip>
             </Space>

@@ -1,11 +1,13 @@
-// StatusSection.jsx
-import React from 'react';
+import React, { useContext } from 'react';
 import { Typography, Divider } from 'antd';
 import styles from "../styles/CompanyIssue.module.css";
+import { I18nContext } from "../contexts/i18nContext";
 
 const { Text } = Typography;
 
 const StatusSection = ({ issue, submitError }) => {
+    const { t } = useContext(I18nContext);
+
     const getStatusBadgeClass = (status) => {
         if (!status) return styles.statusPending;
 
@@ -19,12 +21,17 @@ const StatusSection = ({ issue, submitError }) => {
         }
     };
 
+    const getLocalizedStatus = (status) => {
+        if (!status) return t('status_waiting');
+        return t(`status_${status.toLowerCase().replace(/\s+/g, '_')}`, status);
+    };
+
     return (
         <div className={styles.issueHeader}>
             <h1 className={styles.issueTitle}>{issue.title}</h1>
             <div className={styles.issueInfo}>
                 <span className={`${styles.statusBadge} ${getStatusBadgeClass(issue.assignmentStatus)}`}>
-                    Status: {issue.assignmentStatus || "Waiting for processing"}
+                    {t('status')}: {getLocalizedStatus(issue.assignmentStatus)}
                 </span>
                 {submitError && (
                     <div className={styles.errorMessage}>

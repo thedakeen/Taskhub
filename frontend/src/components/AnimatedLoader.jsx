@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const AnimatedLoader = () => {
     const [currentStep, setCurrentStep] = useState(0);
 
-    // Массив кружков с их координатами и идентификаторами
     const circles = [
         { id: 'top', cx: 170.782, cy: 40.2393, r: 40 },
         { id: 'topRight', cx: 301.782, cy: 115.239, r: 40 },
@@ -24,7 +23,6 @@ const AnimatedLoader = () => {
     }, []);
 
     const getCircleOpacity = (index) => {
-        // Создаем волновой эффект - текущий круг яркий, соседние тусклые
         const distance = Math.min(
             Math.abs(index - currentStep),
             circles.length - Math.abs(index - currentStep)
@@ -50,8 +48,8 @@ const AnimatedLoader = () => {
     return (
         <div style={{
             display: "flex",
-            justifyContent: "center", // центр по горизонтали
-            alignItems: "center",     // центр по вертикали
+            justifyContent: "center",
+            alignItems: "center",
         }}>            {/* Основной контейнер */}
             <div style={{margin: "auto"}}>
                 {/* Заголовок */}

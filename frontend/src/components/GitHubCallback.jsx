@@ -2,15 +2,17 @@ import React, {useContext, useEffect, useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AuthContext from "../contexts/AuthContext";
+import {I18nContext} from "../contexts/i18nContext";
 
 const GitHubCallback = () => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
-    const isRequestSent = useRef(false); // Флаг для предотвращения двойного запроса
+    const isRequestSent = useRef(false);
+    const { t } = useContext(I18nContext);
 
     useEffect(() => {
-        if (isRequestSent.current) return; // Если запрос уже отправлялся, выходим
-        isRequestSent.current = true; // Устанавливаем флаг
+        if (isRequestSent.current) return; 
+        isRequestSent.current = true; 
 
         const query = new URLSearchParams(window.location.search);
         const githubCode = query.get("code");
@@ -57,7 +59,7 @@ const GitHubCallback = () => {
         }
     }, [navigate]);
 
-    return <p>Processing GitHub authorization...</p>;
+    return <p>{t("processing_github_auth")}</p>;
 };
 
 export default GitHubCallback;

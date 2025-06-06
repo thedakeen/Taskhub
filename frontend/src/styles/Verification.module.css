@@ -79,6 +79,9 @@
     display: flex;
     flex-direction: column;
 }
+.icons{
+
+}
 
 /* Кнопка подтверждения */
 .button {
