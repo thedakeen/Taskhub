@@ -120,7 +120,7 @@ const Home = () => {
                         </svg>
                         <div className={styles.aboutText}>
                             <div className={styles.titleRight}>
-                                <svg width="5rem" height="5rem" viewBox="0 0 1024 1024" className={styles.Icon} version="1.1"
+                                <svg width="5rem" height="5rem" viewBox="0 0 1024 1024" className={styles.miniIcon} version="1.1"
                                      xmlns="http://www.w3.org/2000/svg" fill="#000000">
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -201,7 +201,7 @@ const Home = () => {
                     <div className={styles.aboutContainer}>
                         <div className={styles.aboutText}>
                             <div className={styles.titleLeft}>
-                                <svg width="5rem" height="5rem" viewBox="0 0 1024 1024" className={styles.Icon}
+                                <svg width="5rem" height="5rem" viewBox="0 0 1024 1024" className={styles.miniIcon}
                                      style={{position: 'absolute', zIndex: 1, paddingRight: "2rem"}} version="1.1"
                                      xmlns="http://www.w3.org/2000/svg" fill="#000000">
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -267,7 +267,7 @@ const Home = () => {
                                             fill="#E19C49"></path>
                                     </g>
                                 </svg>
-                                <svg width="5rem" height="5rem" viewBox="0 0 1024 1024" className={styles.Icon} version="1.1"
+                                <svg width="5rem" height="5rem" viewBox="0 0 1024 1024" className={styles.miniIcon} version="1.1"
                                      xmlns="http://www.w3.org/2000/svg" fill="#000000"
                                      style={{position: 'absolute', zIndex: 1}}>
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>

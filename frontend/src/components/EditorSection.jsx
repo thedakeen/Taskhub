@@ -109,7 +109,7 @@ const EditorSection = ({
                 </div>
 
                 <div className={styles.console}>
-                    {consoleOutput.length > 0 ? (
+                    {consoleOutput?.length > 0 ? (
                         consoleOutput.map((log, index) => (
                             <div key={index} className={styles.consoleLine}>
                                 <span className={styles.consolePrompt}>&gt;</span> {log}

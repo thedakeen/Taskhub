@@ -471,8 +471,6 @@ const AdminPanel = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log(`${process.env.REACT_APP_ADMIN_SERVICE_API_URL}/admin`);
-                console.log(`/asdasdadmin`);
                 setLoading(true);
                 const usersResponse = await fetch(`${process.env.REACT_APP_ADMIN_SERVICE_API_URL}/admin`, {
                     headers: {

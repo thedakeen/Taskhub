@@ -5,21 +5,22 @@ import SolutionSection from "../components/SolutionSection";
 import AuthContext from "../contexts/AuthContext";
 import styles from "../styles/CompanyIssue.module.css";
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Layout, Typography, Select, Divider, message } from 'antd';
+import { Layout, Typography, Select, Divider, message, Alert } from 'antd';
+import { MobileOutlined, DesktopOutlined } from '@ant-design/icons';
 import EditorSection from "../components/EditorSection";
 import ControlsSection from "../components/ControlsSection";
 import StatusSection from "../components/StatusSection";
 import TaskDescriptionSection from "../components/TaskDescriptionSection";
 import ErrorHandler from "../components/ErrorHandler";
 import AnimatedLoader from "../components/AnimatedLoader";
-
+import {I18nContext} from "../contexts/i18nContext";
 
 const { Content, Sider } = Layout;
-const {Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 const CompanyIssue = () => {
-    const {issueId} = useParams();
+    const { issueId } = useParams();
     const [issue, setIssue] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -28,11 +29,14 @@ const CompanyIssue = () => {
     const [submitting, setSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [submitError, setSubmitError] = useState(null);
-    const {user} = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const [userData, setUserData] = useState(null);
     const [solution, setSolution] = useState(null);
+    const { t } = useContext(I18nContext);
 
-    
+    // Mobile detection
+    const [isMobile, setIsMobile] = useState(false);
+
     const [selectedLanguage, setSelectedLanguage] = useState('javascript');
     const [code, setCode] = useState('');
     const [isFullscreenEditor, setIsFullscreenEditor] = useState(false);
@@ -40,13 +44,11 @@ const CompanyIssue = () => {
     const [consoleOutput, setConsoleOutput] = useState([]);
     const [consoleError, setConsoleError] = useState(null);
     const [isRunning, setIsRunning] = useState(false);
-    const [editorTheme, setEditorTheme] = useState('vs-dark'); 
+    const [editorTheme, setEditorTheme] = useState('vs-dark');
     const containerRef = useRef(null);
 
-    
     const editorRef = useRef(null);
 
-    
     const [isResizing, setIsResizing] = useState(false);
     const [startX, setStartX] = useState(0);
     const [startWidth, setStartWidth] = useState(0);
@@ -92,12 +94,29 @@ int main() {
 }`,
     };
 
-    
     const editorThemes = [
-        {value: 'vs', label: 'Light'},
-        {value: 'vs-dark', label: 'Dark'},
-        {value: 'hc-black', label: 'High Contrast'}
+        { value: 'vs', label: 'Light' },
+        { value: 'vs-dark', label: 'Dark' },
+        { value: 'hc-black', label: 'High Contrast' }
     ];
+
+    // Mobile detection effect
+    useEffect(() => {
+        const checkIsMobile = () => {
+            const userAgent = navigator.userAgent;
+            const mobileKeywords = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+            const screenWidth = window.innerWidth;
+
+            // Проверяем и User Agent и ширину экрана
+            const isMobileDevice = mobileKeywords.test(userAgent) || screenWidth <= 768;
+            setIsMobile(isMobileDevice);
+        };
+
+        checkIsMobile();
+        window.addEventListener('resize', checkIsMobile);
+
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -113,7 +132,7 @@ int main() {
                 );
 
                 if (!issueResponse.ok) {
-                    setError(issueResponse.status); 
+                    setError(issueResponse.status);
                     return;
                 }
 
@@ -131,8 +150,7 @@ int main() {
 
             } catch (err) {
                 console.error("Ошибка получения данных:", err);
-
-               setError(err);
+                setError(err);
             } finally {
                 setLoading(false);
             }
@@ -172,7 +190,6 @@ int main() {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-
                 const response = await fetch(
                     `${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/api/me`,
                     {
@@ -197,14 +214,12 @@ int main() {
         };
 
         fetchUserData()
-    }, [user]); 
+    }, [user]);
 
-    
     useEffect(() => {
         const handleMouseMove = (e) => {
             if (!isResizing) return;
 
-            
             if (resizeTimeoutRef.current) {
                 clearTimeout(resizeTimeoutRef.current);
             }
@@ -212,11 +227,9 @@ int main() {
             resizeTimeoutRef.current = setTimeout(() => {
                 const containerWidth = document.body.clientWidth;
                 const newWidth = startWidth + ((e.clientX - startX) / containerWidth * 100);
-
-                
                 const boundedWidth = Math.min(Math.max(newWidth, 20), 80);
                 setEditorWidth(boundedWidth);
-            }, 16); 
+            }, 16);
         };
 
         const handleMouseUp = () => {
@@ -247,18 +260,16 @@ int main() {
     useEffect(() => {
         const resizeEditor = () => {
             if (editorRef.current && containerRef.current) {
-                const {width, height} = containerRef.current.getBoundingClientRect();
-                editorRef.current.layout({width, height});
+                const { width, height } = containerRef.current.getBoundingClientRect();
+                editorRef.current.layout({ width, height });
             }
         };
 
         window.addEventListener('resize', resizeEditor);
-        
         setTimeout(resizeEditor, 300);
 
         return () => window.removeEventListener('resize', resizeEditor);
     }, []);
-
 
     const handleLanguageChange = (value) => {
         setSelectedLanguage(value);
@@ -275,7 +286,6 @@ int main() {
         setIsFullscreenEditor(!isFullscreenEditor);
     };
 
-    
     const toggleEditorTheme = () => {
         setEditorTheme(prevTheme => {
             if (prevTheme === 'vs-dark') return 'vs';
@@ -285,6 +295,11 @@ int main() {
     };
 
     const handleSubscribe = async () => {
+        if (isMobile) {
+            message.warning("Решение задач недоступно на мобильных устройствах. Пожалуйста, используйте компьютер.");
+            return;
+        }
+
         try {
             const response = await fetch(
                 `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/issues/${issueId}`,
@@ -321,6 +336,11 @@ int main() {
     };
 
     const handleSubmitSolution = async () => {
+        if (isMobile) {
+            message.warning("Отправка решений недоступна на мобильных устройствах. Пожалуйста, используйте компьютер.");
+            return;
+        }
+
         if (!code.trim()) {
             setSubmitError("Пожалуйста, введите решение");
             message.error("Пожалуйста, введите решение");
@@ -343,7 +363,7 @@ int main() {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,
-                    'Content-Type': 'application/json', 
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(code)
             });
@@ -377,7 +397,6 @@ int main() {
 
     const formatCode = () => {
         if (editorRef.current) {
-            
             const formatAction = editorRef.current.getAction('editor.action.formatDocument');
             if (formatAction) {
                 formatAction.run().then(() => {
@@ -392,8 +411,12 @@ int main() {
         }
     };
 
-
     const runCode = () => {
+        if (isMobile) {
+            message.warning("Запуск кода недоступен на мобильных устройствах. Пожалуйста, используйте компьютер.");
+            return;
+        }
+
         setIsRunning(true);
         setConsoleOutput([]);
         setConsoleError(null);
@@ -404,8 +427,7 @@ int main() {
                 const originalConsole = window.console;
                 const safeConsole = {
                     error: (...args) => {
-                        logs.push(`Error: ${args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg))
-                        }.join(' ')}`);
+                        logs.push(`Error: ${args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg))}.join(' ')}`);
                         originalConsole.error(...args);
                     },
                     info: (...args) => {
@@ -422,8 +444,7 @@ int main() {
                     },
                     warn: (...args) => {
                         logs.push(`Warning: ${args.map(arg =>
-                            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg))
-                        }.join(' ')}`);
+                            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg))}.join(' ')}`);
                         originalConsole.warn(...args);
                     }
                 };
@@ -448,11 +469,11 @@ int main() {
                     eval(wrappedCode);
                     window.console = originalConsole;
 
-                    if (logs.length === 0) {
+                    if (logs && logs.length === 0) {
                         logs.push("Код выполнен (нет вывода в консоль)");
                     }
 
-                    setConsoleOutput(logs);
+                    setConsoleOutput(logs || []);
                 } else {
                     setConsoleOutput([
                         `Выполнение кода на языке ${selectedLanguage}...`,
@@ -491,6 +512,11 @@ int main() {
     };
 
     const downloadCode = () => {
+        if (isMobile) {
+            message.warning("Скачивание кода недоступно на мобильных устройствах. Пожалуйста, используйте компьютер.");
+            return;
+        }
+
         const fileExtensions = {
             javascript: 'js',
             python: 'py',
@@ -501,7 +527,7 @@ int main() {
         const extension = fileExtensions[selectedLanguage] || 'txt';
         const filename = `solution.${extension}`;
 
-        const blob = new Blob([code], {type: 'text/plain'});
+        const blob = new Blob([code], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
@@ -528,29 +554,45 @@ int main() {
     if (loading) {
         return (
             <>
-                <Navbar/>
+                <Navbar />
                 <div className={styles.loadingContainer}>
                     <AnimatedLoader
                         isLoading={user}
                         onComplete={() => console.log('Загрузка завершена!')}
                     />
                 </div>
-                <Footer/>
+                <Footer />
             </>
         );
     }
 
-
+    // Mobile Warning Alert
+    const mobileAlert = isMobile && userData?.role !== "company" && (
+        <Alert
+            message={t('strC')}
+            description={
+                <div>
+                    <p style={{color: "black"}}><MobileOutlined  style={{color: "black"}}/>{t('strA')}</p>
+                    <p style={{color: "black"}}><DesktopOutlined style={{color: "black"}}/> {t('strB')}</p>
+                </div>
+            }
+            type="info"
+            showIcon
+            style={{ margin: '16px', borderRadius: '8px' }}
+            closable
+        />
+    );
 
     return (
         <>
-            <Navbar/>
+            <Navbar />
+            {mobileAlert}
             <Layout className={styles.layoutContainer}>
-                {isSubscribed && (
+                {isSubscribed && !isMobile && (
                     <>
                         <Content
                             className={styles.editorContent}
-                            style={{width: `${editorWidth}%`}}
+                            style={{ width: `${editorWidth}%` }}
                         >
                             <ControlsSection
                                 selectedLanguage={selectedLanguage}
@@ -588,15 +630,13 @@ int main() {
 
                 <Sider
                     className={styles.taskSider}
-                    width={isSubscribed ? `calc(100% - ${editorWidth}% - 10px)` : '100%'}
-                    style={{display: isFullscreenEditor ? 'none' : 'block'}}
+                    width={isSubscribed && !isMobile ? `calc(100% - ${editorWidth}% - 10px)` : '100%'}
+                    style={{ display: isFullscreenEditor ? 'none' : 'block' }}
                 >
-                    {userData?.role !== "company" ?
-                        (<StatusSection issue={issue} submitError={submitError}/>)
-                        :
-                        (<></>)
-                    }
-                    <Divider/>
+                    {userData?.role !== "company" && (
+                        <StatusSection issue={issue} submitError={submitError} />
+                    )}
+                    <Divider />
 
                     {!userData ? (
                         <div className={styles.userDataLoading}>
@@ -608,31 +648,33 @@ int main() {
                         </div>
                     ) : (
                         <>
-                            {userData?.role === "company" ? ( 
+                            {userData?.role === "company" ? (
                                 <SolutionSection
                                     issueId={issueId}
                                     userData={userData}
                                     solution={solution}
                                     isSubscribed={isSubscribed}
                                     issue={issue}
-                                    handleSubscribe={handleSubscribe}/>
+                                    handleSubscribe={handleSubscribe}
+                                />
                             ) : (
                                 <>
-                                    <TaskDescriptionSection issue={issue}/>
+                                    <TaskDescriptionSection issue={issue} />
                                     <SolutionSection
                                         issueId={issueId}
                                         userData={userData}
                                         solution={solution}
                                         isSubscribed={isSubscribed}
                                         issue={issue}
-                                        handleSubscribe={handleSubscribe}/>
+                                        handleSubscribe={handleSubscribe}
+                                    />
                                 </>
                             )}
                         </>
                     )}
                 </Sider>
             </Layout>
-            <Footer/>
+            <Footer />
         </>
     );
 };

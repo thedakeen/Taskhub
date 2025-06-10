@@ -8,8 +8,8 @@
     padding: 20px;
 }
 .login_container h1{
+    text-align: center;
     color: var(--accent-color);
-
 }
 .login_body{
 max-width: 100%;

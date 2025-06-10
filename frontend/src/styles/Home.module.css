@@ -83,9 +83,11 @@
     }
 
     .aboutText {
+        text-align: center;
         width: 50%;
     }
     .aboutTitle {
+        text-align: center;
         padding-right: 0;
         padding-left: 0;
     }
@@ -96,6 +98,7 @@
     font-weight: bold;
     padding-right: 8rem;
     padding-left: 1rem;
+    text-align: center;
 }
 .titleRight{
     display: flex;
@@ -111,6 +114,8 @@
 .aboutDescription {
     font-size: 1.125rem;
     padding: 2rem;
+    text-align: center;
+
 }
 
 .aboutImage {
@@ -127,8 +132,9 @@
     .aboutImage {
         width: 50%;
     }
-
-
+    .aboutDescription{
+        text-align: left;
+    }
 
     .rotatedIcon{
         display: block;
@@ -189,7 +195,7 @@
     display: flex;
     align-items: center; /* Центрируем карточки по вертикали */
     justify-content: center; /* Если нужно центрировать по горизонтали */
-    width: auto; /* Автоширина для адаптации под контент */
+    width: 60%; /* Автоширина для адаптации под контент */
     animation: scroll 20s linear infinite;
     gap: 1rem; /* Добавляет отступы между карточками */
 
