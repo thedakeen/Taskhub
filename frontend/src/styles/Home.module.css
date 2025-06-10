@@ -15,7 +15,7 @@
 }
 
 .heroTitle {
-    font-size: 9rem;
+    font-size: 3rem;
     font-weight: bold;
     color: var(--accent-color);
     margin-top: 0;
@@ -54,13 +54,13 @@
     background: var(--background-color);
 
     height: 100%;
-    width: 70%;
+    width: 100%;
     margin: 0 auto;
 }
 
 @media (min-width: 768px) {
     .heroTitle {
-        font-size: 3rem;
+        font-size: 9rem;
     }
     .ratingSection {
         height: 100%;
