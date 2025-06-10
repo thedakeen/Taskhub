@@ -49,8 +49,6 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             let errorMessage = "Ошибка при входе в систему";
 
-            console.log(error.response.data.message +" status amodus");
-            
             if (error.response) {
                 
                 if(error.response.status === 400){
