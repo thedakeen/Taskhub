@@ -42,21 +42,30 @@
     justify-content: space-between;
     color: var(--accent-color);
     flex-direction: column;
-    /* Убираем margin, так как центрирование обеспечивает родительский элемент */
-    height: 30%;
-    max-height: 30%;
+    height: auto; /* Убираем фиксированную высоту */
+    max-height: none; /* Тоже убираем */
 }
 .rotatedIcon{
     transform: rotate(80deg); /* можно 90deg, -30deg и т.д. */
     transform-origin: center; /* чтобы поворачивалось вокруг центра */
     color: var(--text-color);
 }
-.ratingSection{
-    max-width: 1200px;
+.ratingSection {
+    background: var(--background-color);
+
+    height: 100%;
+    width: 70%;
     margin: 0 auto;
 }
 
 @media (min-width: 768px) {
+    .heroTitle {
+        font-size: 3rem;
+    }
+    .ratingSection {
+        height: 100%;
+        width: 70%;
+    }
     .aboutContainer {
         flex-direction: row;
         align-items: center;
@@ -65,12 +74,20 @@
 
 .aboutText {
     width: 100%;
-    padding: 2rem;
 }
 
 @media (min-width: 768px) {
+    .aboutContainer {
+        flex-direction: row;
+        align-items: center;
+    }
+
     .aboutText {
         width: 50%;
+    }
+    .aboutTitle {
+        padding-right: 0;
+        padding-left: 0;
     }
 }
 
@@ -79,7 +96,6 @@
     font-weight: bold;
     padding-right: 8rem;
     padding-left: 1rem;
-
 }
 .titleRight{
     display: flex;
@@ -101,11 +117,26 @@
     width: 100%;
     padding: 2rem;
 }
-
+.rotatedIcon{
+    display: none;
+}
+.Icon{
+    display: none;
+}
 @media (min-width: 768px) {
     .aboutImage {
         width: 50%;
     }
+
+
+
+    .rotatedIcon{
+        display: block;
+    }
+    .Icon{
+        display: block;
+    }
+
 }
 
 .aboutImage img {
@@ -129,11 +160,7 @@
     background: linear-gradient(to bottom, #1e3a8a, var(--background-color)); /* или другой цвет */
     text-align: end;
 }
-.ratingSection {
-    background: var(--background-color);
-    padding: 4rem 0;
-    height: 100%;
-}
+
 
 /* Контейнер карусели */
 .sliderContainer {
