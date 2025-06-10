@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import { I18nContext } from "../../contexts/i18nContext"; // путь может отличаться
+import { I18nContext } from "../../contexts/i18nContext";
 import AuthContext from "../../contexts/AuthContext";
 import "./Navbar.css";
-import { Moon, Sun, Globe, ChevronDown } from "lucide-react";
+import { Moon, Sun, Globe, ChevronDown, Menu, X } from "lucide-react";
 
 const Navbar = () => {
     const { user, logOut } = useContext(AuthContext);
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
-    const { locale, setLocale, t } = useContext(I18nContext); // получаем локаль и функцию смены
+    const { locale, setLocale, t } = useContext(I18nContext);
     const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const languages = [
         { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -33,11 +34,22 @@ const Navbar = () => {
         setIsLangDropdownOpen(false);
     };
 
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
+
     // Закрываем dropdown при клике вне его
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (!event.target.closest('.language-selector')) {
                 setIsLangDropdownOpen(false);
+            }
+            if (!event.target.closest('.mobile-menu') && !event.target.closest('.burger-menu')) {
+                setIsMobileMenuOpen(false);
             }
         };
 
@@ -45,10 +57,23 @@ const Navbar = () => {
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+    // Блокируем скролл при открытом мобильном меню
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isMobileMenuOpen]);
+
     return (
         <nav className="navbar">
             <div className="nav-left">
-                <Link to="/" className="nav-link" id="Home">
+                <Link to="/" className="nav-link logo-link" onClick={closeMobileMenu}>
                     <div className="logo-container">
                         <svg width="35" height="35" viewBox="0 0 342 381" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -101,60 +126,126 @@ const Navbar = () => {
                 </Link>
             </div>
 
-            <div className="nav-center">
-                <li><Link to="/" className="nav-link" id="Home">{t("home")}</Link></li>
-                <li><Link to="/companies" className="nav-link" id="Companies">{t("companies")}</Link></li>
+            {/* Desktop Navigation */}
+            <div className="nav-center desktop-only">
+                <li><Link to="/" className="nav-link">{t("home")}</Link></li>
+                <li><Link to="/companies" className="nav-link">{t("companies")}</Link></li>
             </div>
 
             <div className="nav-right">
-                <li className="theme-toggle-btn" onClick={toggleTheme}>
-                    {theme === "dark" ? <Sun size={20} style={{color:"white"}}/> : <Moon size={20} style={{color:"white"}}/>}
-                </li>
+                {/* Desktop Controls */}
+                <div className="desktop-controls">
+                    <li className="theme-toggle-btn" onClick={toggleTheme}>
+                        {theme === "dark" ? <Sun size={20} style={{color:"white"}}/> : <Moon size={20} style={{color:"white"}}/>}
+                    </li>
 
-                <li className="language-selector">
-                    <button
-                        className="language-button"
-                        onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                        aria-expanded={isLangDropdownOpen}
-                        aria-haspopup="true"
-                    >
-                        <Globe size={16} className="globe-icon" />
-                        <span className="current-lang-flag">{currentLanguage.flag}</span>
-                        <span className="current-lang-code">{currentLanguage.code.toUpperCase()}</span>
-                        <ChevronDown
-                            size={14}
-                            className={`chevron-icon ${isLangDropdownOpen ? 'rotated' : ''}`}
-                        />
-                    </button>
+                    <li className="language-selector">
+                        <button
+                            className="language-button"
+                            onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+                            aria-expanded={isLangDropdownOpen}
+                            aria-haspopup="true"
+                        >
+                            <Globe size={16} className="globe-icon" />
+                            <span className="current-lang-flag">{currentLanguage.flag}</span>
+                            <span className="current-lang-code">{currentLanguage.code.toUpperCase()}</span>
+                            <ChevronDown
+                                size={14}
+                                className={`chevron-icon ${isLangDropdownOpen ? 'rotated' : ''}`}
+                            />
+                        </button>
 
-                    {isLangDropdownOpen && (
-                        <div className="language-dropdown">
-                            {languages.map((lang) => (
-                                <button
-                                    key={lang.code}
-                                    className={`language-option ${locale === lang.code ? 'active' : ''}`}
-                                    onClick={() => handleLanguageChange(lang.code)}
-                                >
-                                    <span className="lang-flag">{lang.flag}</span>
-                                    <span className="lang-name">{lang.name}</span>
-                                    {/*<span className="lang-code">{lang.code.toUpperCase()}</span>*/}
-                                </button>
-                            ))}
-                        </div>
+                        {isLangDropdownOpen && (
+                            <div className="language-dropdown">
+                                {languages.map((lang) => (
+                                    <button
+                                        key={lang.code}
+                                        className={`language-option ${locale === lang.code ? 'active' : ''}`}
+                                        onClick={() => handleLanguageChange(lang.code)}
+                                    >
+                                        <span className="lang-flag">{lang.flag}</span>
+                                        <span className="lang-name">{lang.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </li>
+
+                    {user ? (
+                        <>
+                            <li><Link to={`/profile/${user.id}`} className="nav-link">{t("profile")}</Link></li>
+                            <li>
+                                <Link to="#" className="nav-link" onClick={logOut}>{t("logout")}</Link>
+                            </li>
+                        </>
+                    ) : (
+                        <li><Link to="/signin" className="nav-link login-btn">{t("sign_in")}</Link></li>
                     )}
-                </li>
+                </div>
 
-                {user ? (
-                    <>
-                        <li><Link to={`/profile/${user.id}`} className="nav-link">{t("profile")}</Link></li>
-                        <li>
-                            <Link to="#" className="nav-link" onClick={logOut}>{t("logout")}</Link>
-                        </li>
-                    </>
-                ) : (
-                    <li><Link to="/signin" className="nav-link login-btn">{t("sign_in")}</Link></li>
-                )}
+                {/* Burger Menu Button */}
+                <button className="burger-menu mobile-only" onClick={toggleMobileMenu}>
+                    {isMobileMenuOpen ? <X size={24} color="white" /> : <Menu size={24} color="white" />}
+                </button>
             </div>
+
+            {/* Mobile Menu */}
+            <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
+                <div className="mobile-menu-content">
+                    <div className="mobile-nav-links">
+                        <Link to="/" className="mobile-nav-link" onClick={closeMobileMenu}>
+                            {t("home")}
+                        </Link>
+                        <Link to="/companies" className="mobile-nav-link" onClick={closeMobileMenu}>
+                            {t("companies")}
+                        </Link>
+
+                        {user ? (
+                            <>
+                                <Link to={`/profile/${user.id}`} className="mobile-nav-link" onClick={closeMobileMenu}>
+                                    {t("profile")}
+                                </Link>
+                                <Link to="#" className="mobile-nav-link" onClick={() => { logOut(); closeMobileMenu(); }}>
+                                    {t("logout")}
+                                </Link>
+                            </>
+                        ) : (
+                            <Link to="/signin" className="mobile-nav-link login-btn-mobile" onClick={closeMobileMenu}>
+                                {t("sign_in")}
+                            </Link>
+                        )}
+                    </div>
+
+                    <div className="mobile-controls">
+                        <div className="mobile-control-item">
+                            <span className="control-label">{t("theme") || "Тема"}</span>
+                            <button className="mobile-theme-toggle" onClick={toggleTheme}>
+                                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                                <span>{theme === "dark" ? "Light" : "Dark"}</span>
+                            </button>
+                        </div>
+
+                        <div className="mobile-control-item">
+                            <span className="control-label">{t("language") || "Язык"}</span>
+                            <div className="mobile-language-selector">
+                                {languages.map((lang) => (
+                                    <button
+                                        key={lang.code}
+                                        className={`mobile-lang-btn ${locale === lang.code ? 'active' : ''}`}
+                                        onClick={() => { handleLanguageChange(lang.code); closeMobileMenu(); }}
+                                    >
+                                        <span className="lang-flag">{lang.flag}</span>
+                                        <span className="lang-name">{lang.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && <div className="mobile-menu-overlay" onClick={closeMobileMenu}></div>}
         </nav>
     );
 };
