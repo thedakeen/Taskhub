@@ -3,7 +3,7 @@ import styles  from "../styles/Profile.module.css";
 import {I18nContext} from "../contexts/i18nContext";
 
 const GithubAuthButton = ({ name, isGithubLinked, }) => {
-    const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+    const GITHUB_CLIENT_ID = process.env.REACT_APP_GITHUB_CLIENT_ID;
     const REDIRECT_URI = process.env.REACT_APP_GITHUB_REDIRECT_URL;
     const { t } = useContext(I18nContext);
 
@@ -11,7 +11,6 @@ const GithubAuthButton = ({ name, isGithubLinked, }) => {
         const githubAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=read:user`;
         window.location.href = githubAuthURL;
     };
-
 
 
 
