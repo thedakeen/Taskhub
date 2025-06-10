@@ -25,7 +25,7 @@ const GitHubCallback = () => {
 
             axios
                 .post(
-                    "http://localhost:8081/v1/profile/github",
+                    `${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/profile/github`,
                     { githubCode },
                     {
                         headers: {

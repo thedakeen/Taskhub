@@ -46,7 +46,7 @@ const IssueSolutions = ({ issueId }) => {
         const fetchSolutions = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:8082/v1/issues/${issueId}/solutions`,
+                    `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/issues/${issueId}/solutions`,
                     {
                         headers: {
                             Authorization: `Bearer ${user?.token}`
@@ -125,7 +125,7 @@ const IssueSolutions = ({ issueId }) => {
     const handleRatingSubmit = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8091/api/rating/${selectedSolution.solutionId}`,
+                `${process.env.REACT_APP_RATING_SERVICE_API_URL}/api/rating/${selectedSolution.solutionId}`,
                 {
                     method: 'POST',
                     headers: {

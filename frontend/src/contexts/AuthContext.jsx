@@ -7,7 +7,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [verificationCodeSent, setVerificationCodeSent] = useState(false);
-    const API_BASE_URL = "http://localhost:8081";
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
@@ -26,10 +25,11 @@ export const AuthProvider = ({ children }) => {
     const logIn = async (email, password) => {
         try {
             const response = await axios.post(
-                `${API_BASE_URL}/v1/login`,
+                `${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/login`,
                 { email, password }
             );
             const { token } = response.data;
+
 
             if (token) {
                 const decoded = decodeJWT(token);
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
         let errorMessage = "some Error";
 
         try {
-            await axios.post(`${API_BASE_URL}/v1/signup`, { email, password, username });
+            await axios.post(`${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/signup`, { email, password, username });
             setVerificationCodeSent(true);
         } catch (error) {
             errorMessage = error.response.data.message
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
 
     const verifyCode = async (OTP, email) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/v1/signup/confirm`, { email, otp: OTP });
+            const response = await axios.post(`${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/signup/confirm`, { email, otp: OTP });
             const { token } = response.data;
             if (token) {
                 localStorage.setItem("authToken", token);

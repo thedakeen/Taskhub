@@ -10,7 +10,7 @@ export default function useCompanies() {
 
         console.log("Fetching companies...");
 
-        const fetchPromise = fetch("http://localhost:8082/v1/companies", {
+        const fetchPromise = fetch(`${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/companies`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

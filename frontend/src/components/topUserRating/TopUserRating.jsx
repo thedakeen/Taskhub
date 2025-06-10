@@ -79,7 +79,7 @@ const TopUsersRating = ({ user }) => {
 
     const fetchProfile = async (developerId) => {
         try {
-            const response = await fetch(`http://localhost:8081/v1/profile/${String(developerId)}`);
+            const response = await fetch(`${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/profile/${String(developerId)}`);
             if (!response.ok) {
                 throw new Error(`Ошибка сети: ${response.status}`);
             }
@@ -95,7 +95,7 @@ const TopUsersRating = ({ user }) => {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch(`http://localhost:8091/api/top-rating/developers`, {
+            const response = await fetch(`${process.env.REACT_APP_RATING_SERVICE_API_URL}/api/top-rating/developers`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

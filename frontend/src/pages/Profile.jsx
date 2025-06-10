@@ -37,7 +37,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch(`http://localhost:8081/v1/profile/${String(user.id)}`);
+                const response = await fetch(`${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/profile/${String(user.id)}`);
                 if (!response.ok) {
                     throw new Error(`Ошибка сети: ${response.status}`);
                 }
@@ -57,7 +57,7 @@ const Profile = () => {
         const fetchTasksInProgress = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:8082/v1/developers/${user.id}/tasks/in-progress`,
+                    `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/developers/${user.id}/tasks/in-progress`,
                     {
                         headers: {
                             Authorization: `Bearer ${user?.token}`
@@ -87,7 +87,7 @@ const Profile = () => {
         const fetchCompletedTasks = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:8082/v1/developers/${user.id}/solutions`,
+                    `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/developers/${user.id}/solutions`,
                     {
                         headers: {
                             Authorization: `Bearer ${user?.token}`

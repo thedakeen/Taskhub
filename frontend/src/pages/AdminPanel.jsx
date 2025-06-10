@@ -195,7 +195,7 @@ const UserEditModal = ({ currUser, onClose }) => {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:8090/admin/update-user-role/${currUser.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_ADMIN_SERVICE_API_URL}/admin/update-user-role/${currUser.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -289,7 +289,7 @@ const CompanyTableRow = ({ company }) => {
 
     const handleSave = async (companyId, data) => {
         try {
-            const response = await fetch(`http://localhost:8090/admin/update-company/${companyId}`, {
+            const response = await fetch(`${process.env.REACT_APP_ADMIN_SERVICE_API_URL}/admin/update-company/${companyId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -471,8 +471,10 @@ const AdminPanel = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                console.log(`${process.env.REACT_APP_ADMIN_SERVICE_API_URL}/admin`);
+                console.log(`/asdasdadmin`);
                 setLoading(true);
-                const usersResponse = await fetch('http://localhost:8090/admin', {
+                const usersResponse = await fetch(`${process.env.REACT_APP_ADMIN_SERVICE_API_URL}/admin`, {
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${user?.token}`
@@ -539,7 +541,7 @@ const AdminPanel = () => {
 
     const fetchFullCompanyData = async (companyId) => {
         try {
-            const response = await fetch(`http://localhost:8082/v1/companies/${companyId}`,{
+            const response = await fetch(`${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/companies/${companyId}`,{
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${user?.token}`

@@ -19,7 +19,7 @@ const CompanyInfo = () => {
         const fetchCompanyData = async () => {
             setIsLoadingPage(true);
             try {
-                const response = await fetch(`http://localhost:8082/v1/companies/${companyId}`);
+                const response = await fetch(`${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/companies/${companyId}`);
                 if (!response.ok) {
                     throw new Error(`${t('error')} ${response.status}`);
                 }
@@ -38,7 +38,7 @@ const CompanyInfo = () => {
         const fetchIssues = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`http://localhost:8082/v1/companies/${companyId}/issues`);
+                const response = await fetch(`${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/companies/${companyId}/issues`);
                 if (!response.ok) {
                     throw new Error(`${t('error')} ${response.status}`);
                 }

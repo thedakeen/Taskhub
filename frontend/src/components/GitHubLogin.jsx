@@ -3,8 +3,8 @@ import styles  from "../styles/Profile.module.css";
 import {I18nContext} from "../contexts/i18nContext";
 
 const GithubAuthButton = ({ name, isGithubLinked, }) => {
-    const GITHUB_CLIENT_ID = "Ov23liTIUfNEynOsicnf";
-    const REDIRECT_URI = "http://localhost:3000/github/callback";
+    const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+    const REDIRECT_URI = process.env.REACT_APP_GITHUB_REDIRECT_URL;
     const { t } = useContext(I18nContext);
 
     const handleGithubLink = () => {

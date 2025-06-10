@@ -104,7 +104,7 @@ int main() {
             try {
                 setLoading(true);
                 const issueResponse = await fetch(
-                    `http://localhost:8082/v1/issues/${issueId}`,
+                    `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/issues/${issueId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${user?.token}`
@@ -146,7 +146,7 @@ int main() {
     const fetchSolution = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8082/v1/issues/${issueId}`,
+                `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/issues/${issueId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${user?.token}`
@@ -174,7 +174,7 @@ int main() {
             try {
 
                 const response = await fetch(
-                    `http://localhost:8081/v1/api/me`,
+                    `${process.env.REACT_APP_AUTH_SERVICE_API_URL}/v1/api/me`,
                     {
                         headers: {
                             Authorization: `Bearer ${user?.token}`
@@ -287,7 +287,7 @@ int main() {
     const handleSubscribe = async () => {
         try {
             const response = await fetch(
-                `http://localhost:8082/v1/issues/${issueId}`,
+                `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/issues/${issueId}`,
                 {
                     method: 'POST',
                     headers: {
@@ -337,7 +337,7 @@ int main() {
             setSubmitting(true);
             setSubmitError(null);
 
-            const url = `http://localhost:8082/v1/issues/${issueId}/submit`;
+            const url = `${process.env.REACT_APP_COMPANY_SERVICE_API_URL}/v1/issues/${issueId}/submit`;
 
             const response = await fetch(url, {
                 method: 'POST',

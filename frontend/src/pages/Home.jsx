@@ -48,7 +48,6 @@ const Home = () => {
                     <MultipleTypingEffect
                         texts={[
                             "Шынайы өсім үшін шынайы тәжірибе",              // Kazakh
-                            "Добро пожаловать на наш сайт!",
                             "Real Experience for Real Growth",
                             "Bienvenue sur notre site!",
                             "Настоящий опыт для настоящего роста",          // Russian
