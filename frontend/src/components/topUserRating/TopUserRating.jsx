@@ -137,7 +137,7 @@ const TopUsersRating = ({ user }) => {
             case 1:
                 return <StarOutlined className={`${styles.rankIcon} ${styles.rankIconSecond}`} />;
             case 2:
-                return <CrownOutlined className={`${styles.rankIcon} ${styles.rankIconThird}`} />;
+                return <StarOutlined className={`${styles.rankIcon} ${styles.rankIconSecond}`} />;
             default:
                 return (
                     <Badge
