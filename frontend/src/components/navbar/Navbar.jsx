@@ -34,7 +34,9 @@ const Navbar = () => {
         setIsLangDropdownOpen(false);
     };
 
-    const toggleMobileMenu = () => {
+    const toggleMobileMenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
@@ -184,8 +186,15 @@ const Navbar = () => {
                 </div>
 
                 {/* Burger Menu Button */}
-                <button className="burger-menu mobile-only" onClick={toggleMobileMenu}>
-                    {isMobileMenuOpen ? <X size={24} color="white" /> : <Menu size={24} color="white" />}
+                <button
+                    className="burger-menu mobile-only"
+                    onClick={toggleMobileMenu}
+                    style={{ pointerEvents: 'all' }}
+                >
+                    {isMobileMenuOpen ?
+                        <X size={24} color="white" style={{ pointerEvents: 'none' }} /> :
+                        <Menu size={24} color="white" style={{ pointerEvents: 'none' }} />
+                    }
                 </button>
             </div>
 

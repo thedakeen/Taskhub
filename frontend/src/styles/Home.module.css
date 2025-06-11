@@ -31,10 +31,10 @@
 .aboutSection {
     min-height: 50vh;
     display: flex;
+    padding: 2rem 1rem;
 }
 
 .aboutContainer {
-    /*background-color: var(--secondary-color);*/
     border-radius: 1rem;
     max-width: 70%;
     margin: 0 auto;
@@ -42,19 +42,21 @@
     justify-content: space-between;
     color: var(--accent-color);
     flex-direction: column;
-    height: auto; /* Убираем фиксированную высоту */
-    max-height: none; /* Тоже убираем */
+    height: auto;
+    max-height: none;
+    width: 100%;
 }
-.rotatedIcon{
-    transform: rotate(80deg); /* можно 90deg, -30deg и т.д. */
-    transform-origin: center; /* чтобы поворачивалось вокруг центра */
+
+.rotatedIcon {
+    transform: rotate(80deg);
+    transform-origin: center;
     color: var(--text-color);
 }
+
 .ratingSection {
     background: var(--background-color);
-
     height: 100%;
-    width: 100%;
+    padding: 15px;
     margin: 0 auto;
 }
 
@@ -74,75 +76,113 @@
 
 .aboutText {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Стили для заголовков на мобильных */
+.titleRight, .titleLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.aboutTitle {
+    font-size: 1.7rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 0.5rem 0;
+    padding: 0;
+    order: 2; /* Заголовок будет вторым (под иконками) */
+}
+
+.miniIcon {
+    order: 1; /* Иконки будут первыми (над заголовком) */
+    margin: 0.25rem;
+    display: inline-block;
+}
+.iconsContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    order: 1;
+}
+
+/* Скрываем большие иконки на мобильных */
+.rotatedIcon, .Icon {
+    display: none;
 }
 
 @media (min-width: 768px) {
     .aboutContainer {
         flex-direction: row;
         align-items: center;
+        max-width: 90%;
     }
 
     .aboutText {
         text-align: center;
         width: 50%;
     }
+
+    .titleRight {
+        flex-direction: row;
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
+    .titleLeft {
+        flex-direction: row-reverse;
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
     .aboutTitle {
         text-align: center;
-        padding-right: 0;
-        padding-left: 0;
+        padding-right: 2rem;
+        padding-left: 2rem;
+        order: unset;
+        margin: 0;
+    }
+
+    .miniIcon {
+        order: 1;
+        margin: 0.25rem;
+    }
+
+    .rotatedIcon, .Icon {
+        display: block;
     }
 }
 
-.aboutTitle {
-    font-size: 1.7rem;
-    font-weight: bold;
-    padding-right: 8rem;
-    padding-left: 1rem;
-    text-align: center;
-}
-.titleRight{
-    display: flex;
-    flex-direction: row;
-}
-
-.titleLeft{
-    display: flex;
-    flex-direction: row-reverse;
-}
-
-
 .aboutDescription {
     font-size: 1.125rem;
-    padding: 2rem;
+    padding: 1rem;
     text-align: center;
+}
 
+@media (min-width: 768px) {
+    .aboutDescription {
+        text-align: left;
+        padding: 2rem;
+    }
 }
 
 .aboutImage {
     width: 100%;
     padding: 2rem;
 }
-.rotatedIcon{
-    display: none;
-}
-.Icon{
-    display: none;
-}
+
 @media (min-width: 768px) {
     .aboutImage {
         width: 50%;
     }
-    .aboutDescription{
-        text-align: left;
-    }
-
-    .rotatedIcon{
-        display: block;
-    }
-    .Icon{
-        display: block;
-    }
-
 }
 
 .aboutImage img {
@@ -157,16 +197,16 @@
     padding: 4rem 0;
     height: 100%;
 }
+
 .evenSection {
     background: linear-gradient(to top, #1e3a8a, var(--background-color));
     text-align: start;
 }
 
 .oddSection {
-    background: linear-gradient(to bottom, #1e3a8a, var(--background-color)); /* или другой цвет */
+    background: linear-gradient(to bottom, #1e3a8a, var(--background-color));
     text-align: end;
 }
-
 
 /* Контейнер карусели */
 .sliderContainer {
@@ -179,13 +219,14 @@
 /* Полоса с карточками */
 .cardsSlider {
     width: 100%;
-    overflow-x: auto; /* Горизонтальный скролл */
-    scroll-snap-type: x mandatory; /* Прокрутка фиксируется по карточкам */
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
     display: flex;
     justify-content: center;
-    scrollbar-width: none; /* Скрываем скроллбар в Firefox */
-    -ms-overflow-style: none; /* Скрываем скроллбар в IE/Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+
 .cardsSlider::-webkit-scrollbar {
     display: none;
 }
@@ -193,12 +234,11 @@
 /* Анимация бесконечного движения */
 .cardsTrack {
     display: flex;
-    align-items: center; /* Центрируем карточки по вертикали */
-    justify-content: center; /* Если нужно центрировать по горизонтали */
-    width: 60%; /* Автоширина для адаптации под контент */
+    align-items: center;
+    justify-content: center;
+    width: 60%;
     animation: scroll 20s linear infinite;
-    gap: 1rem; /* Добавляет отступы между карточками */
-
+    gap: 1rem;
 }
 
 /* Останавливаем анимацию при наведении */
@@ -215,9 +255,9 @@
     margin: 0 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    width: 10px; /* Задаем фиксированную ширину */
+    width: 10px;
     display: flex;
-    align-items: center; /* Центрируем контент внутри карточки */
+    align-items: center;
     justify-content: center;
 }
 
